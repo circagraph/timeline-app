@@ -76,7 +76,7 @@ every moment in the visible range and the durations wholly inside it, after aski
   retention prunes it).
 - In a desktop file of over 2,048 moments, which the app keeps in its native store, the
   deletion is made there at once, unsaved: **Undo** brings everything back until you save
-  the file, and saving writes the whole file. Save other changes first ([#179](https://github.com/openchronology/timeline-app/issues/179)).
+  the file, and saving writes the whole file. Save other changes first ([#179](https://github.com/circagraph/timeline-app/issues/179)).
 
 The API deletes a range, both ends included, for anyone who can write the timeline:
 

@@ -22,7 +22,7 @@ export default function PolicyPage({ html, source }) {
         See also the <a href="/terms">terms of service</a>, the{' '}
         <a href="/privacy">privacy policy</a> and{' '}
         <a href="/legal">all legal notices and software licenses</a>. This page is{' '}
-        <a href={'https://github.com/openchronology/timeline-app/blob/main/' + source}>
+        <a href={'https://github.com/circagraph/timeline-app/blob/main/' + source}>
           <code>{source}</code>
         </a>{' '}
         in the source code.

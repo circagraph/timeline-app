@@ -46,7 +46,7 @@ export async function checkCapacity(page, restore, { offline = false } = {}) {
     assert.equal(await actions.getByRole('button', { name: 'Export', exact: true }).count(), 1);
     assert.equal(
       await actions.getByRole('link', { name: 'Get the desktop app' }).getAttribute('href'),
-      'https://github.com/openchronology/timeline-app/releases/latest',
+      'https://github.com/circagraph/timeline-app/releases/latest',
     );
     assert.equal(
       await actions.getByRole('link', { name: 'Open the platform' }).count(),

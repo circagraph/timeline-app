@@ -3,7 +3,7 @@
 # jobs install, so they install nothing from Ubuntu's mirrors. The .deb and AppImage builds
 # (desktop.yml) and the desktop UI test (ci.yml's desktop-ui) run in it when it is published.
 # Locally it builds and tests src-tauri on machines without WebKitGTK:
-#   docker run --rm -v "$PWD":/w -w /w ghcr.io/openchronology/desktop-build:<tag> \
+#   docker run --rm -v "$PWD":/w -w /w ghcr.io/circagraph/desktop-build:<tag> \
 #     cargo test --manifest-path src-tauri/Cargo.toml --locked
 # scripts/build-images.mjs builds and publishes it (build-images.yml), tagged with a hash of
 # this file.

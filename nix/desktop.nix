@@ -60,7 +60,7 @@ rustPlatform.buildRustPackage {
 
   meta = {
     description = "OpenChronology, the exact timeline editor, as a desktop app";
-    homepage = "https://github.com/openchronology/timeline-app";
+    homepage = "https://github.com/circagraph/timeline-app";
     license = lib.licenses.gpl3Only;
     mainProgram = "openchronology-desktop";
     platforms = lib.platforms.linux;

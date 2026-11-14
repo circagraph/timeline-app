@@ -89,7 +89,7 @@ export async function checkDesktopCache(browser) {
         ? {
             current: 'v0.1.0',
             latest: 'v0.26.0',
-            notes: 'https://github.com/openchronology/timeline-app/releases/tag/v0.26.0',
+            notes: 'https://github.com/circagraph/timeline-app/releases/tag/v0.26.0',
           }
         : { current: 'v0.1.0' };
     }

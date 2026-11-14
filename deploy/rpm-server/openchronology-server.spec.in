@@ -6,7 +6,7 @@ Version:        @VERSION@
 Release:        @RELEASE@
 Summary:        OpenChronology timeline platform server
 License:        GPL-3.0-only
-URL:            https://github.com/openchronology/timeline-app
+URL:            https://github.com/circagraph/timeline-app
 ExclusiveArch:  x86_64
 # The pgmp extension is built for this PostgreSQL major version.
 Requires:       postgresql-server(:MODULE_COMPAT_@PG_MAJOR@)

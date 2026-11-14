@@ -35,7 +35,7 @@ test('the download page offers every file the release workflow attaches', () => 
   // Each edition's file, as scripts/offline.mjs names it and Pages publishes it (#197).
   assert.deepEqual(editionFile({ id: 'cfam', name: 'CFAM' }), {
     asset: 'openchronology-offline-cfam.html',
-    page: 'https://openchronology.github.io/cfam/',
+    page: 'https://circagraph.github.io/cfam/',
     detail: 'CFAM offline file (.html)',
   });
 });
@@ -67,19 +67,19 @@ test('links come from the latest release, or by name before there is one', () =>
   const server = SERVERS.find((s) => s.key === 'debian13');
   assert.equal(
     assetLink(null, OFFLINE.asset),
-    'https://github.com/openchronology/timeline-app/releases/latest/download/openchronology-offline.html',
+    'https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-offline.html',
   );
   assert.equal(assetSize(null, OFFLINE.asset), null);
   assert.equal(
     installCommand(null, server),
-    'curl -fLO https://github.com/openchronology/timeline-app/releases/latest/download/openchronology-server-debian13-amd64.deb && sudo apt install ./openchronology-server-debian13-amd64.deb',
+    'curl -fLO https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-server-debian13-amd64.deb && sudo apt install ./openchronology-server-debian13-amd64.deb',
   );
-  const url = 'https://github.com/openchronology/timeline-app/releases/download/v1.2.0/';
+  const url = 'https://github.com/circagraph/timeline-app/releases/download/v1.2.0/';
   const release = releaseFrom({
     tag_name: 'v1.2.0',
     name: '',
     published_at: '2026-10-01T12:00:00Z',
-    html_url: 'https://github.com/openchronology/timeline-app/releases/tag/v1.2.0',
+    html_url: 'https://github.com/circagraph/timeline-app/releases/tag/v1.2.0',
     assets: [
       { name: server.asset, browser_download_url: url + server.asset, size: 48 * 1048576 },
       { name: OFFLINE.asset, browser_download_url: url + OFFLINE.asset, size: 900 * 1024 },
@@ -103,7 +103,7 @@ test('links come from the latest release, or by name before there is one', () =>
       null,
       SERVERS.find((s) => s.key === 'windows'),
     ),
-    'Invoke-WebRequest https://github.com/openchronology/timeline-app/releases/latest/download/openchronology-server-windows-amd64-setup.exe -OutFile "$env:TEMP\\openchronology-server-windows-amd64-setup.exe"; Start-Process -Wait -Verb RunAs "$env:TEMP\\openchronology-server-windows-amd64-setup.exe"',
+    'Invoke-WebRequest https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-server-windows-amd64-setup.exe -OutFile "$env:TEMP\\openchronology-server-windows-amd64-setup.exe"; Start-Process -Wait -Verb RunAs "$env:TEMP\\openchronology-server-windows-amd64-setup.exe"',
   );
   // macOS installs with Homebrew, from the tap.
   assert.equal(
@@ -111,7 +111,7 @@ test('links come from the latest release, or by name before there is one', () =>
       null,
       SERVERS.find((s) => s.key === 'macos'),
     ),
-    'brew install openchronology/tap/openchronology-server && openchronology-setup',
+    'brew install circagraph/tap/openchronology-server && openchronology-setup',
   );
   // FreeBSD installs with its own fetch and pkg, as root.
   assert.equal(
@@ -119,7 +119,7 @@ test('links come from the latest release, or by name before there is one', () =>
       null,
       SERVERS.find((s) => s.key === 'freebsd15'),
     ),
-    'fetch https://github.com/openchronology/timeline-app/releases/latest/download/openchronology-server-freebsd15-amd64.pkg && pkg install -y ./openchronology-server-freebsd15-amd64.pkg && openchronology-setup',
+    'fetch https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-server-freebsd15-amd64.pkg && pkg install -y ./openchronology-server-freebsd15-amd64.pkg && openchronology-setup',
   );
   // RPM distributions install with dnf.
   assert.equal(
@@ -127,7 +127,7 @@ test('links come from the latest release, or by name before there is one', () =>
       null,
       SERVERS.find((s) => s.key === 'fedora44'),
     ),
-    'curl -fLO https://github.com/openchronology/timeline-app/releases/latest/download/openchronology-server-fedora44-amd64.rpm && sudo dnf install ./openchronology-server-fedora44-amd64.rpm',
+    'curl -fLO https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-server-fedora44-amd64.rpm && sudo dnf install ./openchronology-server-fedora44-amd64.rpm',
   );
 });
 

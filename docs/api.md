@@ -4,7 +4,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-The server's HTTP API, which the web app, the desktop app and the command-line tools use, is described in [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) ([#178](https://github.com/openchronology/timeline-app/issues/178)).
+The server's HTTP API, which the web app, the desktop app and the command-line tools use, is described in [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) ([#178](https://github.com/circagraph/timeline-app/issues/178)).
 
 | Where               | What                                                                                                                           |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |

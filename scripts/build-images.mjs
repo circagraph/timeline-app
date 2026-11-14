@@ -24,7 +24,7 @@ import { pathToFileURL } from 'node:url';
 import { serverTargets } from './server-targets.mjs';
 
 /** Where the images are published. */
-export const TOOL_IMAGES = 'ghcr.io/openchronology/server-build';
+export const TOOL_IMAGES = 'ghcr.io/circagraph/server-build';
 /** The tools stages, by the Dockerfile argument that replaces each with an image. */
 export const TOOL_STAGES = { 'native-tools': 'NATIVE_TOOLS', 'package-tools': 'PACKAGE_TOOLS' };
 /** The targets built from a Dockerfile with tools stages: the .deb and .rpm ones. */
@@ -85,13 +85,13 @@ export const IMAGES = {
   'desktop-build': {
     dockerfile: 'deploy/desktop-build/Dockerfile',
     files: [],
-    repo: () => process.env.OCH_DESKTOP_IMAGES || 'ghcr.io/openchronology/desktop-build',
+    repo: () => process.env.OCH_DESKTOP_IMAGES || 'ghcr.io/circagraph/desktop-build',
     description: "OpenChronology's Linux desktop build image (scripts/build-images.mjs)",
   },
   'postgres-ci': {
     dockerfile: 'deploy/postgres-ci/Dockerfile',
     files: ['deploy/postgres-ci/och-ci-postgres'],
-    repo: () => process.env.OCH_POSTGRES_IMAGES || 'ghcr.io/openchronology/postgres-ci',
+    repo: () => process.env.OCH_POSTGRES_IMAGES || 'ghcr.io/circagraph/postgres-ci',
     description:
       "OpenChronology's PostgreSQL CI image: PostgreSQL 16 with pgmp (scripts/build-images.mjs)",
   },
@@ -188,7 +188,7 @@ async function buildImage(ref, args, description, push, log = console.log) {
         '--progress=plain',
         ...args.slice(0, -1),
         '--label',
-        'org.opencontainers.image.source=https://github.com/openchronology/timeline-app',
+        'org.opencontainers.image.source=https://github.com/circagraph/timeline-app',
         '--label',
         `org.opencontainers.image.description=${description}`,
         '--tag',

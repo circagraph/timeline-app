@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 // Renders the Homebrew formula (deploy/homebrew/openchronology-server.rb.in) for a platform
-// archive (#116): releases publish it to openchronology/homebrew-tap; CI installs it from a
+// archive (#116): releases publish it to circagraph/homebrew-tap; CI installs it from a
 // local tap.
 // Usage: node scripts/homebrew-formula.mjs --tarball <file> --url <url> [--version <version>]
 //          [--out <formula.rb>]

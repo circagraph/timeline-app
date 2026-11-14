@@ -6,7 +6,7 @@
 # The services, configuration and commands are the Debian package's (deploy/debian-server).
 ARG BASE=fedora:44@sha256:15da97ed9aa94dd3d92c3925eb89520f6c80e07ea7ee24cba848d1f8b6912b3e
 # The tools stages below, or prebuilt images of them (#605): scripts/server-package.mjs passes
-# ghcr.io/openchronology/server-build images whose tag matches these stages, when they exist.
+# ghcr.io/circagraph/server-build images whose tag matches these stages, when they exist.
 ARG NATIVE_TOOLS=native-tools
 ARG PACKAGE_TOOLS=package-tools
 
