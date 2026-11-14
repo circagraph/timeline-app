@@ -298,7 +298,7 @@ export const HELP_SECTIONS = [
   { title: 'How it works', pages: ['architecture', 'development', 'benchmarks'] },
 ];
 
-const SOURCE = 'https://github.com/openchronology/timeline-app/blob/main/';
+const SOURCE = 'https://github.com/circagraph/timeline-app/blob/main/';
 /** A link in docs/<page>.md, for the help area: other docs are help pages; files are on GitHub. */
 export function helpLink(href) {
   if (/^([a-z][a-z0-9+.-]*:|#|\/\/)/i.test(href)) return href;

@@ -4,7 +4,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-**Shift or scale times…** changes the times of many events (moments and durations) at once, for good ([#96](https://github.com/openchronology/timeline-app/issues/96)): every one in the timeline, or those a [separation](tags.md#separating-by-tags) would select. Use it to correct a whole timeline recorded against the wrong clock or epoch, to move one strand of a story, or to stretch or compress a period. It uses the alignment [comparisons](comparison.md) use, but changes the timeline itself rather than one view of it.
+**Shift or scale times…** changes the times of many events (moments and durations) at once, for good ([#96](https://github.com/circagraph/timeline-app/issues/96)): every one in the timeline, or those a [separation](tags.md#separating-by-tags) would select. Use it to correct a whole timeline recorded against the wrong clock or epoch, to move one strand of a story, or to stretch or compress a period. It uses the alignment [comparisons](comparison.md) use, but changes the timeline itself rather than one view of it.
 
 ## Where it is
 
@@ -46,7 +46,7 @@ A duration's fixed start or end is mapped. A start or end that follows a moment 
 The dialog says what will change before you apply it:
 
 - **In the browser** (drafts, imported files, the offline edition) it counts the events that will move. Applying it is one edit, which one **Undo** reverts. When everything moves, the view moves with it, so it still shows the same moments.
-- **In a desktop file of over 2,048 moments,** which the app keeps in its native store rather than the page, it is made there at once ([#179](https://github.com/openchronology/timeline-app/issues/179)), and stays unsaved: **Undo** and **Redo** take it back and forward until you save the file, and saving writes the whole file. Save other changes first; it refuses until you do. (Smaller desktop files are kept in the page, as in the browser.)
+- **In a desktop file of over 2,048 moments,** which the app keeps in its native store rather than the page, it is made there at once ([#179](https://github.com/circagraph/timeline-app/issues/179)), and stays unsaved: **Undo** and **Redo** take it back and forward until you save the file, and saving writes the whole file. Save other changes first; it refuses until you do. (Smaller desktop files are kept in the page, as in the browser.)
 - **On the server** it is saved at once, as one version. The timeline's history keeps the version before it. The dialog says how many moments the timeline has, and warns when it is large. Save your own unsaved edits first; it refuses until you do.
 
 While it works, a progress bar shows how far it has got. The dialog cannot be closed until it finishes.

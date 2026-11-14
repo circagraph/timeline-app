@@ -86,8 +86,8 @@ download before installing it:
 
 ```
 gh attestation verify openchronology-server-debian13-amd64.deb \
-  --repo openchronology/timeline-app \
-  --signer-workflow openchronology/timeline-app/.github/workflows/release.yml
+  --repo circagraph/timeline-app \
+  --signer-workflow circagraph/timeline-app/.github/workflows/release.yml
 ```
 
 It prints the commit and workflow run that made the file, and fails for a file the

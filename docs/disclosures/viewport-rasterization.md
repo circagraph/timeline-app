@@ -2,7 +2,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-OpenChronology's visible window is an exact rational pair `(left, span)` (see [exact rational time](rational-time.md)). Zooming multiplies the span by a rational factor and panning subtracts a rational fraction of it, so repeated gestures would make the numerators and denominators of `left` and `span` grow without bound, and every later computation with them would slow down. After each gesture the editor therefore rounds `left` and `span` to the nearest multiple of a power-of-two grid step, the largest `2^k` no greater than `span / (ceil(W) * 2^20)` for a drawable width of `W` CSS pixels. The rounding is done in `BigInt` arithmetic, works for any absolute coordinate and any span, moves each bound by at most one grid step (at most 2<sup>-20</sup> of a pixel), and makes the size of the retained rationals depend on the absolute coordinate and the zoom level instead of on the number of gestures. Opposite wheel steps use reciprocal rational factors. Event times, explicitly entered bounds and query arithmetic are never rounded. Disclosed at commit [`007091c`](https://github.com/openchronology/timeline-app/tree/007091ce62fdb402346c0712b0c420eac0a29dff); first public disclosure: commit `88aea8c` of 2026-10-05 (see [First public disclosure](#first-public-disclosure)).
+OpenChronology's visible window is an exact rational pair `(left, span)` (see [exact rational time](rational-time.md)). Zooming multiplies the span by a rational factor and panning subtracts a rational fraction of it, so repeated gestures would make the numerators and denominators of `left` and `span` grow without bound, and every later computation with them would slow down. After each gesture the editor therefore rounds `left` and `span` to the nearest multiple of a power-of-two grid step, the largest `2^k` no greater than `span / (ceil(W) * 2^20)` for a drawable width of `W` CSS pixels. The rounding is done in `BigInt` arithmetic, works for any absolute coordinate and any span, moves each bound by at most one grid step (at most 2<sup>-20</sup> of a pixel), and makes the size of the retained rationals depend on the absolute coordinate and the zoom level instead of on the number of gestures. Opposite wheel steps use reciprocal rational factors. Event times, explicitly entered bounds and query arithmetic are never rounded. Disclosed at commit [`007091c`](https://github.com/circagraph/timeline-app/tree/007091ce62fdb402346c0712b0c420eac0a29dff); first public disclosure: commit `88aea8c` of 2026-10-05 (see [First public disclosure](#first-public-disclosure)).
 
 ## Field and problem
 
@@ -35,7 +35,7 @@ The usual remedies each lose something:
 
 ### Data structure
 
-`Viewport` ([`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L658-L732)) holds two rationals:
+`Viewport` ([`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L658-L732)) holds two rationals:
 
 | Field  | Type | Invariant                                |
 | ------ | ---- | ---------------------------------------- |
@@ -46,7 +46,7 @@ The usual remedies each lose something:
 
 ### Exact gesture arithmetic
 
-All pixel inputs go through `screenQ` ([`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L628-L631)), which rejects non-finite numbers and returns `round(x * 1024) / 1024` as a rational. Then:
+All pixel inputs go through `screenQ` ([`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L628-L631)), which rejects non-finite numbers and returns `round(x * 1024) / 1024` as a rational. Then:
 
 ```
 at(px, W)            = left + span * screenQ(px) / screenQ(W)          # time under a pixel
@@ -63,7 +63,7 @@ Drags and pinches are computed from the viewport at the start of the gesture (`g
 
 ### Reciprocal wheel factors
 
-[`wheelZoomFactor(delta)`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L633-L638):
+[`wheelZoomFactor(delta)`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L633-L638):
 
 ```
 amount = clamp(delta * 0.002, -0.7, 0.7)
@@ -76,7 +76,7 @@ The floating-point `exp` only chooses the integer `s`; the factor itself is an e
 
 ### The rasterize rule
 
-[`Viewport.rasterize(width)`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L671-L685), with its two helpers [`floorBinaryExponent`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L640-L646) and [`roundToBinaryGrid`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L648-L656):
+[`Viewport.rasterize(width)`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L671-L685), with its two helpers [`floorBinaryExponent`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L640-L646) and [`roundToBinaryGrid`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L648-L656):
 
 ```
 rasterize(view, W):
@@ -117,19 +117,19 @@ Exact properties, verified against the code:
 
 Without rasterization, the denominator of `left` after a zoom is roughly `den(left) * den(f) * 1024 * W`-sized (the pointer fraction and the factor), and after a pan `den(span) * 1024 * W`-sized; these multiply over the gesture history. With rasterization, every gesture starts from values on a `2^k` grid, and its exact result, whatever its denominator, is rounded back to a `2^k'` grid where `k'` depends only on the new span. The information retained between gestures is therefore the position to `log2(|left| / step)` bits plus the span to about `21 + log2(W)` bits. Zooming in by a factor of 2 lowers `k` by one and adds one bit to `left`, which is the information that zooming in reveals; panning or zooming back out removes it again.
 
-Precision is not capped. There is no minimum span: zooming by 2<sup>-300</sup> from a unit span gives a span of exactly 2<sup>-300</sup> with a 301-bit denominator ([`test/core.test.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/core.test.mjs#L172-L175)).
+Precision is not capped. There is no minimum span: zooming by 2<sup>-300</sup> from a unit span gives a span of exactly 2<sup>-300</sup> with a 301-bit denominator ([`test/core.test.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/core.test.mjs#L172-L175)).
 
 ### Where the editor applies it
 
 The editor calls `rasterize(width())` in its navigation path:
 
-- `navigate(view)` ([`src/app.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L4641-L4647)) rasterizes every view it is given. Its callers are mouse-wheel zoom and shift-wheel pan, touch and mouse drag and two-finger pinch (`pointermove`), arrow-key pan (10% of the width), the end of a zoom animation, fitting a duration, jumping to a search result and following a shared view link.
+- `navigate(view)` ([`src/app.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L4641-L4647)) rasterizes every view it is given. Its callers are mouse-wheel zoom and shift-wheel pan, touch and mouse drag and two-finger pinch (`pointermove`), arrow-key pan (10% of the width), the end of a zoom animation, fitting a duration, jumping to a search result and following a shared view link.
 - `zoom(factor)` for the zoom buttons and `+`/`-` keys rasterizes its destination, and the zoom animation rasterizes every intermediate frame (the frame interpolates `left` and `span` with an exact easing fraction of denominator 10<sup>6</sup>).
 - Following the latest moments (`follow latest`) rasterizes the fitted view it animates to.
 
 It does not round:
 
-- bounds typed into the left/right bound fields or applied with **Apply** ([`src/app.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5366-L5381), [`src/app.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5494-L5501));
+- bounds typed into the left/right bound fields or applied with **Apply** ([`src/app.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5366-L5381), [`src/app.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5494-L5501));
 - **Fit all**, the opening view of a timeline, a view restored from storage, and the view moved by a time mapping;
 - event times, stored documents, and the bounds and thresholds sent to the database (the queries use the view as it is, and their comparisons are exact).
 
@@ -179,22 +179,22 @@ Other checks run the same way: a view at `10^40 + 1/3` with span `10^-6` and `W 
 
 ## Implementation references
 
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L628-L631) — `screenQ`: pixel measurements to multiples of 1/1024.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L633-L638) — `wheelZoomFactor`: reciprocal rational wheel factors.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L640-L646) — `floorBinaryExponent`: exact `floor(log2(n/d))`.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L648-L656) — `roundToBinaryGrid`: nearest multiple of `2^k`, ties away from zero, sign-symmetric.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L671-L685) — `Viewport.rasterize`: grid step from `span / (ceil(W) * 2^20)`.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L686-L732) — `Viewport.at`, `x`, `threshold`, `pan`, `zoom`, `pinch`, `fit`: the exact gesture arithmetic.
-- [`src/app.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L4574-L4647) — `zoom`, `animateView` (each frame rasterized), `fitDuration`, `navigate` (rasterizes every view it applies).
-- [`src/app.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5122-L5145) — drag and pinch from the gesture's starting view.
-- [`src/app.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5181-L5241) — wheel zoom, shift-wheel pan, arrow-key pan, `+`/`-` zoom.
-- [`src/app.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5366-L5381) — **Apply** for typed bounds: an exact `Viewport`, not rasterized.
-- [`test/core.test.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/core.test.mjs#L88-L176) — error below one step at huge and tiny scales, power-of-two denominators, bounded size after 5,000 wheel round trips and 1,000 mixed gesture rounds, unlimited zoom depth.
-- [`docs/architecture.md`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/architecture.md#L36-L38) — the documented contract.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L628-L631) — `screenQ`: pixel measurements to multiples of 1/1024.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L633-L638) — `wheelZoomFactor`: reciprocal rational wheel factors.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L640-L646) — `floorBinaryExponent`: exact `floor(log2(n/d))`.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L648-L656) — `roundToBinaryGrid`: nearest multiple of `2^k`, ties away from zero, sign-symmetric.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L671-L685) — `Viewport.rasterize`: grid step from `span / (ceil(W) * 2^20)`.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L686-L732) — `Viewport.at`, `x`, `threshold`, `pan`, `zoom`, `pinch`, `fit`: the exact gesture arithmetic.
+- [`src/app.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L4574-L4647) — `zoom`, `animateView` (each frame rasterized), `fitDuration`, `navigate` (rasterizes every view it applies).
+- [`src/app.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5122-L5145) — drag and pinch from the gesture's starting view.
+- [`src/app.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5181-L5241) — wheel zoom, shift-wheel pan, arrow-key pan, `+`/`-` zoom.
+- [`src/app.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/app.ts#L5366-L5381) — **Apply** for typed bounds: an exact `Viewport`, not rasterized.
+- [`test/core.test.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/core.test.mjs#L88-L176) — error below one step at huge and tiny scales, power-of-two denominators, bounded size after 5,000 wheel round trips and 1,000 mixed gesture rounds, unlimited zoom depth.
+- [`docs/architecture.md`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/architecture.md#L36-L38) — the documented contract.
 
 ## Benchmarks
 
-No benchmarks measure this mechanism directly. The closest measurements are the tests in [`test/core.test.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/core.test.mjs#L116-L144), which assert that after 5,000 pairs of opposite wheel zooms (deltas 0.125, 120 and 500, each rasterized) the decimal text of `left`, `right` and `span` stays under 64 characters and the view drifts by less than 0.01 px in total, and that the same bound holds over 1,000 rounds of button zoom, pan and pinch; and the interaction timings for wheel zoom, drag and pinch in [`docs/benchmarks.md`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/benchmarks.md#L236-L249), which measure whole redraws rather than the camera arithmetic. The bit-size table in the [worked example](#worked-example) is a measurement of operand size, not of time.
+No benchmarks measure this mechanism directly. The closest measurements are the tests in [`test/core.test.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/core.test.mjs#L116-L144), which assert that after 5,000 pairs of opposite wheel zooms (deltas 0.125, 120 and 500, each rasterized) the decimal text of `left`, `right` and `span` stays under 64 characters and the view drifts by less than 0.01 px in total, and that the same bound holds over 1,000 rounds of button zoom, pan and pinch; and the interaction timings for wheel zoom, drag and pinch in [`docs/benchmarks.md`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/benchmarks.md#L236-L249), which measure whole redraws rather than the camera arithmetic. The bit-size table in the [worked example](#worked-example) is a measurement of operand size, not of time.
 
 ## First public disclosure
 
@@ -230,4 +230,4 @@ span      k (W = 800)    left kept as
 28/2^100  -125           a / 2^125
 ```
 
-Note on the documentation: [`docs/architecture.md`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/architecture.md#L38) said the UI applies `rasterize` "only after gestures, including touch pinch, mouse/keyboard pan, and button/wheel zoom". In the code, `navigate()` rasterizes every view it applies, which also includes fitting a duration, jumping to a search result, following a shared view link and every zoom-animation frame; the follow-latest view is rasterized too. Typed bounds, **Fit all**, the opening view and restored views are not rounded, as documented. The docs were corrected to match the code in #392.
+Note on the documentation: [`docs/architecture.md`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/architecture.md#L38) said the UI applies `rasterize` "only after gestures, including touch pinch, mouse/keyboard pan, and button/wheel zoom". In the code, `navigate()` rasterizes every view it applies, which also includes fitting a duration, jumping to a search result, following a shared view link and every zoom-animation frame; the follow-latest view is rasterized too. Typed bounds, **Fit all**, the opening view and restored views are not rounded, as documented. The docs were corrected to match the code in #392.

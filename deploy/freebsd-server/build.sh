@@ -95,7 +95,7 @@ name: openchronology-server
 version: "$VERSION"
 origin: www/openchronology-server
 comment: "OpenChronology timeline platform server"
-www: "https://github.com/openchronology/timeline-app"
+www: "https://github.com/circagraph/timeline-app"
 maintainer: "athan.clark@gmail.com"
 prefix: /usr/local
 licenselogic: single

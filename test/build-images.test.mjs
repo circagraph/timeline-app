@@ -62,7 +62,7 @@ test('every .deb and .rpm target has a tools image for each stage', async () => 
       const ref = await toolImage(name, stage);
       assert.match(
         ref,
-        new RegExp(`^ghcr\\.io/openchronology/server-build:${name}-${stage}-[0-9a-f]{16}$`),
+        new RegExp(`^ghcr\\.io/circagraph/server-build:${name}-${stage}-[0-9a-f]{16}$`),
       );
       refs.add(ref);
     }
@@ -93,7 +93,7 @@ test('the desktop build image is tagged with a hash of its Dockerfile', async ()
     .update(await readFile(dockerfile, 'utf8'))
     .digest('hex')
     .slice(0, 16);
-  assert.equal(await wholeImage('desktop-build'), `ghcr.io/openchronology/desktop-build:${hash}`);
+  assert.equal(await wholeImage('desktop-build'), `ghcr.io/circagraph/desktop-build:${hash}`);
 });
 
 test('the Linux desktop jobs run in the image only when it is found', async () => {
@@ -118,7 +118,7 @@ test('the PostgreSQL CI image is tagged with a hash of its Dockerfile and start 
   for (const file of [dockerfile, ...files]) hash.update(await readFile(file, 'utf8'));
   assert.equal(
     await wholeImage('postgres-ci'),
-    `ghcr.io/openchronology/postgres-ci:${hash.digest('hex').slice(0, 16)}`,
+    `ghcr.io/circagraph/postgres-ci:${hash.digest('hex').slice(0, 16)}`,
   );
   // build-images.yml rebuilds it when either changes.
   const workflow = await readFile('.github/workflows/build-images.yml', 'utf8');

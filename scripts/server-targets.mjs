@@ -33,7 +33,7 @@ export const serverTargets = {
   // on Linux; packages are tied to a FreeBSD major version.
   freebsd14: { format: 'pkg', release: '14', pg: 17 },
   freebsd15: { format: 'pkg', release: '15', pg: 17 },
-  // Homebrew's formula, in the openchronology/homebrew-tap repository (deploy/homebrew): built
+  // Homebrew's formula, in the circagraph/homebrew-tap repository (deploy/homebrew): built
   // on the Mac from the platform; releases attach the platform, not a package.
   macos: { format: 'brew', pg: 17 },
   // A self-contained installer with its own PostgreSQL 17, built on Windows from the platform

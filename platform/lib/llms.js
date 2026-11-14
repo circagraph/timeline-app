@@ -126,7 +126,7 @@ export async function llmsText() {
     ),
     line(
       'Source code',
-      'https://github.com/openchronology/timeline-app',
+      'https://github.com/circagraph/timeline-app',
       'the repository, its releases and issues',
     ),
     '',

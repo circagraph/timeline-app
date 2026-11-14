@@ -2690,7 +2690,7 @@ function momentCount(): bigint {
     ? BigInt((local ?? remote)?.event_count ?? 0) + delta
     : (model?.points.entryCount ?? BigInt(remote?.event_count ?? 0));
 }
-const DESKTOP_DOWNLOADS = 'https://github.com/openchronology/timeline-app/releases/latest';
+const DESKTOP_DOWNLOADS = 'https://github.com/circagraph/timeline-app/releases/latest';
 const HOSTED_PLATFORM = 'https://timescale.info';
 /** Where the open timeline lives, for capacity advice; null when there is nothing to advise on. */
 function capacityPlatform(): Platform | null {
@@ -2830,6 +2830,11 @@ el('capacity-dismiss').onclick = () => {
 };
 /** How often the desktop app asks whether a newer release is out (#601): once a day. */
 const UPDATE_INTERVAL = 24 * 60 * 60 * 1000;
+/** Where a remembered check's release notes may point: the repository, at its old org too. */
+const RELEASE_NOTES = [
+  'https://github.com/circagraph/timeline-app/releases/',
+  'https://github.com/openchronology/timeline-app/releases/',
+];
 /** Storage for the update check (#601): read and written whole, and never trusted blindly. */
 function updateStorage(key: string, value?: string | null): string | null {
   try {
@@ -2864,7 +2869,7 @@ async function checkForUpdate(now = Date.now()) {
       now - saved.at < UPDATE_INTERVAL &&
       typeof saved.latest === 'string' &&
       typeof saved.notes === 'string' &&
-      saved.notes.startsWith('https://github.com/openchronology/timeline-app/releases/')
+      RELEASE_NOTES.some((prefix) => saved.notes.startsWith(prefix))
     )
       known = saved;
   } catch {

@@ -4,7 +4,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-Anyone who can see something on the platform can report it to the site's administrators. They review reports in **Site administration → Reports** and decide what happens. The design and the law behind it are in [#115](https://github.com/openchronology/timeline-app/issues/115).
+Anyone who can see something on the platform can report it to the site's administrators. They review reports in **Site administration → Reports** and decide what happens. The design and the law behind it are in [#115](https://github.com/circagraph/timeline-app/issues/115).
 
 ## Reporting
 
@@ -90,7 +90,7 @@ A restriction or labels can also be lifted at any time from **Restricted**. Lift
 
 ## Sensitive-content labels
 
-Educational, historical, medical, artistic and news depictions of nudity, violence and disturbing events are allowed when labelled; pornography and gore for its own sake are not ([#115](https://github.com/openchronology/timeline-app/issues/115)). Labels are **nudity**, **graphic violence** and **disturbing content**:
+Educational, historical, medical, artistic and news depictions of nudity, violence and disturbing events are allowed when labelled; pornography and gore for its own sake are not ([#115](https://github.com/circagraph/timeline-app/issues/115)). Labels are **nudity**, **graphic violence** and **disturbing content**:
 
 - **A timeline:** its owner sets them under **Sharing & settings → Sensitive content**; moderators add them from a report ([Label](#label)).
 - **An event (a moment or a duration):** whoever can edit it sets them in its details, under **Sensitive content**. They are kept in its metadata (`content_labels`), so they travel with `.ochx` and `.och` files.
