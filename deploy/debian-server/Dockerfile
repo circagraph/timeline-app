@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libgmp-dev libsqlite3-dev postgresql-server-dev-${PG_MAJOR} \
     && rm -rf /var/lib/apt/lists/*
 # A fixed Rust release, as every build of the project uses (#514).
-RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain 1.99.0
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain 1.99.1
 ENV PATH=/root/.cargo/bin:$PATH
 
 # och-convert and pgmp, built on the target distribution against its own libraries.

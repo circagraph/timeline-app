@@ -39,7 +39,7 @@ RUN mkdir /tmp/pgmp && cd /tmp/pgmp \
     && cd / && rm -rf /tmp/pgmp
 # A fixed Rust release, as every build of the project uses (#514), for any user.
 ENV RUSTUP_HOME=/usr/local/rustup CARGO_HOME=/usr/local/cargo PATH=/usr/local/cargo/bin:$PATH
-RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal --default-toolchain 1.99.0 \
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal --default-toolchain 1.99.1 \
     && chmod -R a+rwX "$RUSTUP_HOME" "$CARGO_HOME"
 # Starts a test database with pgmp (README.md).
 COPY och-ci-postgres /usr/local/bin/och-ci-postgres

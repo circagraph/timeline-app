@@ -30,7 +30,7 @@ RUN set -eu; \
         gmp-devel sqlite-devel postgresql-server-devel redhat-rpm-config \
     && dnf clean all
 # A fixed Rust release, as every build of the project uses (#514).
-RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain 1.99.0
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain 1.99.1
 ENV PATH=/root/.cargo/bin:$PATH
 
 # och-convert and pgmp, built on the target distribution against its own libraries and the

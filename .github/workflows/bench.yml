@@ -87,7 +87,7 @@ jobs:
         run: och-ci-postgres
       - run: node scripts/npm-ci.mjs
       # Capacity measurements run the editor in Chromium. Nothing to do while the image's
-      # Playwright matches the package; downloads only the browser if not. Rust 1.99.0, for the
+      # Playwright matches the package; downloads only the browser if not. Rust 1.99.1, for the
       # SQLite backend's benchmarks, is the image's.
       - run: npx playwright install chromium
         timeout-minutes: 5
