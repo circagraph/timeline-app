@@ -1,7 +1,8 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 # OpenChronology for Nix and NixOS (#461; docs/nix.md): the server, its file converter, the
-# desktop app and pgmp as packages built from this source, and services.openchronology, a
-# NixOS module that runs the server with PostgreSQL. The derivations are in nix/.
+# desktop app and pgmp as packages built from this source, and services.circagraph (formerly
+# services.openchronology), a NixOS module that runs the server with PostgreSQL. The
+# derivations are in nix/.
 {
   description = "OpenChronology: exact timelines on the web, the desktop and your own server";
 
@@ -71,7 +72,7 @@
         inherit (packagesFor final) och-convert openchronology-server openchronology-desktop;
       };
 
-      # services.openchronology (nix/module.nix; docs/nix.md).
+      # services.circagraph (nix/module.nix; docs/nix.md).
       nixosModules.default = import ./nix/module.nix self;
 
       # The NixOS test, which boots a machine with the module (KVM makes it quick).

@@ -8,6 +8,7 @@
  * yet read. No timeline content is broadcast: each stream re-checks access and reads the
  * revision itself.
  */
+import { bearsApiKey } from './api-keys.mjs';
 
 /**
  * One PostgreSQL LISTEN connection per application process; notifications contain only IDs.
@@ -99,7 +100,7 @@ export class TimelineNotifications {
  * @returns {Promise<Response>}
  */
 export async function liveResponse(request, services) {
-  if ((request.headers.get('authorization') ?? '').startsWith('Bearer och_key_'))
+  if (bearsApiKey(request.headers.get('authorization')))
     return Response.json({ error: 'API keys are limited to timeline endpoints.' }, { status: 403 });
   if (!services.pool)
     return Response.json({ error: 'Server storage is unavailable.' }, { status: 503 });

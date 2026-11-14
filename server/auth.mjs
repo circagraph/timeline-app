@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 import { isIP } from 'node:net';
 import { availableParallelism } from 'node:os';
 import { checkPasswordBreach } from './security-crypto.mjs';
-import { ApiKeys } from './api-keys.mjs';
+import { ApiKeys, bearsApiKey } from './api-keys.mjs';
 import { AccountSecurity } from './account-security.mjs';
 import { mailFromEnv, encryptionKey } from './mail.mjs';
 import { HttpError } from './store.mjs';
@@ -254,8 +254,7 @@ export class Auth {
    * past the one-day limit.
    */
   async session(req, client = this.pool, { touch = true } = {}) {
-    if ((req.headers.authorization ?? '').startsWith('Bearer och_key_'))
-      return this.keys.session(req, client);
+    if (bearsApiKey(req.headers.authorization)) return this.keys.session(req, client);
     const bearer = /^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization ?? ''),
       token = bearer?.[1] ?? this.readCookie(req, this.cookieName);
     if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;

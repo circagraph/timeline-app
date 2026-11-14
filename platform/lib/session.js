@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { platformServices } from '../../server/platform.mjs';
 import { compareLimit, compareLimits } from '../../server/limits.mjs';
 import { agreed } from '../../server/policies.mjs';
+import { bearsApiKey } from '../../server/api-keys.mjs';
 /**
  * Who is reading the page being rendered, from the request's cookie (or desktop bearer token).
  *
@@ -25,7 +26,7 @@ export async function currentSession() {
   // would accept an API key (`Bearer och_key_…`) too, so it is refused here: a key must not
   // open the site's pages, its account settings or its administration as its owner would.
   const session =
-    services.auth && !(values.authorization ?? '').startsWith('Bearer och_key_')
+    services.auth && !bearsApiKey(values.authorization)
       ? await services.auth.session({ headers: values })
       : null;
   return {

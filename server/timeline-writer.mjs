@@ -11,8 +11,8 @@
 export const BATCH_LIMIT = 5000;
 /** Requests are limited to 16 MiB; batches stay well under it. */
 export const BATCH_BYTES = 12 * 1024 * 1024;
-/** An API key's shape (och_key_<id>_<secret>), checked before any request is made. */
-const KEY = /^och_key_[a-f0-9]{32}_[a-f0-9]{64}$/;
+/** An API key's shape (cg_key_ or och_key_, <id>_<secret>), checked before any request is made. */
+const KEY = /^(?:cg|och)_key_[a-f0-9]{32}_[a-f0-9]{64}$/;
 
 /**
  * Saves adapt their size to the server (send): a save taking SLOW_SAVE ms or more, or one the

@@ -57,10 +57,26 @@ export function loadEnvFile(path, env = process.env) {
     throw error;
   }
   for (const [key, setting] of Object.entries(parseEnvFile(text))) env[key] ??= setting;
+  renamedSettings(env);
   return true;
 }
-/** Loads the file OCH_CONFIG names, as the packages' commands pass it. */
+/**
+ * Loads the file OCH_CONFIG (or CIRCAGRAPH_CONFIG) names, as the packages' commands pass it.
+ */
 export function loadConfiguration(env = process.env) {
+  renamedSettings(env);
   if (env.OCH_CONFIG && !loadEnvFile(env.OCH_CONFIG, env))
     throw new Error(`The configuration ${env.OCH_CONFIG} does not exist.`);
+}
+/** The prefix of the settings' new names, since the project became Circagraph. */
+export const SETTING_PREFIX = 'CIRCAGRAPH_';
+/**
+ * Settings under their new names: each `CIRCAGRAPH_<name>` is also set as `OCH_<name>`, the
+ * name the code reads, so a configuration may use either. When both are set, the new name
+ * wins. Settings under the old names keep working.
+ */
+export function renamedSettings(env = process.env) {
+  for (const [key, setting] of Object.entries(env))
+    if (key.startsWith(SETTING_PREFIX) && key.length > SETTING_PREFIX.length && setting != null)
+      env[`OCH_${key.slice(SETTING_PREFIX.length)}`] = setting;
 }

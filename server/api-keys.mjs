@@ -39,6 +39,12 @@ export function keyInput(value) {
   return { name: name.trim(), scopes: [...new Set(scopes)], days };
 }
 /**
+ * Whether a request's Authorization header carries an API key rather than a session: one
+ * beginning `cg_key_`, as keys are named since the project became Circagraph, or `och_key_`, as
+ * earlier keys are, which keep working.
+ */
+export const bearsApiKey = (authorization) => /^Bearer (?:cg|och)_key_/.test(authorization ?? '');
+/**
  * Personal API keys (oc_api_keys): long-lived Bearer credentials for scripts, limited to the
  * timeline API and to the scopes chosen when they are made. A key is
  * `och_key_<id without dashes>_<64 random hex>`; only its SHA-256 and a short prefix (to tell
@@ -59,7 +65,7 @@ export class ApiKeys {
    * Side effect: records the key's last use, at most once every five minutes.
    */
   async session(req, client = this.pool) {
-    const match = /^Bearer (och_key_[a-f0-9]{32}_[a-f0-9]{64})$/.exec(
+    const match = /^Bearer ((?:cg|och)_key_[a-f0-9]{32}_[a-f0-9]{64})$/.exec(
       req.headers.authorization ?? '',
     );
     if (!match) return null;
