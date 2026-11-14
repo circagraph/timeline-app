@@ -4,9 +4,9 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-A **measure** is a named quantity that a timeline's events (moments and durations) carry, such as an invoice's cost or the hours a task took ([#570](https://github.com/openchronology/timeline-app/issues/570)). A timeline declares its measures, and each event gives its own values. Values are exact, never rounded, so totals always add up to the cent.
+A **measure** is a named quantity that a timeline's events (moments and durations) carry, such as an invoice's cost or the hours a task took ([#570](https://github.com/circagraph/timeline-app/issues/570)). A timeline declares its measures, and each event gives its own values. Values are exact, never rounded, so totals always add up to the cent.
 
-This page covers declaring measures, giving values and how they're shown ([#572](https://github.com/openchronology/timeline-app/issues/572), [#573](https://github.com/openchronology/timeline-app/issues/573)). Totals in summaries come next ([#574](https://github.com/openchronology/timeline-app/issues/574)).
+This page covers declaring measures, giving values and how they're shown ([#572](https://github.com/circagraph/timeline-app/issues/572), [#573](https://github.com/circagraph/timeline-app/issues/573)). Totals in summaries come next ([#574](https://github.com/circagraph/timeline-app/issues/574)).
 
 ## In the editor
 
@@ -67,7 +67,7 @@ A value is exact, so `0.1` is exactly one tenth, not the closest binary fraction
 
 ## How values are shown
 
-Measures are written and read by an official library of formats, the counterpart of the [time displays](time-presentation.md) such as Gregorian dates ([#585](https://github.com/openchronology/timeline-app/issues/585)). Each format serves one type, and sets how values and totals are written and how what you type is read. All are exact: nothing passes through floating-point arithmetic. Plugins don't provide formats.
+Measures are written and read by an official library of formats, the counterpart of the [time displays](time-presentation.md) such as Gregorian dates ([#585](https://github.com/circagraph/timeline-app/issues/585)). Each format serves one type, and sets how values and totals are written and how what you type is read. All are exact: nothing passes through floating-point arithmetic. Plugins don't provide formats.
 
 ```json
 "cost": { "type": "mpz", "label": "Cost", "presentation": { "mode": "fixed", "scale": "1/100", "decimals": 2, "prefix": "$" } }
@@ -108,7 +108,7 @@ On a server, make these changes with `POST /api/timelines/{id}/measures`, giving
 
 ## Totals
 
-Every summary of a timeline keeps the total of each measure over what it summarizes ([#574](https://github.com/openchronology/timeline-app/issues/574)), beside the count it keeps. The total is exact, and computed the same way wherever the timeline is kept: in the browser, on a server and in a desktop file.
+Every summary of a timeline keeps the total of each measure over what it summarizes ([#574](https://github.com/circagraph/timeline-app/issues/574)), beside the count it keeps. The total is exact, and computed the same way wherever the timeline is kept: in the browser, on a server and in a desktop file.
 
 - **How:** the trees that index a timeline's moments keep, at every node, the totals of the moments beneath it. A summary of any stretch of time reads a few nodes rather than every moment. A change to an event's values updates the nodes on one path.
 - **Where:** the browser's index, the server's PostgreSQL trees and a desktop file's SQLite index all keep them. A desktop file saved before this is re-indexed when it is opened.
@@ -116,7 +116,7 @@ Every summary of a timeline keeps the total of each measure over what it summari
 
 ## Durations
 
-A duration's values count entirely **where it starts**, as if it were a moment at its start ([#576](https://github.com/openchronology/timeline-app/issues/576)). Its whole value goes to the summary or window holding its start, never split between windows or counted twice.
+A duration's values count entirely **where it starts**, as if it were a moment at its start ([#576](https://github.com/circagraph/timeline-app/issues/576)). Its whole value goes to the summary or window holding its start, never split between windows or counted twice.
 
 - **Collapsed durations:** durations too short to draw at the view's scale join summaries, and their values join the summary's totals.
 - **Bands:** a duration long enough to draw as a band keeps its own values. Its reader and hover card show them, and a [measure chart](plugins.md#charting-a-measure) counts them at its start.
@@ -125,7 +125,7 @@ A duration's values count entirely **where it starts**, as if it were a moment a
 
 ## Balances
 
-A measure's values can be **changes**, such as payments in and out, with a running **balance** ([#595](https://github.com/openchronology/timeline-app/issues/595)). Give the measure an anchor, and the balance anywhere is the anchor plus the changes on one side of it:
+A measure's values can be **changes**, such as payments in and out, with a running **balance** ([#595](https://github.com/circagraph/timeline-app/issues/595)). Give the measure an anchor, and the balance anywhere is the anchor plus the changes on one side of it:
 
 ```json
 "cost": { "type": "mpz", "durations": "end", "balance": { "at": "end", "value": "125000" } }
@@ -147,7 +147,7 @@ A balance is read from the timeline's change index in O(log n). The browser, ser
 - **Single events:** an event's values are listed in the reader and in its hover card.
 - **Balances:** the view's balance before its changes and after them show in the stage's lower left and right corners, such as `Cost $100.00` and `Cost $121.50`. A summary's tooltip and screen-reader name add its balance before and after it: `3 moments · Cost $21.50 · Cost balance $100.00 → $121.50`. A moment's reader and hover card list it the same way. None show in a comparison.
 - **Separated tracks:** each track's summaries show their own totals. A track too narrow to draw collapses into another with its totals, as one timeline's.
-- **Comparisons:** a comparison never adds totals across its timelines ([#586](https://github.com/openchronology/timeline-app/issues/586)). Each timeline's measures are its own: two timelines' `cost` aren't the same quantity. Side by side, each track's summaries keep their own timeline's totals. Combined, a summary keeps its totals by timeline (`sourceTotals`), and plugins that use totals choose how to show each one. Labels show no totals in a comparison.
+- **Comparisons:** a comparison never adds totals across its timelines ([#586](https://github.com/circagraph/timeline-app/issues/586)). Each timeline's measures are its own: two timelines' `cost` aren't the same quantity. Side by side, each track's summaries keep their own timeline's totals. Combined, a summary keeps its totals by timeline (`sourceTotals`), and plugins that use totals choose how to show each one. Labels show no totals in a comparison.
 
 Plugins can use measures too ([plugins](plugins.md)):
 

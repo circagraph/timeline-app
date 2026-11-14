@@ -2,7 +2,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-OpenChronology represents every point in time as an exact rational number: a pair of arbitrary-precision integers (numerator, denominator), reduced, with the sign carried by the numerator and the canonical text `n/d` (always including `/1`). The same value, the same order and the same text are used in the browser (JavaScript `BigInt`), in PostgreSQL (the pgmp extension's `mpq` type) and in SQLite (the sqlite-rational extension's `RATIONAL_V1` collation and `rational_index` virtual table). Moments at the same coordinate are ordered by an ASCII ID whose order is identical in all three. Each store keeps an augmented ordered tree whose nodes cache their subtree's first and last time, moment count and distinct-time count, so a viewport is summarized into groups of nearby moments by walking a number of nodes that depends on the number of groups and the tree height, not on the number of moments. Grouping distances come from screen measurements that are quantized to 1/1024 CSS pixel before they enter rational arithmetic. Disclosed at commit [`007091c`](https://github.com/openchronology/timeline-app/tree/007091ce62fdb402346c0712b0c420eac0a29dff); first public disclosure: commit `88aea8c` of 2026-10-05 (see [First public disclosure](#first-public-disclosure)).
+OpenChronology represents every point in time as an exact rational number: a pair of arbitrary-precision integers (numerator, denominator), reduced, with the sign carried by the numerator and the canonical text `n/d` (always including `/1`). The same value, the same order and the same text are used in the browser (JavaScript `BigInt`), in PostgreSQL (the pgmp extension's `mpq` type) and in SQLite (the sqlite-rational extension's `RATIONAL_V1` collation and `rational_index` virtual table). Moments at the same coordinate are ordered by an ASCII ID whose order is identical in all three. Each store keeps an augmented ordered tree whose nodes cache their subtree's first and last time, moment count and distinct-time count, so a viewport is summarized into groups of nearby moments by walking a number of nodes that depends on the number of groups and the tree height, not on the number of moments. Grouping distances come from screen measurements that are quantized to 1/1024 CSS pixel before they enter rational arithmetic. Disclosed at commit [`007091c`](https://github.com/circagraph/timeline-app/tree/007091ce62fdb402346c0712b0c420eac0a29dff); first public disclosure: commit `88aea8c` of 2026-10-05 (see [First public disclosure](#first-public-disclosure)).
 
 ## Field and problem
 
@@ -32,7 +32,7 @@ The usual representations fail at these extremes:
 
 ### The rational value type
 
-The browser and Node code use `Rational` from the vendored `rational-ordered-map` package (imported as `Q` in [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L89)). It wraps a fraction.js 5 `Fraction` in `BigInt` mode.
+The browser and Node code use `Rational` from the vendored `rational-ordered-map` package (imported as `Q` in [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L89)). It wraps a fraction.js 5 `Fraction` in `BigInt` mode.
 
 Data:
 
@@ -73,7 +73,7 @@ Comparison never divides and never approximates, so it is a strict total order o
 - `Q.decodeCanonical(text)`: accepts only `^-?(0|[1-9]\d*)\/[1-9]\d*$` and only when the text is already the canonical form; `"2/4"` is rejected as noncanonical.
 - `Q.parseDecimal(text)`: `^([+-]?)(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$`. The digits before and after the point form one integer `c`; the exponent is `e - (number of fraction digits)`; the value is `c * 10^exp` or `c / 10^-exp`, computed in `BigInt`. `"-1.250"` is `-5/4`, `"1e-3"` is `1/1000`. No step uses a float.
 
-The document parser, [`parseTime`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L227-L230), dispatches on the text: a `T` means a calendar timestamp (converted by the calendar module with `BigInt` arithmetic), a `/` means `Q.parse`, anything else `Q.parseDecimal`. Validation stores `parseTime(text).toString()`, so every stored time is canonical, and export writes times in canonical form sorted by time, then ID. The user-facing number fields use [`parseNumber`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/numeric.ts#L7-L20), which also accepts scientific notation but bounds the exponent to ±10,000, and print through [`printNumber`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/numeric.ts#L49-L74), which rounds half away from zero in `BigInt` to a chosen number of significant digits. Display rounding never feeds back into stored values.
+The document parser, [`parseTime`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L227-L230), dispatches on the text: a `T` means a calendar timestamp (converted by the calendar module with `BigInt` arithmetic), a `/` means `Q.parse`, anything else `Q.parseDecimal`. Validation stores `parseTime(text).toString()`, so every stored time is canonical, and export writes times in canonical form sorted by time, then ID. The user-facing number fields use [`parseNumber`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/numeric.ts#L7-L20), which also accepts scientific notation but bounds the exponent to ±10,000, and print through [`printNumber`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/numeric.ts#L49-L74), which rounds half away from zero in `BigInt` to a chosen number of significant digits. Display rounding never feeds back into stored values.
 
 The same canonical form is produced by the other two stores:
 
@@ -82,7 +82,7 @@ The same canonical form is produced by the other two stores:
 
 ### Ordering moments: time, then ID
 
-Several moments may share one rational time. Their order is `(time, id)`: time by rational value, then ID by byte order. IDs are validated against `^[A-Za-z0-9_.:-]{1,128}$` ([`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L278-L279)). Restricting IDs to printable ASCII makes three comparisons agree:
+Several moments may share one rational time. Their order is `(time, id)`: time by rational value, then ID by byte order. IDs are validated against `^[A-Za-z0-9_.:-]{1,128}$` ([`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L278-L279)). Restricting IDs to printable ASCII makes three comparisons agree:
 
 | Store      | ID comparison                                  |
 | ---------- | ---------------------------------------------- |
@@ -94,7 +94,7 @@ For ASCII, UTF-16 code units, UTF-8 bytes and code points coincide, and no local
 
 ### The weighted ordered map (`RationalMap`)
 
-The browser index is `RationalMap<readonly PointEvent[]>`, constructed with the weight function `bucket => BigInt(bucket.length)` ([`TimelineIndex`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L330-L331)). It is a persistent AVL tree: nodes are immutable, an update rebuilds the path to the root, and `clone()` is O(1).
+The browser index is `RationalMap<readonly PointEvent[]>`, constructed with the weight function `bucket => BigInt(bucket.length)` ([`TimelineIndex`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L330-L331)). It is a persistent AVL tree: nodes are immutable, an update rebuilds the path to the root, and `clone()` is O(1).
 
 Node fields:
 
@@ -127,11 +127,11 @@ singleton(k, w) = {k, k, w, 1, 0}
 
 Operations: `get`, `set`, `delete` in O(log n) comparisons; `minKey`/`maxKey` in O(1) from the root summary; `successor`/`predecessor`; `range(lower, upper, {includeLower, includeUpper})`, which prunes subtrees whose `[firstTime, lastTime]` misses the bounds; `aggregate(lower, upper)`, which returns the combined summary of a range and consumes any subtree lying wholly inside it; and `overview`.
 
-Bulk loading groups moments by canonical time string first, sorts each bucket once by ID, then inserts one key per distinct time, so a document with 10,000 moments at one time is one key with weight 10,000 rather than 10,000 insertions into a growing array ([`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L367-L385)). Editing a moment removes it from its old bucket (deleting the key when the bucket empties) and inserts it into the new one; an auxiliary `Map` from ID to moment finds the old time without searching.
+Bulk loading groups moments by canonical time string first, sorts each bucket once by ID, then inserts one key per distinct time, so a document with 10,000 moments at one time is one key with weight 10,000 rather than 10,000 insertions into a growing array ([`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L367-L385)). Editing a moment removes it from its old bucket (deleting the key when the bucket empties) and inserts it into the new one; an auxiliary `Map` from ID to moment finds the old time without searching.
 
 ### Window summaries: the grouping threshold and anchored spans
 
-The visible window is closed, `[left, right]`, with `right = left + span`. The threshold is computed by [`Viewport.threshold`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L706-L708):
+The visible window is closed, `[left, right]`, with `right = left + span`. The threshold is computed by [`Viewport.threshold`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L706-L708):
 
 ```
 threshold = span * screenQ(P) / screenQ(max(1, W))
@@ -278,7 +278,7 @@ Moments do not use this key: their order comes from the moment tree.
 
 ### SQLite: `RATIONAL_V1` and `rational_index`
 
-The desktop app and the `.och` file format use the vendored [sqlite-rational](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/README.md) extension (C, GMP), registered per connection with `sqlite_rational_register(db)`. It provides:
+The desktop app and the `.och` file format use the vendored [sqlite-rational](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/README.md) extension (C, GMP), registered per connection with `sqlite_rational_register(db)`. It provides:
 
 - Scalar functions on canonical text: `q`, `q_make`, `q_decimal`, `q_is_canonical`, `q_cmp`, `q_add`, `q_sub`, `q_mul`, `q_div`, `q_neg`, `q_abs`, `q_floor`, `q_ceil`, `q_num`, `q_den`, `q_min`, `q_max`. They are deterministic and innocuous, so they work in `CHECK` constraints with `trusted_schema=OFF`.
 - The collation `RATIONAL_V1`. It parses both operands with GMP and compares them with `mpq_cmp`. A valid rational sorts before any malformed string, and two malformed strings compare by bytes then length, so the order stays total and transitive even for an unchecked column. Equivalent valid strings (`2/4`, `1/2`) compare equal.
@@ -325,7 +325,7 @@ Weights and counts are `BigInt` in the browser library and `bigint` in PostgreSQ
 - **Crossed bounds** return no rows; equal bounds select one coordinate when both ends are inclusive.
 - **Threshold exactly equal to a gap** separates the two times (half-open group interval).
 - **A group of one distinct time** is always taken whole, however many moments it holds.
-- **Very large components** cost time proportional to the cost of `BigInt`/GMP multiplication and GCD on their bit lengths; there is no fixed ceiling on precision. Inputs from the network are limited by request size; [`parseNumber`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/numeric.ts#L12-L14) bounds decimal exponents to ±10,000.
+- **Very large components** cost time proportional to the cost of `BigInt`/GMP multiplication and GCD on their bit lengths; there is no fixed ceiling on precision. Inputs from the network are limited by request size; [`parseNumber`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/numeric.ts#L12-L14) bounds decimal exponents to ±10,000.
 
 ### Complexity
 
@@ -348,42 +348,42 @@ Weights and counts are `BigInt` in the browser library and `bigint` in PostgreSQ
 
 ## Implementation references
 
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L89) — imports `Rational as Q` and `RationalMap` from `rational-ordered-map`.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L227-L230) — `parseTime`: timestamp, fraction or decimal to `Q`.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L278-L279) — moment ID rule `^[A-Za-z0-9_.:-]{1,128}$`.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L330-L385) — `TimelineIndex`: the weighted `RationalMap`, bulk loading of buckets sorted by ID.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L570-L613) — `TimelineIndex.frame`: threshold, `overview(..., 'span', {includeUpper: true})`, counts as strings.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L628-L631) — `screenQ`: 1/1024-pixel quantization.
-- [`src/core.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L706-L708) — `Viewport.threshold`: `span * P / W`.
-- [`src/numeric.ts`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/numeric.ts#L7-L74) — `parseNumber`, `fixedDecimal`, `printNumber`: exact decimal and scientific input and output.
-- [`vendor/rational-ordered-map-0.1.0.tgz`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/rational-ordered-map-0.1.0.tgz) — the packed library: `dist/rational.js` (`Rational`: `from`, `parse`, `decodeCanonical`, `parseDecimal`, `compare`, `toApproximateNumber`) and `dist/map.js` (`RationalMap`: `combine`, `aggregate`, `lowerBound`, `overview`). Upstream commit in [`vendor/versions.json`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/versions.json).
-- [`server/schema.sql`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L16-L30) — design note (rationals never B-tree keys) and `CREATE EXTENSION pgmp`.
-- [`server/schema.sql`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L163-L213) — `oc_nodes`, `oc_moments`, `moment_ids`, `height`, `oc_qtext`.
-- [`server/schema.sql`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L215-L312) — `oc_overview_v2` and the `oc_overview` wrapper.
-- [`server/schema.sql`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L314-L362) — `oc_events`: the `(time, id)` cursor walk.
-- [`server/schema.sql`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L978-L1003) — `oc_qkey`: order-preserving numeric key for rationals.
-- [`server/schema.sql`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L1005-L1015) — `first_key` generated column and the `oc_duration_nodes_first_key` index.
-- [`server/schema.sql`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L1101-L1108) — `oc_duration_overview`: key-range scan with exact recheck.
-- [`server/retention.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/retention.mjs#L122-L140) — expiry range scan on `first_key` with exact recheck.
-- [`server/store.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/store.mjs#L1806-L1823) — durations streamed in `first_key, first_time, id` order.
-- [`server/http.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/http.mjs#L185-L193) — `bound`: canonicalizes request bounds.
-- [`server/store.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/store.mjs#L2100-L2113) — minimum threshold `span / 1024` and the overview call.
-- [`server/store.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/store.mjs#L2386-L2405) — event pages: `limit + 1` rows and the next cursor.
-- [`server/avl.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/avl.mjs#L15-L19) — ID order by UTF-16 code units, equal to `COLLATE "C"` for ASCII.
-- [`vendor/sqlite-rational/src/rational.c`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/src/rational.c#L39-L43) — `q_text`: canonical `n/d` with `/1`.
-- [`vendor/sqlite-rational/src/rational.c`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/src/rational.c#L151-L175) — the `RATIONAL_V1` collation and function registration.
-- [`vendor/sqlite-rational/src/index.c`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/src/index.c#L299-L330) — `span`: anchored-span overview in the virtual table.
-- [`vendor/sqlite-rational/src/index.c`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/src/index.c#L363-L371) — shadow tables `_nodes` (cached `first`, `last`, `count`, `size`, `gap`) and `_meta`.
-- [`native-store/src/lib.rs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/native-store/src/lib.rs#L438-L496) — `events` table under `RATIONAL_V1`, `points` index, bulk `append` and `build`.
-- [`native-store/src/workspace.rs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/native-store/src/workspace.rs#L503-L522) — desktop overview: threshold floor of 1/1024 of the window, `points` span query.
-- [`native-store/src/workspace.rs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/native-store/src/workspace.rs#L601-L605) — keyset pagination on `(time COLLATE RATIONAL_V1, id)`.
-- [`docs/architecture.md`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/architecture.md#L36-L44) — the window-summary contract.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L89) — imports `Rational as Q` and `RationalMap` from `rational-ordered-map`.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L227-L230) — `parseTime`: timestamp, fraction or decimal to `Q`.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L278-L279) — moment ID rule `^[A-Za-z0-9_.:-]{1,128}$`.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L330-L385) — `TimelineIndex`: the weighted `RationalMap`, bulk loading of buckets sorted by ID.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L570-L613) — `TimelineIndex.frame`: threshold, `overview(..., 'span', {includeUpper: true})`, counts as strings.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L628-L631) — `screenQ`: 1/1024-pixel quantization.
+- [`src/core.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/core.ts#L706-L708) — `Viewport.threshold`: `span * P / W`.
+- [`src/numeric.ts`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/src/numeric.ts#L7-L74) — `parseNumber`, `fixedDecimal`, `printNumber`: exact decimal and scientific input and output.
+- [`vendor/rational-ordered-map-0.1.0.tgz`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/rational-ordered-map-0.1.0.tgz) — the packed library: `dist/rational.js` (`Rational`: `from`, `parse`, `decodeCanonical`, `parseDecimal`, `compare`, `toApproximateNumber`) and `dist/map.js` (`RationalMap`: `combine`, `aggregate`, `lowerBound`, `overview`). Upstream commit in [`vendor/versions.json`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/versions.json).
+- [`server/schema.sql`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L16-L30) — design note (rationals never B-tree keys) and `CREATE EXTENSION pgmp`.
+- [`server/schema.sql`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L163-L213) — `oc_nodes`, `oc_moments`, `moment_ids`, `height`, `oc_qtext`.
+- [`server/schema.sql`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L215-L312) — `oc_overview_v2` and the `oc_overview` wrapper.
+- [`server/schema.sql`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L314-L362) — `oc_events`: the `(time, id)` cursor walk.
+- [`server/schema.sql`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L978-L1003) — `oc_qkey`: order-preserving numeric key for rationals.
+- [`server/schema.sql`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L1005-L1015) — `first_key` generated column and the `oc_duration_nodes_first_key` index.
+- [`server/schema.sql`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/schema.sql#L1101-L1108) — `oc_duration_overview`: key-range scan with exact recheck.
+- [`server/retention.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/retention.mjs#L122-L140) — expiry range scan on `first_key` with exact recheck.
+- [`server/store.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/store.mjs#L1806-L1823) — durations streamed in `first_key, first_time, id` order.
+- [`server/http.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/http.mjs#L185-L193) — `bound`: canonicalizes request bounds.
+- [`server/store.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/store.mjs#L2100-L2113) — minimum threshold `span / 1024` and the overview call.
+- [`server/store.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/store.mjs#L2386-L2405) — event pages: `limit + 1` rows and the next cursor.
+- [`server/avl.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/server/avl.mjs#L15-L19) — ID order by UTF-16 code units, equal to `COLLATE "C"` for ASCII.
+- [`vendor/sqlite-rational/src/rational.c`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/src/rational.c#L39-L43) — `q_text`: canonical `n/d` with `/1`.
+- [`vendor/sqlite-rational/src/rational.c`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/src/rational.c#L151-L175) — the `RATIONAL_V1` collation and function registration.
+- [`vendor/sqlite-rational/src/index.c`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/src/index.c#L299-L330) — `span`: anchored-span overview in the virtual table.
+- [`vendor/sqlite-rational/src/index.c`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/src/index.c#L363-L371) — shadow tables `_nodes` (cached `first`, `last`, `count`, `size`, `gap`) and `_meta`.
+- [`native-store/src/lib.rs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/native-store/src/lib.rs#L438-L496) — `events` table under `RATIONAL_V1`, `points` index, bulk `append` and `build`.
+- [`native-store/src/workspace.rs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/native-store/src/workspace.rs#L503-L522) — desktop overview: threshold floor of 1/1024 of the window, `points` span query.
+- [`native-store/src/workspace.rs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/native-store/src/workspace.rs#L601-L605) — keyset pagination on `(time COLLATE RATIONAL_V1, id)`.
+- [`docs/architecture.md`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/architecture.md#L36-L44) — the window-summary contract.
 
 ## Benchmarks
 
 Measured numbers that exist in the repository:
 
-- [`docs/benchmarks.md`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/benchmarks.md#L263-L280), local run (16 cores, Node 26, PostgreSQL 16 in Docker, `BENCH_TIME=1000`), mean time to compute a viewport (moment groups plus duration bands and arcs) from the three stores:
+- [`docs/benchmarks.md`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/benchmarks.md#L263-L280), local run (16 cores, Node 26, PostgreSQL 16 in Docker, `BENCH_TIME=1000`), mean time to compute a viewport (moment groups plus duration bands and arcs) from the three stores:
 
   | Operation                    |    Size |          In-memory | SQLite | PostgreSQL |
   | ---------------------------- | ------: | -----------------: | -----: | ---------: |
@@ -395,7 +395,7 @@ Measured numbers that exist in the repository:
   |                              | 100,000 |             8.4 ms |  14 ms |      11 ms |
   | Read a page of 100 moments   | 100,000 |              91 µs | 619 µs |     3.6 ms |
 
-- Node-visit counts checked by tests: a 5,000-moment cluster summarized by `oc_overview` in **one** node visit ([`test/sql-oracle.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/sql-oracle.mjs#L272-L274)); 10,000 moments at one time loaded as one key, summarized in fewer than 10 node visits ([`test/core.test.mjs`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/core.test.mjs#L177-L199)); 2,000 coordinates reduced to one summary with one node visit in the sqlite-rational test suite ([`vendor/sqlite-rational/README.md`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/README.md)).
+- Node-visit counts checked by tests: a 5,000-moment cluster summarized by `oc_overview` in **one** node visit ([`test/sql-oracle.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/sql-oracle.mjs#L272-L274)); 10,000 moments at one time loaded as one key, summarized in fewer than 10 node visits ([`test/core.test.mjs`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/test/core.test.mjs#L177-L199)); 2,000 coordinates reduced to one summary with one node visit in the sqlite-rational test suite ([`vendor/sqlite-rational/README.md`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/vendor/sqlite-rational/README.md)).
 
 ## First public disclosure
 
@@ -435,4 +435,4 @@ Anchored spans on one axis with threshold `T`. The group interval is half-open, 
   group 1         group 2                 group 3
 ```
 
-Note on the documentation: [`docs/architecture.md`](https://github.com/openchronology/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/architecture.md#L63) named the SQL operation `oc_overview`; the server now calls `oc_overview_v2` (same arguments, plus a metadata column), and `oc_overview` remains as a wrapper for existing callers and the conformance test. The docs were corrected to match the code in #392.
+Note on the documentation: [`docs/architecture.md`](https://github.com/circagraph/timeline-app/blob/007091ce62fdb402346c0712b0c420eac0a29dff/docs/architecture.md#L63) named the SQL operation `oc_overview`; the server now calls `oc_overview_v2` (same arguments, plus a metadata column), and `oc_overview` remains as a wrapper for existing callers and the conformance test. The docs were corrected to match the code in #392.

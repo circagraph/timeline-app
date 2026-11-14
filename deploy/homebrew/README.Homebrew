@@ -4,7 +4,7 @@ OpenChronology server for macOS (Homebrew)
 Install
 -------
 
-    brew install openchronology/tap/openchronology-server
+    brew install circagraph/tap/openchronology-server
     openchronology-setup
 
 Homebrew installs what the server needs: Node.js 24 (node@24), PostgreSQL 17, GMP and SQLite,

@@ -5,7 +5,7 @@
  * Asset names follow the release workflow (scripts/desktop/packages.mjs and
  * scripts/server-targets.mjs; test/releases.test.mjs keeps them in step).
  */
-export const REPOSITORY = 'openchronology/timeline-app';
+export const REPOSITORY = 'circagraph/timeline-app';
 export const RELEASES = `https://github.com/${REPOSITORY}/releases`;
 
 /** Desktop downloads, each for one operating system, most common first. */
@@ -55,8 +55,8 @@ export const DESKTOP = [
 ];
 /** The editor in one HTML file, for any browser and without a network. */
 export const OFFLINE = { asset: 'openchronology-offline.html' };
-/** Where each offline edition is published: openchronology.github.io/<edition>/. */
-export const EDITION_SITE = 'https://openchronology.github.io';
+/** Where each offline edition is published: circagraph.github.io/<edition>/. */
+export const EDITION_SITE = 'https://circagraph.github.io';
 /**
  * An offline edition's file (src/editions.ts, #197), as scripts/offline.mjs names it, and its
  * page on the organization's site, which is the same file.
@@ -199,7 +199,7 @@ export function assetSize(release, asset) {
  */
 export function installCommand(release, server) {
   if (server.installer === 'brew')
-    return 'brew install openchronology/tap/openchronology-server && openchronology-setup';
+    return 'brew install circagraph/tap/openchronology-server && openchronology-setup';
   if (server.installer === 'exe')
     return `Invoke-WebRequest ${assetLink(release, server.asset)} -OutFile "$env:TEMP\\${server.asset}"; Start-Process -Wait -Verb RunAs "$env:TEMP\\${server.asset}"`;
   const url = assetLink(release, server.asset);

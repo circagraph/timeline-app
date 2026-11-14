@@ -157,7 +157,7 @@ A cached file is read from disk, so its time follows its size and the connection
 
 ## Searching events
 
-`node bench/library-search.mjs [timelines] [moments each]` (with `BENCH_DATABASE_URL`; default 10 and 50,000) creates that many public timelines and times Explore's search of every timeline's events ([#459](https://github.com/openchronology/timeline-app/issues/459); `server/library-search.mjs`), the median of five runs each. Measured on a 16-core virtual machine with PostgreSQL 16:
+`node bench/library-search.mjs [timelines] [moments each]` (with `BENCH_DATABASE_URL`; default 10 and 50,000) creates that many public timelines and times Explore's search of every timeline's events ([#459](https://github.com/circagraph/timeline-app/issues/459); `server/library-search.mjs`), the median of five runs each. Measured on a 16-core virtual machine with PostgreSQL 16:
 
 | Search                                  | 110,000 events | 1.76 million rows |
 | --------------------------------------- | -------------: | ----------------: |
@@ -201,7 +201,7 @@ The runs cover:
 
 - the in-memory browser editor, at full speed and with the CPU throttled 4×, whose comfortable sizes are 10,000 and 1,000 moments;
 - the platform: the production Next.js server with PostgreSQL, signed in as a `bench_ui` user, whose comfortable size is the 200,000-moment limit;
-- in the browser (Chromium), **dense-durations**, run last because it opens a document of its own: a drag across 5,000 durations over the same time beside 18 longer staggered ones, which the editor groups and caps every frame ([#316](https://github.com/openchronology/timeline-app/issues/316)), timed by its longest frame;
+- in the browser (Chromium), **dense-durations**, run last because it opens a document of its own: a drag across 5,000 durations over the same time beside 18 longer staggered ones, which the editor groups and caps every frame ([#316](https://github.com/circagraph/timeline-app/issues/316)), timed by its longest frame;
 - the desktop app (WebKitGTK on Linux), whose comfortable size is also the limit. Timelines over 2,048 moments move into the native SQLite store after opening, as for desktop users; smaller ones stay in memory. Pinch gestures are measured in Chromium only, through its DevTools touch input; the desktop driver sends mouse, keyboard and wheel input.
 
 Each interaction is measured `UI_SAMPLES` times (default 5) and judged by its median.
@@ -229,7 +229,7 @@ An interaction that misses its gate is measured once more, and the faster round 
 
 The Benchmarks workflow runs the browser and platform at the full set of sizes and adds an **Interactions** table to the report.
 
-**Keyboard zoom and the first animation frame ([#319](https://github.com/openchronology/timeline-app/issues/319)).** In late October 2026 keyboard zoom measured 246–262 ms in CI on a 4× slowed CPU, against about 150 ms for wheel zoom, and the gate briefly allowed it 2×. Profiling found the cause. Zoom animations took their progress from the frame timestamp, and input is handled at the start of a frame, after that timestamp, so the first frame often saw no time pass and redrew the unchanged view at full cost. With the CPU slowed, the next frame came after the whole 220 ms animation, so keyboard zoom paid two full renders before anything moved, while wheel zoom, which doesn't animate, pays one. The first frame now advances at least one frame interval. CI then measured keyboard zoom at 157 and 105 ms, against 94 and 115 ms for wheel zoom, and the exception was removed; later runs measured 196 and 228 ms, at the 225 ms gate, so it was restored while keyboard zoom stays above wheel zoom. `test/zoom-help-browser.mjs` keeps the first frame moving.
+**Keyboard zoom and the first animation frame ([#319](https://github.com/circagraph/timeline-app/issues/319)).** In late October 2026 keyboard zoom measured 246–262 ms in CI on a 4× slowed CPU, against about 150 ms for wheel zoom, and the gate briefly allowed it 2×. Profiling found the cause. Zoom animations took their progress from the frame timestamp, and input is handled at the start of a frame, after that timestamp, so the first frame often saw no time pass and redrew the unchanged view at full cost. With the CPU slowed, the next frame came after the whole 220 ms animation, so keyboard zoom paid two full renders before anything moved, while wheel zoom, which doesn't animate, pays one. The first frame now advances at least one frame interval. CI then measured keyboard zoom at 157 and 105 ms, against 94 and 115 ms for wheel zoom, and the exception was removed; later runs measured 196 and 228 ms, at the 225 ms gate, so it was restored while keyboard zoom stays above wheel zoom. `test/zoom-help-browser.mjs` keeps the first frame moving.
 
 #### Desktop
 

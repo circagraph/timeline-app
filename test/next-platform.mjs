@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { createServer } from 'node:http';
 // GitHub's latest release, as the download page reads it (#111).
-const assetBase = 'https://github.com/openchronology/timeline-app/releases/download/v9.8.7/';
+const assetBase = 'https://github.com/circagraph/timeline-app/releases/download/v9.8.7/';
 const github = createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.end(
@@ -15,7 +15,7 @@ const github = createServer((req, res) => {
       tag_name: 'v9.8.7',
       name: 'v9.8.7',
       published_at: '2026-09-30T12:00:00Z',
-      html_url: 'https://github.com/openchronology/timeline-app/releases/tag/v9.8.7',
+      html_url: 'https://github.com/circagraph/timeline-app/releases/tag/v9.8.7',
       assets: [
         'openchronology-desktop-windows-amd64-setup.exe',
         'openchronology-desktop-macos-arm64.dmg',
@@ -138,7 +138,7 @@ try {
   // Editions (#197) link to their page; this release has no file for them yet.
   assert.match(
     windows,
-    /data-edition="cfam".{0,600}href="https:\/\/openchronology\.github\.io\/cfam\/"/s,
+    /data-edition="cfam".{0,600}href="https:\/\/circagraph\.github\.io\/cfam\/"/s,
   );
   assert.doesNotMatch(windows, /openchronology-offline-cfam\.html/);
   const phone = await download('Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X)');
@@ -206,10 +206,10 @@ try {
   // The software the site runs, linked from its footer (#472).
   assert.match(
     html,
-    /Powered by (<!-- -->)?<a href="https:\/\/github\.com\/openchronology\/timeline-app">OpenChronology<\/a>/,
+    /Powered by (<!-- -->)?<a href="https:\/\/github\.com\/circagraph\/timeline-app">OpenChronology<\/a>/,
   );
   // The footer links to the source repository (#276).
-  assert.match(html, /href="https:\/\/github\.com\/openchronology\/timeline-app">GitHub<\/a>/);
+  assert.match(html, /href="https:\/\/github\.com\/circagraph\/timeline-app">GitHub<\/a>/);
   assert.match(
     html,
     /<a href="https:\/\/example\.com\/support" class="support-link">♥ Support<\/a>/,

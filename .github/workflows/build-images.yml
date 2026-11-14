@@ -1,11 +1,11 @@
 name: Build images
 # The CI images (#605), built by scripts/build-images.mjs, pushed and attested: the server
 # packages' tools images, each .deb and .rpm target's native-tools and package-tools stages in
-# ghcr.io/openchronology/server-build under a tag that hashes the stage, which
+# ghcr.io/circagraph/server-build under a tag that hashes the stage, which
 # server-packages.yml's builds start from; and the Linux desktop build image
-# (deploy/desktop-build) in ghcr.io/openchronology/desktop-build under a hash of its Dockerfile,
+# (deploy/desktop-build) in ghcr.io/circagraph/desktop-build under a hash of its Dockerfile,
 # which the Linux desktop jobs run in; and the PostgreSQL CI image (deploy/postgres-ci) in
-# ghcr.io/openchronology/postgres-ci under a hash of its files, which ci.yml's PostgreSQL job
+# ghcr.io/circagraph/postgres-ci under a hash of its files, which ci.yml's PostgreSQL job
 # runs in. So these builds and tests don't depend on distribution mirrors.
 # Built when the Dockerfiles or the targets change on main, weekly for security updates, and
 # by hand.

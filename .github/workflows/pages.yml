@@ -1,7 +1,7 @@
-name: Offline editor on openchronology.github.io
+name: Offline editor on circagraph.github.io
 # Each stable release (#510): builds the standalone offline editor at the release's tag, checks it
-# works without a network, and publishes it as openchronology.github.io's index page, and each
-# edition (#197) at openchronology.github.io/<edition>/, such as /cfam/. release.yml calls it
+# works without a network, and publishes it as circagraph.github.io's index page, and each
+# edition (#197) at circagraph.github.io/<edition>/, such as /cfam/. release.yml calls it
 # once a stable release is published; pushes to main and pre-releases are not published, so the
 # hosted copy is always a release's. Run by hand, it publishes the release tag it is given.
 on:
@@ -65,11 +65,11 @@ jobs:
       # repository (secret PAGES_DEPLOY_KEY) lets this workflow replace only its index page.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: openchronology/openchronology.github.io
+          repository: circagraph/circagraph.github.io
           ref: master
           path: site
           ssh-key: ${{ secrets.PAGES_DEPLOY_KEY }}
-      - name: Publish to openchronology.github.io
+      - name: Publish to circagraph.github.io
         env:
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
@@ -90,5 +90,5 @@ jobs:
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m "Publish offline editor ${RELEASE_TAG} from openchronology/timeline-app@${OCH_BUILD_COMMIT}"
+          git commit -m "Publish offline editor ${RELEASE_TAG} from circagraph/timeline-app@${OCH_BUILD_COMMIT}"
           git push origin HEAD:master

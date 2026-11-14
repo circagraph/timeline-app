@@ -126,7 +126,7 @@ try {
   assert.match(download, /Desktop app for macOS/);
   assert.match(
     download,
-    /href="https:\/\/github\.com\/openchronology\/timeline-app\/releases\/latest\/download\/openchronology-desktop-macos-arm64\.dmg"/,
+    /href="https:\/\/github\.com\/circagraph\/timeline-app\/releases\/latest\/download\/openchronology-desktop-macos-arm64\.dmg"/,
   );
   const suffix = Date.now().toString(36),
     term = 'next' + suffix;

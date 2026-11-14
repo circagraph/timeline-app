@@ -161,7 +161,7 @@ export default async function RootLayout({ children }) {
           <a href="/openchronology-web-source.tar.gz" download>
             Source
           </a>{' '}
-          · <a href="https://github.com/openchronology/timeline-app">GitHub</a>
+          · <a href="https://github.com/circagraph/timeline-app">GitHub</a>
           {' · '}
           <span className="build-identity">Build: {build.label}</span>
           <ThemeChoice />
@@ -169,7 +169,7 @@ export default async function RootLayout({ children }) {
           {name ? (
             <>
               {' · Powered by '}
-              <a href="https://github.com/openchronology/timeline-app">{SOFTWARE_NAME}</a>
+              <a href="https://github.com/circagraph/timeline-app">{SOFTWARE_NAME}</a>
             </>
           ) : null}
           {analytics ? (

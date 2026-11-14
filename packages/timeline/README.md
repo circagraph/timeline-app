@@ -7,7 +7,7 @@ any web page, and for the HTML an AI chat writes into a reply or an artifact. Gi
 the `.ochx` format and it shows it: exact dates at any scale, zooming, search, tags, durations,
 links between events and saved views. Readers can edit it there and **Export** the result as an
 `.ochx` file, which opens at [timescale.info](https://timescale.info), in the desktop app or in the
-[offline editor](https://openchronology.github.io/).
+[offline editor](https://circagraph.github.io/).
 
 It is the offline editor, the same file as `openchronology-offline.html`, in a sandboxed frame of
 its own. It makes no network requests, and the page around it is out of its reach.
@@ -56,7 +56,7 @@ By script, `element.timeline = doc` shows another timeline (an object or JSON te
 
 ## Writing the timeline
 
-The format is described in [the architecture notes](https://github.com/openchronology/timeline-app/blob/main/docs/architecture.md#json-exchange-version-1-ochx)
+The format is described in [the architecture notes](https://github.com/circagraph/timeline-app/blob/main/docs/architecture.md#json-exchange-version-1-ochx)
 and the documents they link to. The element fills in what every timeline has (`"format":
 "openchronology"`, `"version": 1`, an empty `description`), so in short:
 
@@ -65,15 +65,15 @@ and the documents they link to. The element fills in what every timeline has (`"
 - **Times** are exact rational numbers written as strings, `n/d`. With `"presentation":
 "gregorian"` they are seconds since 1970-01-01 UTC, shown as dates and times (the element
   completes the setting with its defaults; a full `presentation` object works too)
-  ([time display](https://github.com/openchronology/timeline-app/blob/main/docs/time-presentation.md)).
+  ([time display](https://github.com/circagraph/timeline-app/blob/main/docs/time-presentation.md)).
   Without it they are plain numbers, which suits years (`1969/1`), geological ages or any other
   scale.
 - **`durations`**: spans from a `start` to an `end`, each a time or a moment's id
-  ([durations](https://github.com/openchronology/timeline-app/blob/main/docs/durations.md)).
+  ([durations](https://github.com/circagraph/timeline-app/blob/main/docs/durations.md)).
 - **`relationships`**: links between events, such as causes and evidence
-  ([relationships](https://github.com/openchronology/timeline-app/blob/main/docs/relationships.md)).
+  ([relationships](https://github.com/circagraph/timeline-app/blob/main/docs/relationships.md)).
 - **`view`**: what the timeline opens at, such as tracks of events by tag
-  ([views](https://github.com/openchronology/timeline-app/blob/main/docs/views.md)).
+  ([views](https://github.com/circagraph/timeline-app/blob/main/docs/views.md)).
 
 Text that is not JSON is reported in place of the editor; a timeline the editor cannot read opens
 empty, and the editor says what is wrong.
@@ -92,7 +92,7 @@ The script is about 730 KB (less compressed), all of it the editor.
 
 GPL-3.0-only, as OpenChronology is. The package carries `LICENSE`, `NOTICE` and the licenses of
 the libraries inside the editor (`THIRD_PARTY.txt`). The source is at
-[github.com/openchronology/timeline-app](https://github.com/openchronology/timeline-app).
+[github.com/circagraph/timeline-app](https://github.com/circagraph/timeline-app).
 
 ## Contents
 

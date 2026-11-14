@@ -49,7 +49,7 @@ npm ci
 npm run build:offline
 ```
 
-Double-click `dist/openchronology-offline.html` to open it in a modern browser. You can copy that file into an otherwise empty folder or share it without any adjacent files. JavaScript, CSS, the rational library, the icon, and license notices are embedded. The normal `npm run build` also generates it, and GitHub CI retains it as the `openchronology-offline-html` artifact. Each stable release also publishes it, built at the release's tag, as the index page of <https://openchronology.github.io/> through `.github/workflows/pages.yml`, after the offline browser test passes; pushes to `main` are not published (#510). The downloaded file is the recommended way to use it: the hosted copy shares its origin with the organization's other Pages sites ([guest editing](guest-editing.md#the-hosted-copy)). The workflow pushes to the `openchronology/openchronology.github.io` repository with a write deploy key stored as the `PAGES_DEPLOY_KEY` secret.
+Double-click `dist/openchronology-offline.html` to open it in a modern browser. You can copy that file into an otherwise empty folder or share it without any adjacent files. JavaScript, CSS, the rational library, the icon, and license notices are embedded. The normal `npm run build` also generates it, and GitHub CI retains it as the `openchronology-offline-html` artifact. Each stable release also publishes it, built at the release's tag, as the index page of <https://circagraph.github.io/> through `.github/workflows/pages.yml`, after the offline browser test passes; pushes to `main` are not published (#510). The downloaded file is the recommended way to use it: the hosted copy shares its origin with the organization's other Pages sites ([guest editing](guest-editing.md#the-hosted-copy)). The workflow pushes to the `circagraph/circagraph.github.io` repository with a write deploy key stored as the `PAGES_DEPLOY_KEY` secret.
 
 Each opening starts with one empty timeline. Add and edit moments, pan and zoom, inspect groups, and import or export the same `.ochx` format used by the other editions. Changes live in memory: **export JSON to save your work**. Reopening or reloading the HTML starts fresh; it neither rewrites itself nor stores browser drafts. The New button replaces the current timeline.
 
@@ -59,9 +59,9 @@ The offline bundle excludes the HTTP transport and does not initialize accounts,
 
 ### Editions
 
-The build also makes an offline file for each edition in `src/editions.ts`, as `dist/openchronology-offline-<edition>.html`. An edition is the same editor with different defaults for its new timelines; files you open or import keep their own settings. Pages publishes each at `https://openchronology.github.io/<edition>/`, releases attach each file, and the website's download page lists them all.
+The build also makes an offline file for each edition in `src/editions.ts`, as `dist/openchronology-offline-<edition>.html`. An edition is the same editor with different defaults for its new timelines; files you open or import keep their own settings. Pages publishes each at `https://circagraph.github.io/<edition>/`, releases attach each file, and the website's download page lists them all.
 
-- **CFAM** (<https://openchronology.github.io/cfam/>), for causal factor analysis: new timelines have the [Causal factor analysis suite](plugins.md#plugin-suites) (Moment stacks, Moment shapes and Moment colors) installed and enabled, show [Gregorian dates](time-presentation.md) in the computer's UTC offset, and open on the fortnight around today instead of around 0. The chip beside the brand reads **Offline · CFAM**.
+- **CFAM** (<https://circagraph.github.io/cfam/>), for causal factor analysis: new timelines have the [Causal factor analysis suite](plugins.md#plugin-suites) (Moment stacks, Moment shapes and Moment colors) installed and enabled, show [Gregorian dates](time-presentation.md) in the computer's UTC offset, and open on the fortnight around today instead of around 0. The chip beside the brand reads **Offline · CFAM**.
 
 To add an edition, add an entry to `EDITIONS` with its ID (its file name and address), name, description, suites and time display.
 
@@ -124,7 +124,7 @@ The browser jobs (Chromium, Firefox and WebKit) and the PostgreSQL job run on th
 - **The PostgreSQL job:** it runs there too, in the PostgreSQL CI image ([`deploy/postgres-ci`](../deploy/postgres-ci/README.md), #605), which has PostgreSQL 16 with pgmp, the build tools, Rust and the browsers, so it installs nothing and needs no `sudo`. OpenLDAP, for the directory tests, is a service container beside it, so the job doesn't use the runner's Docker itself.
 - **Other jobs:** a job that needs `sudo` on its host stays on GitHub's runners, such as following the systemd journal, which reads the host's own journal. So do benchmarks whose budgets are calibrated there.
 - **The Mac:** the Apple silicon desktop build (`macos-arm64`) runs on a MacBook, a runner labelled `och-mac`, under the same rule for forks. Its user, `gh-runner`, is a hidden standard user with its own primary group, so it can't read other users' home folders, and it can't log in over SSH. It uses the machine's Homebrew, which it can read but not change, so `scripts/desktop/macos-dependencies.sh` installs only missing tools, and its own `rustup`. The runner in `/Users/gh-runner/actions-runner` runs as the launchd daemon `com.openchronology.actions-runner` (`/Library/LaunchDaemons`), so it starts at boot without anyone signed in. The Intel build and the Homebrew server test, which installs services system-wide, stay on GitHub's runners.
-- **Adding one:** register it with `config.sh --labels och-heavy`, using a token from `POST /repos/openchronology/timeline-app/actions/runners/registration-token`, then install it with `svc.sh install gh-runner`.
+- **Adding one:** register it with `config.sh --labels och-heavy`, using a token from `POST /repos/circagraph/timeline-app/actions/runners/registration-token`, then install it with `svc.sh install gh-runner`.
 
 ## Build identity
 
@@ -132,7 +132,7 @@ Every platform, desktop and standalone HTML footer displays the exact version ta
 
 ## Downloads and releases
 
-The website's **Download** page (`/download`) offers the latest stable GitHub release of `openchronology/timeline-app`.
+The website's **Download** page (`/download`) offers the latest stable GitHub release of `circagraph/timeline-app`.
 
 - **Layout:** it puts the visitor's system first, detected from their browser, with a large download button. It then lists every desktop file by operating system, the offline file, and the server packages.
 - **Server packages:** each package (Debian 13, Ubuntu 24.04, Rocky Linux and RHEL 10, Fedora 44, FreeBSD 14 and 15) has a one-line `curl … && sudo apt install ./…deb` (or `dnf install ./…rpm`, or FreeBSD's `fetch … && pkg install -y ./…pkg && openchronology-setup`) command to copy, and Docker Compose is offered for other systems.
@@ -146,6 +146,6 @@ Pushing a semantic version tag such as `v1.2.3` runs `.github/workflows/release.
 
 The RPM baseline is **Rocky Linux 10 / RHEL 10**, with EPEL and CRB enabled for WebKitGTK 4.1. Stock Rocky 9 supplies WebKitGTK 4.0, which cannot build this Tauri 2 application. The workflow installs the RPM and checks shared-library resolution on its baseline. It does not claim compatibility with RHEL 9.
 
-Windows and macOS use GMP and SQLite static libraries built from a pinned vcpkg revision. Their matching native source archives accompany releases, along with application source and vendored Rust dependencies. Linux uses distribution libraries. Windows installers and macOS applications are currently unsigned (macOS is not notarized); configuring release signing requires the publisher's certificates. Every release asset has a build provenance attestation instead, which `gh attestation verify <file> --repo openchronology/timeline-app` checks ([verifying a download](licensing.md#verifying-a-download)).
+Windows and macOS use GMP and SQLite static libraries built from a pinned vcpkg revision. Their matching native source archives accompany releases, along with application source and vendored Rust dependencies. Linux uses distribution libraries. Windows installers and macOS applications are currently unsigned (macOS is not notarized); configuring release signing requires the publisher's certificates. Every release asset has a build provenance attestation instead, which `gh attestation verify <file> --repo circagraph/timeline-app` checks ([verifying a download](licensing.md#verifying-a-download)).
 
 For local packaged builds, run `node scripts/desktop/build.mjs TARGET` with one of `linux-deb`, `linux-appimage`, `rocky-rpm`, `macos-arm64`, `macos-amd64`, or `windows-amd64` on the corresponding native OS. The workflow dependency scripts set `OCH_NATIVE_PREFIX` and `OCH_NATIVE_STATIC` for pinned native libraries. macOS and Windows configuration files choose the platform's installer and icon automatically.

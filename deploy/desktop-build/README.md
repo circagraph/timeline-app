@@ -5,7 +5,7 @@ Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 The Linux desktop build image (#605): Ubuntu 24.04 with what the desktop app's Linux builds and tests need.
 
 - **Contents:** WebKitGTK, GTK and the other Tauri libraries, GMP and SQLite, Rust 1.99.0, the pinned `tauri-driver`, WebKitWebDriver, Xvfb, and Node.js.
-- **Publishing:** [`scripts/build-images.mjs`](../../scripts/build-images.mjs) builds it and the [build images workflow](../../.github/workflows/build-images.yml) publishes it to `ghcr.io/openchronology/desktop-build`, tagged with a hash of the Dockerfile.
+- **Publishing:** [`scripts/build-images.mjs`](../../scripts/build-images.mjs) builds it and the [build images workflow](../../.github/workflows/build-images.yml) publishes it to `ghcr.io/circagraph/desktop-build`, tagged with a hash of the Dockerfile.
 - **In CI:** the .deb and AppImage builds ([`desktop.yml`](../../.github/workflows/desktop.yml)) and the desktop UI test (`ci.yml`'s `desktop-ui`) run in the image whose tag matches the Dockerfile. When none is published, they install their packages on the runner as before.
 
 ## Building and testing locally
