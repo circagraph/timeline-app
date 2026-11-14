@@ -40,7 +40,7 @@ rustPlatform.buildRustPackage {
 
   meta = {
     description = "Converts OpenChronology timelines to and from .och files";
-    homepage = "https://github.com/openchronology/timeline-app";
+    homepage = "https://github.com/circagraph/timeline-app";
     license = lib.licenses.gpl3Only;
     mainProgram = "och-convert";
   };

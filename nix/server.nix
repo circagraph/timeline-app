@@ -86,7 +86,7 @@ buildNpmPackage {
 
   meta = {
     description = "OpenChronology, the exact timeline platform: its web server";
-    homepage = "https://github.com/openchronology/timeline-app";
+    homepage = "https://github.com/circagraph/timeline-app";
     license = lib.licenses.gpl3Only;
     mainProgram = "openchronology-server";
     platforms = lib.platforms.linux;

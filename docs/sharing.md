@@ -12,7 +12,7 @@ a private one opens only for its members.
 
 ## Addresses
 
-Profiles and timelines have addresses like GitHub's ([#148](https://github.com/openchronology/timeline-app/issues/148)):
+Profiles and timelines have addresses like GitHub's ([#148](https://github.com/circagraph/timeline-app/issues/148)):
 
 | Address              | Is                                                                                      |
 | -------------------- | --------------------------------------------------------------------------------------- |
@@ -78,7 +78,7 @@ Twitter cards) and search engines. Each has:
 
 - a title: a moment's or duration's own, then its timeline's, then the site's name. Search
   results show about 60 characters, so the page's `<title>` fits in that
-  ([#469](https://github.com/openchronology/timeline-app/issues/469)). It tries, in turn: the
+  ([#469](https://github.com/circagraph/timeline-app/issues/469)). It tries, in turn: the
   timeline by its name before a subtitle, without the site's name, the timeline's name cut
   between words, and the event's title alone, cut if need be. Link previews keep the whole
   title. The site's own pages fit theirs the same way;
@@ -117,7 +117,7 @@ described by their labels instead of their notes, and ask search engines not to 
 - `/robots.txt` lets crawlers read pages but not the API, accounts, the bare editor or embeds,
   and names the sitemap. It does let them read the editor's frame, `/editor/frame`, which
   answers `X-Robots-Tag: noindex, indexifembedded`: indexed only as part of the page that
-  frames it ([#428](https://github.com/openchronology/timeline-app/issues/428)).
+  frames it ([#428](https://github.com/circagraph/timeline-app/issues/428)).
 - **A timeline's page arrives with its heading:** the frame its page shows is asked for with
   `?timeline=<id>`, and for someone who may read that timeline it is served with the
   timeline's image, title, description (its Markdown rendered) and moment count already in
@@ -134,7 +134,7 @@ described by their labels instead of their notes, and ask search engines not to 
     isn't suspended). Each address has when it last changed, and the index gives each page
     the latest change on it, so a crawler can tell which pages to read again.
   - `/sitemap/entities-<id>.xml` pages list the pages of moments and durations
-    ([#335](https://github.com/openchronology/timeline-app/issues/335)), several timelines to
+    ([#335](https://github.com/circagraph/timeline-app/issues/335)), several timelines to
     a page and never more than 45,000 addresses, each with its timeline's last change.
   - **Which timelines' entities are listed:** public timelines without
     sensitive-content labels, that are not comparisons, with at most 5,000 moments, and not
@@ -152,7 +152,7 @@ described by their labels instead of their notes, and ask search engines not to 
   - A timeline's entities are read by the primary key of its search rows (see
     [search](search.md#storage-and-api)), as a guest sees them, so its size costs nothing beyond
     the addresses listed.
-- **For AI engines and agents** ([#482](https://github.com/openchronology/timeline-app/issues/482)):
+- **For AI engines and agents** ([#482](https://github.com/circagraph/timeline-app/issues/482)):
   `/llms.txt` ([llmstxt.org](https://llmstxt.org)) says in Markdown what the site is (its name,
   and that it runs OpenChronology), and links its main pages, every help page, the API reference
   and its OpenAPI description, and up to ten featured public timelines, each with a line from its
@@ -160,7 +160,7 @@ described by their labels instead of their notes, and ask search engines not to 
   from the help and the site's settings, so they follow the docs; every page's footer links
   `/llms.txt`, and the sitemap lists it.
 - **The FAQ** (`/help/faq`) also describes itself as a schema.org `FAQPage`
-  ([#483](https://github.com/openchronology/timeline-app/issues/483)): each heading that asks a
+  ([#483](https://github.com/circagraph/timeline-app/issues/483)): each heading that asks a
   question, with its answer's first paragraph as plain text, so the data says what the page says.
 - To tell Google about it, open [Search Console](https://search.google.com/search-console)
   for the site's domain (verified by a DNS record or an HTML file), choose **Sitemaps**, and
@@ -180,7 +180,7 @@ described by their labels instead of their notes, and ask search engines not to 
 - **Moment and duration pages' descriptions**, which search results and link previews show,
   are its time as the timeline writes it, then its notes as plain text without their Markdown,
   cut between words near 155 characters
-  ([#466](https://github.com/openchronology/timeline-app/issues/466)).
+  ([#466](https://github.com/circagraph/timeline-app/issues/466)).
 - **Moment and duration pages as text:** each includes, as text:
   - its title;
   - its time or extent as the timeline displays it, each time at its own precision ("539
@@ -202,7 +202,7 @@ described by their labels instead of their notes, and ask search engines not to 
 - **Structured data:** each moment and duration page also describes itself as
   [schema.org](https://schema.org) JSON-LD:
   - a `CreativeWork` whose `temporalCoverage` is its time in ISO 8601
-    ([#468](https://github.com/openchronology/timeline-app/issues/468)): a date as precise as
+    ([#468](https://github.com/circagraph/timeline-app/issues/468)): a date as precise as
     the timeline writes it (`1975`, `1975-03`, `1975-03-14`, or a full timestamp), and for a
     duration an interval `start/end`, both ends at the finer of their precisions. Years count
     as ISO 8601 does, so 539 BCE is `-0538` and 1 BCE `0000`, from -9999 to 9999. A timeline
@@ -211,7 +211,7 @@ described by their labels instead of their notes, and ask search engines not to 
   - never an `Event`, which search engines take for a happening to attend, and fault for
     lacking a place, tickets and organizer.
   - Private and labelled timelines' pages have none.
-- **Trails and kinds of page** ([#474](https://github.com/openchronology/timeline-app/issues/474)):
+- **Trails and kinds of page** ([#474](https://github.com/circagraph/timeline-app/issues/474)):
   a moment's or duration's page also has a `BreadcrumbList` (its timeline's owner, the timeline,
   then it), which search results can show in place of its address, and it previews as an
   `article` rather than a `website`. Help pages have one too (Help, then the page), and the
@@ -221,7 +221,7 @@ described by their labels instead of their notes, and ask search engines not to 
 ### Which events search engines list
 
 Every moment and duration of a public timeline has a page, but search engines don't get them
-all ([#467](https://github.com/openchronology/timeline-app/issues/467)). Thousands of pages that
+all ([#467](https://github.com/circagraph/timeline-app/issues/467)). Thousands of pages that
 say little, such as a log's lines, would lower how search engines rate the site's other pages.
 **Sharing & settings** → **Search engines** chooses for each timeline:
 
@@ -242,7 +242,7 @@ enough to list, chosen by a hash of their IDs. It reduces each note to its first
 without numbers, addresses, `code` and quoted text. If at least 20 notes are sampled and
 half of them reduce to the same words, the timeline lists none automatically. **All of them**
 lists them anyway. The verdict is kept until the timeline's next save. A plan for a model to
-judge this more finely is [#476](https://github.com/openchronology/timeline-app/issues/476).
+judge this more finely is [#476](https://github.com/circagraph/timeline-app/issues/476).
 
 ## Embedding
 
@@ -280,7 +280,7 @@ keep to https (HSTS), as every other page does.
 ### In other pages and AI chats
 
 A timeline doesn't need to be on a server to be shown elsewhere. The `<och-timeline>` element,
-published on npm as [`@openchronology/timeline`](https://github.com/openchronology/timeline-app/tree/main/packages/timeline#readme), is the
+published on npm as [`@openchronology/timeline`](https://github.com/circagraph/timeline-app/tree/main/packages/timeline#readme), is the
 [offline editor](guide.md#the-desktop-app-and-the-offline-file) in a frame of its own, opened at a timeline written inside it as
 `.ochx` JSON. Pages, documentation sites and the HTML an AI chat writes into a reply or an
 artifact can use it, loading it from jsDelivr or unpkg:
@@ -312,7 +312,7 @@ artifact can use it, loading it from jsDelivr or unpkg:
   network requests, so neither the page nor the timeline can reach the other.
 
 Its attributes (`height`, `theme`, `src`) and script use are in the
-[package's README](https://github.com/openchronology/timeline-app/tree/main/packages/timeline#readme).
+[package's README](https://github.com/circagraph/timeline-app/tree/main/packages/timeline#readme).
 
 ### oEmbed
 

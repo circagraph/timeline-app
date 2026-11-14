@@ -81,7 +81,7 @@ An upgrade of the Linux and FreeBSD packages stops the server, the mail worker, 
 - **Files:** the editor and the desktop app open `.circa` (desktop) and `.circax` (exchange) files as they open `.och` and `.ochx`, and the server accepts `application/vnd.circagraph.sqlite` beside `application/vnd.openchronology.sqlite`.
 - **NixOS:** the module's options are `services.circagraph`; `services.openchronology` still works, with a warning to rename it ([Nix](nix.md)).
 
-**Newer releases** ([#601](https://github.com/openchronology/timeline-app/issues/601)): when an administrator is signed in and a newer release than the server's is out, a banner under the header says so. It links the release notes and these instructions. Only administrators see it, and **Dismiss until the next release** hides it for that release, for that administrator, on any device. The server asks GitHub for the latest release at most every ten minutes, as the download page does. A server built from an untagged commit never shows it. Set `UPDATE_NOTICES=off` to turn it off, for a server that keeps its version on purpose. The desktop app tells its users the same way, asking at most once a day; its banner can be dismissed per release, or turned off with **Don't check for updates**.
+**Newer releases** ([#601](https://github.com/circagraph/timeline-app/issues/601)): when an administrator is signed in and a newer release than the server's is out, a banner under the header says so. It links the release notes and these instructions. Only administrators see it, and **Dismiss until the next release** hides it for that release, for that administrator, on any device. The server asks GitHub for the latest release at most every ten minutes, as the download page does. A server built from an untagged commit never shows it. Set `UPDATE_NOTICES=off` to turn it off, for a server that keeps its version on purpose. The desktop app tells its users the same way, asking at most once a day; its banner can be dismissed per release, or turned off with **Don't check for updates**.
 
 ## Data quotas
 
@@ -183,7 +183,7 @@ Upgrading copies each timeline's current state into its saved history once, duri
 revisions keep the form they were saved in.
 
 Upgrading to a release that keeps background addresses of up to 1,024 characters
-([#365](https://github.com/openchronology/timeline-app/issues/365)) rebuilds, once, the
+([#365](https://github.com/circagraph/timeline-app/issues/365)) rebuilds, once, the
 indexes of timelines with a duration whose web address is 257 to 1,024 characters long, and
 of the forks reading through to them, so those backgrounds show. Finding them reads every
 duration's definition once; `oc_migrations` records that it ran, so later upgrades skip it.
@@ -367,7 +367,7 @@ for it and is then sent from the cache.
 
 ## Name and analytics
 
-`PLATFORM_NAME` (for example `timescale.info`) replaces "openchronology" in the platform's header. It is also used as the site name in page titles, link previews and oEmbed responses, and the footer then adds "Powered by OpenChronology", linked to the project. The pages' structured data names the site with OpenChronology as its other name, and says that it runs OpenChronology, so search engines and AI answers tie the two names together ([#472](https://github.com/openchronology/timeline-app/issues/472)). When it is empty, OpenChronology's name is shown. The name is at most 60 characters, and the server refuses to start if it is longer.
+`PLATFORM_NAME` (for example `timescale.info`) replaces "openchronology" in the platform's header. It is also used as the site name in page titles, link previews and oEmbed responses, and the footer then adds "Powered by OpenChronology", linked to the project. The pages' structured data names the site with OpenChronology as its other name, and says that it runs OpenChronology, so search engines and AI answers tie the two names together ([#472](https://github.com/circagraph/timeline-app/issues/472)). When it is empty, OpenChronology's name is shown. The name is at most 60 characters, and the server refuses to start if it is longer.
 
 `SUPPORT_URL` is where visitors can support the platform, such as `https://github.com/sponsors/you`, an Open Collective page or a page of your own. When it is set, the header ends with a **♥ Support** link and the footer has **Support this site**. When it is empty, neither appears. It must be an `https://` address; the server refuses to start with anything else.
 
@@ -391,7 +391,7 @@ An ID that is not a measurement ID is refused at startup. Mention analytics in y
 
 ## Landing page
 
-A server opens on the timeline browser at `/`. To pitch it to particular audiences instead, turn on the landing page ([#379](https://github.com/openchronology/timeline-app/issues/379)):
+A server opens on the timeline browser at `/`. To pitch it to particular audiences instead, turn on the landing page ([#379](https://github.com/circagraph/timeline-app/issues/379)):
 
 ```sh
 LANDING_PAGE=1
@@ -417,7 +417,7 @@ When it is off, `/` is the timeline browser as before, `/explore` shows the same
 
 ## IndexNow
 
-[IndexNow](https://www.indexnow.org/documentation) tells search engines that take it (Bing, Yandex, Naver, Seznam and others; not Google, which reads the [sitemap](sharing.md#search-engines)) which pages changed, so they visit them within minutes instead of at their next crawl ([#389](https://github.com/openchronology/timeline-app/issues/389)). It is off unless you set a key:
+[IndexNow](https://www.indexnow.org/documentation) tells search engines that take it (Bing, Yandex, Naver, Seznam and others; not Google, which reads the [sitemap](sharing.md#search-engines)) which pages changed, so they visit them within minutes instead of at their next crawl ([#389](https://github.com/circagraph/timeline-app/issues/389)). It is off unless you set a key:
 
 ```sh
 INDEXNOW_KEY=$(openssl rand -hex 16)
@@ -427,7 +427,7 @@ The key is 8 to 128 letters, digits and dashes; anything else stops the server s
 
 - The site serves the key at `/<key>.txt`, which is how the engines know submissions for your site are yours. Keep the same key; a new one is fine, but the old file stops being served.
 - About once a minute, the server compares the pages the sitemap lists (public timelines, and the profiles of accounts that own one and are not suspended) with what it saw a minute before, and sends the addresses that changed to `https://api.indexnow.org/indexnow`, which passes them on to every participating engine: a timeline created or made public, saved, given a new address (the old and the new), made private or deleted (its old address, so engines drop it), and a profile that gains or loses public timelines. Up to 10,000 addresses go in one request, with `APP_ORIGIN`'s host and `/<key>.txt` as the key's location.
-- The pages of moments and durations go too ([#453](https://github.com/openchronology/timeline-app/issues/453)), for the timelines whose entities the sitemap lists (public, without sensitive-content labels, and with at most `SITEMAP_TIMELINE_ENTITIES` moments): all of a timeline's when it is made public or given a new address, and after a save those it added, changed or removed, and both ends of each relationship it added or removed, read from the timeline's saved history. A timeline that keeps no saved history sends only its own page. Adding or removing a [link between timelines](relationships.md#links-to-other-timelines) sends the pages of both its ends: a moment's or duration's where its timeline's entities are listed, a timeline's own page for a link to it as a whole. When a timeline is renamed, made private or deleted, its entities' old addresses are not sent; engines drop them at their next crawl, as the sitemap no longer lists them.
+- The pages of moments and durations go too ([#453](https://github.com/circagraph/timeline-app/issues/453)), for the timelines whose entities the sitemap lists (public, without sensitive-content labels, and with at most `SITEMAP_TIMELINE_ENTITIES` moments): all of a timeline's when it is made public or given a new address, and after a save those it added, changed or removed, and both ends of each relationship it added or removed, read from the timeline's saved history. A timeline that keeps no saved history sends only its own page. Adding or removing a [link between timelines](relationships.md#links-to-other-timelines) sends the pages of both its ends: a moment's or duration's where its timeline's entities are listed, a timeline's own page for a link to it as a whole. When a timeline is renamed, made private or deleted, its entities' old addresses are not sent; engines drop them at their next crawl, as the sitemap no longer lists them.
 - Each address is sent at most once an hour, so a timeline a log stream saves all day is sent hourly. A timeline that was never public is never sent.
 - It runs in the background of the platform's process, with a ten-second limit on each request, and never holds up a page or a save. A request that gets no answer, `429` or a server error is tried again after a minute, then two, four and so on up to an hour; one refused (`400`, `403`, `422`: a wrong key or `APP_ORIGIN`) is logged and dropped.
 - What changed while the server was stopped is not sent: the first comparison after a start only takes stock. The sitemap covers it.
@@ -437,7 +437,7 @@ Check it works by opening `https://<your site>/<key>.txt`, then watch the log fo
 
 ## Reverse proxy, page caching and page speed
 
-The server renders each page as it is asked for. A reverse proxy in front of it, such as nginx, can keep a copy of the public pages that signed-out visitors and search engines read, and answer from it for a minute, so a busy timeline is rendered once a minute rather than for every reader ([#473](https://github.com/openchronology/timeline-app/issues/473)).
+The server renders each page as it is asked for. A reverse proxy in front of it, such as nginx, can keep a copy of the public pages that signed-out visitors and search engines read, and answer from it for a minute, so a busy timeline is rendered once a minute rather than for every reader ([#473](https://github.com/circagraph/timeline-app/issues/473)).
 
 **What the server allows a shared cache to keep.** These pages, asked for with `GET` or `HEAD` and without a session cookie (`oc_session`, or `__Host-oc_session` over HTTPS) or an `Authorization` header, are sent with `Cache-Control: public, s-maxage=60, stale-while-revalidate=300` and `Vary: Cookie`:
 

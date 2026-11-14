@@ -4,7 +4,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-The desktop app can make a timeline from the files on your computer: a moment for each photo, video, recording or any other file, at the time you choose ([#433](https://github.com/openchronology/timeline-app/issues/433)). A folder of photos becomes an album you browse by when each was taken. Each moment's source is the file itself, so opening a moment's source opens the file in its own app, such as your photo viewer or video player. Nothing is copied: the timeline links to the files where they are.
+The desktop app can make a timeline from the files on your computer: a moment for each photo, video, recording or any other file, at the time you choose ([#433](https://github.com/circagraph/timeline-app/issues/433)). A folder of photos becomes an album you browse by when each was taken. Each moment's source is the file itself, so opening a moment's source opens the file in its own app, such as your photo viewer or video player. Nothing is copied: the timeline links to the files where they are.
 
 This is only in the desktop app. A web browser can't read your folders, and a server never stores where your files are (see [Your file paths stay on your computer](#your-file-paths-stay-on-your-computer)).
 
@@ -49,7 +49,7 @@ Photos: `jpg`, `jpeg`, `heic`, `heif`, `avif`, `png`, `webp`, `tif`, `tiff`, `dn
 
 ## Thumbnails
 
-In the desktop app, a moment whose source is a photo or video on this computer shows a small picture of it as its marker, which grows on hover like any marker picture ([#440](https://github.com/openchronology/timeline-app/issues/440), [#442](https://github.com/openchronology/timeline-app/issues/442)). The **File thumbnails** plugin (`file-thumbnails`) does this, and a timeline made from files has it; add it in **Plugins** to any timeline whose moments have photos or videos among their sources. A moment uses its first source that is one.
+In the desktop app, a moment whose source is a photo or video on this computer shows a small picture of it as its marker, which grows on hover like any marker picture ([#440](https://github.com/circagraph/timeline-app/issues/440), [#442](https://github.com/circagraph/timeline-app/issues/442)). The **File thumbnails** plugin (`file-thumbnails`) does this, and a timeline made from files has it; add it in **Plugins** to any timeline whose moments have photos or videos among their sources. A moment uses its first source that is one.
 
 - **Where they come from:**
   - **Photos:** their own small preview, which most cameras and phones store in the photo's EXIF and many raw files carry too, or else the photo itself scaled down. Each is turned the way the photo was taken.

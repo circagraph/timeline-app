@@ -62,7 +62,7 @@ When more than 256 durations touch a window, every store keeps its **256 longest
 
 ## Dense windows
 
-Bands are drawn beneath the axis, in rows, so that no two overlapping in time share one ([#269](https://github.com/openchronology/timeline-app/issues/269)). When many durations touch the view ([#316](https://github.com/openchronology/timeline-app/issues/316)):
+Bands are drawn beneath the axis, in rows, so that no two overlapping in time share one ([#269](https://github.com/circagraph/timeline-app/issues/269)). When many durations touch the view ([#316](https://github.com/circagraph/timeline-app/issues/316)):
 
 - **Near-identical spans share one band.** Durations whose start and end are both closer than the grouping distance (**Group within**) to a band's are drawn as that band, labeled "_Title_ + 2,340 more" and outlined twice. Choosing it lists them. Grouping compares distances in time, so it changes with zoom but never with panning.
 - **Rows go longest first.** Bands claim rows in order of length, then start, title and ID, so an era sits on the first row and the details inside it below. The order depends only on the durations, so panning never reshuffles the rows.
@@ -90,7 +90,7 @@ SQLite indexes the exact start. PostgreSQL keeps arbitrarily large `mpq` values 
 
 Randomized oracle tests check that PostgreSQL matches the browser, and that SQLite and the browser match a brute-force reference. Equivalence tests (`summary_equivalence_tests` in `native-store`, `test/summaries-equivalence.test.mjs` and `test/summaries-equivalence-postgres.mjs`) check that each optimized summary matches the previous traversal exactly.
 
-Server and desktop timelines query saved summaries; unsaved edits move collapsed durations between summaries locally. `npm run migrate` rebuilds duration indexes saved before these subtree summaries existed, and, once, those of timelines whose bands were saved before they kept web addresses longer than 256 characters ([#365](https://github.com/openchronology/timeline-app/issues/365)).
+Server and desktop timelines query saved summaries; unsaved edits move collapsed durations between summaries locally. `npm run migrate` rebuilds duration indexes saved before these subtree summaries existed, and, once, those of timelines whose bands were saved before they kept web addresses longer than 256 characters ([#365](https://github.com/circagraph/timeline-app/issues/365)).
 
 Viewport bands carry a bounded projection of metadata: the title (512 characters), a notes preview (2,000 characters) and other text fields of at most 256 characters, such as colors, and web addresses (`http://` or `https://`) of at most 1,024, such as background images, all within 4,096 characters. Opening a duration fetches its complete definition by ID (`{"kind": "duration", "id": "…"}` on the timeline query endpoint, or the desktop native query). A server leaves the notes preview out of a window's bands (#565), where it was most of their size, unless an enabled plugin shows notes on the timeline (a hover card or sources); opening a band, also on a compared or separated track, reads the whole duration.
 

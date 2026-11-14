@@ -12,7 +12,7 @@ import { CAUSAL_FACTOR_ANALYSIS } from './suites.js';
 import type { PluginSuite } from './suites.js';
 
 export interface Edition {
-  /** Its file is openchronology-offline-<id>.html, published at openchronology.github.io/<id>. */
+  /** Its file is openchronology-offline-<id>.html, published at circagraph.github.io/<id>. */
   id: string;
   /** Shown beside the brand, after "Offline". */
   name: string;

@@ -88,7 +88,7 @@ Install **Duration backgrounds** to show an image behind the timeline wherever a
 - **Narrow durations:** like the ruler's finest marks, a background fades out as its duration narrows on screen: it shows in full while the duration is at least 192 pixels wide, fades as it narrows, and is gone below 96 pixels, while its band still shows.
 - **Stacking:** smaller durations show above larger ones, and all of them lie behind the timeline's axis, links and moments. An edge inside the view fades to transparency over 48 pixels, however wide the duration, so backgrounds blend into each other; an edge where the duration continues past the view does not fade.
 - **Readability:** while any background shows, the timeline is drawn crisply over it: moment labels sit on solid white cards, the axis is bold, and the axis, links, markers and duration bands are edged in white with soft shadows, so they stand out from any image without blurring it. A shaped marker, such as an ellipse, is edged along its own outline rather than in a ring.
-- **Address length:** duration bands carry web addresses of at most 1,024 characters ([#365](https://github.com/openchronology/timeline-app/issues/365)), so a longer image address shows nothing. The duration dialog says so, importing a file says how many durations have one, and the API's answer to a save or import carries a warning naming them (see [images](images.md#image-addresses)).
+- **Address length:** duration bands carry web addresses of at most 1,024 characters ([#365](https://github.com/circagraph/timeline-app/issues/365)), so a longer image address shows nothing. The duration dialog says so, importing a file says how many durations have one, and the API's answer to a save or import carries a warning naming them (see [images](images.md#image-addresses)).
 - **Offline:** exports embed copies of background images, as for icons, so the offline edition can show them.
 
 ## Timeline background
@@ -121,7 +121,7 @@ A plugin may declare up to twelve `settings`: values for the whole timeline, set
 
 ## Background chart
 
-Install **Background chart** (`background-chart`) to chart how many moments lie across the view, as a smooth curve behind the timeline ([#289](https://github.com/openchronology/timeline-app/issues/289)). The curve rises from the foot of the timeline and reaches its highest point, a fifth of the way down from the top, where the view's moments are most numerous, so its heights compare parts of the view rather than give counts.
+Install **Background chart** (`background-chart`) to chart how many moments lie across the view, as a smooth curve behind the timeline ([#289](https://github.com/circagraph/timeline-app/issues/289)). The curve rises from the foot of the timeline and reaches its highest point, a fifth of the way down from the top, where the view's moments are most numerous, so its heights compare parts of the view rather than give counts.
 
 - **Follows the view:** panning and zooming redraw it for what is in view; zoomed into a quiet stretch, that stretch's busiest part reaches the top.
 - **Smooth:** each moment adds a bell-shaped rise about twice the grouping distance (**Group within**) wide, at least 24 pixels, so nearby moments make one hill. Near the view's edges the curve counts only what lies inside, so moments spread evenly chart level to the edges.
@@ -133,7 +133,7 @@ A plugin's `chart` is `{ "kind": "moments" }`, with a `setting` naming one of it
 
 ### Series
 
-A chart can draw a curve for some of its moments beneath the total ([#434](https://github.com/openchronology/timeline-app/issues/434)): one per series, each the moments carrying any of its tags. Install **Log severity chart** (`log-severity-chart`) to chart imported log entries this way: all of them, with errors (`severity:err` and anything more severe) in red, warnings (`severity:warning`) in yellow and information (`severity:notice`, `severity:info`) in blue, the colors Log severity colors gives the entries themselves. Each color can be changed under the plugin in the **Plugins** dialog.
+A chart can draw a curve for some of its moments beneath the total ([#434](https://github.com/circagraph/timeline-app/issues/434)): one per series, each the moments carrying any of its tags. Install **Log severity chart** (`log-severity-chart`) to chart imported log entries this way: all of them, with errors (`severity:err` and anything more severe) in red, warnings (`severity:warning`) in yellow and information (`severity:notice`, `severity:info`) in blue, the colors Log severity colors gives the entries themselves. Each color can be changed under the plugin in the **Plugins** dialog.
 
 - **Stacked:** the series add up, in the plugin's order, each lying on those before it, all on the total's scale. Where two moments are together, one of each of two series, the first series' line is at one and the second's at two: the band between them is one more, of the second kind. A moment carrying the tags of two series counts once, in the first. Where every moment is in some series, the last series' line meets the total; the gap between them is the moments in none, or ones the browser doesn't know (below).
 - **Look:** a lighter area under a line in the series' color, between the total's area and its line.
@@ -144,9 +144,9 @@ Each of `series` (one to eight) is `{ "label": "Errors", "tags": ["severity:err"
 
 ### Charting a measure
 
-A chart can draw one of the timeline's [measures](measures.md) instead of the moments' count ([#575](https://github.com/openchronology/timeline-app/issues/575)): `{ "kind": "measure", "measure": "cost" }`, with an optional color `setting` as above. The curve is the measure's total across the view as a rate, highest where it is largest. Each summary weighs as much as its total, read from the view's summaries as counts are. A total below zero counts as zero, and a measure chart has no series.
+A chart can draw one of the timeline's [measures](measures.md) instead of the moments' count ([#575](https://github.com/circagraph/timeline-app/issues/575)): `{ "kind": "measure", "measure": "cost" }`, with an optional color `setting` as above. The curve is the measure's total across the view as a rate, highest where it is largest. Each summary weighs as much as its total, read from the view's summaries as counts are. A total below zero counts as zero, and a measure chart has no series.
 
-A balance chart draws a measure's running balance instead ([#595](https://github.com/openchronology/timeline-app/issues/595)): `{ "kind": "balance", "measure": "cost" }`, for a measure with a balance. It is a step line, level between changes and stepping at each summary. It runs from the balance before the view's changes to the balance after them, scaled to the view's highest and lowest balances, and filled to zero. Nothing is drawn when the measure has no balance, or in a comparison.
+A balance chart draws a measure's running balance instead ([#595](https://github.com/circagraph/timeline-app/issues/595)): `{ "kind": "balance", "measure": "cost" }`, for a measure with a balance. It is a step line, level between changes and stepping at each summary. It runs from the balance before the view's changes to the balance after them, scaled to the view's highest and lowest balances, and filled to zero. Nothing is drawn when the measure has no balance, or in a comparison.
 
 Every timeline measure is charted even without a plugin, as its declaration says ([measures](measures.md)). Each chart, a plugin's or a measure's own, has a switch in the **Show** dialog, so readers can hide it ([showing and hiding parts](guide.md#showing-and-hiding-parts)). A chart plugin for a measure replaces that measure's own chart, in the plugin's color or else the measure's. All of them are drawn over the moments chart, plugins' first in plugin order, then the measures', each on its own scale and in its own color. With more than two, they are drawn as lines, without their fills, so they don't cloud each other. Each has a value axis on the timeline's right edge, in the chart's color, drawn above the moments so cards never hide it. One axis shows at a time: with several charts, a picker above them at the right chooses whose, edged in that chart's color, and the other charts' lines fade behind its. It starts on the first chart, and keeps the choice while that measure is charted:
 
@@ -193,8 +193,8 @@ Plugins combine **JSON host component declarations** and an optional restricted 
 - Targets: an optional `targets` array of `"moments"` and/or `"durations"`. Without it, color and outline markers, hover cards and relationship arrows apply to moments and [durations](durations.md); every other plugin applies to moments only. Durations use text, notes, color, link, image URL, toggle and relationship-arrows fields, color and outline markers, hover cards and backgrounds (`background.kind: "image"`, which applies to durations only); stacks, shapes, sizes, icons and summary expansion are moment-only.
 
 - Derived metadata: `derive` rules that work out values from the metadata an entity already has, for the other plugins to read ([derived metadata](#derived-metadata)).
-- Sizes by a measure: an optional `sizeBy: { "measure": "cost" }` sizes markers and summaries by their value or total of one of the timeline's [measures](measures.md) ([#575](https://github.com/openchronology/timeline-app/issues/575)), relative to the largest in view. The top third is large, the middle third medium and the rest small. It replaces the plugin's or the usual size while anything in view has a positive total.
-- Summaries: with `"renderSummaries": true`, a plugin's script also renders summaries ([#587](https://github.com/openchronology/timeline-app/issues/587)). It sets their color, shape, size and outline, and reads their [measures](measures.md)' totals with `api.total(name)`. `api.balance(name)` reads a moment's or summary's balance after its changes ([#595](https://github.com/openchronology/timeline-app/issues/595)), exactly, or empty text when the measure has none. In a comparison, it uses `api.total(name, n)` for the nth compared timeline's totals, since each timeline's measures are its own and are never added together. Without the flag, scripts render single moments only, as before.
+- Sizes by a measure: an optional `sizeBy: { "measure": "cost" }` sizes markers and summaries by their value or total of one of the timeline's [measures](measures.md) ([#575](https://github.com/circagraph/timeline-app/issues/575)), relative to the largest in view. The top third is large, the middle third medium and the rest small. It replaces the plugin's or the usual size while anything in view has a positive total.
+- Summaries: with `"renderSummaries": true`, a plugin's script also renders summaries ([#587](https://github.com/circagraph/timeline-app/issues/587)). It sets their color, shape, size and outline, and reads their [measures](measures.md)' totals with `api.total(name)`. `api.balance(name)` reads a moment's or summary's balance after its changes ([#595](https://github.com/circagraph/timeline-app/issues/595)), exactly, or empty text when the measure has none. In a comparison, it uses `api.total(name, n)` for the nth compared timeline's totals, since each timeline's measures are its own and are never added together. Without the flag, scripts render single moments only, as before.
 - Added shapes: an optional `shapes` array of the shapes added after the first twelve that the plugin draws, currently only `"ellipse"`. A shape field, shape marker or `api.shape(...)` of a plugin that doesn't list one treats it as unknown, as before it existed; the field's selector offers the plugin's shapes.
 
 A plugin can define fields without a marker effect, or an effect without a new editor field. Additional component kinds require an implementation and security review in the host; they are not arbitrary downloaded UI programs. New capabilities will use versioned contracts.
@@ -239,7 +239,7 @@ Read-only server overview queries return the requested plugin metadata for indiv
 
 ## Derived metadata
 
-A plugin can work out metadata from what an event (a moment or a duration) already has, for the other plugins to read, like middleware between the saved metadata and the plugins that draw it ([#122](https://github.com/openchronology/timeline-app/issues/122)). A rule sets one key from the first of its sources that has a value:
+A plugin can work out metadata from what an event (a moment or a duration) already has, for the other plugins to read, like middleware between the saved metadata and the plugins that draw it ([#122](https://github.com/circagraph/timeline-app/issues/122)). A rule sets one key from the first of its sources that has a value:
 
 ```json
 {
@@ -298,7 +298,7 @@ A purely static web deployment has no catalogue API: run the Node server to offe
 
 ## Where plugins run
 
-Plugins run only in the browser (and the desktop app). The server never runs plugin code ([#157](https://github.com/openchronology/timeline-app/issues/157)):
+Plugins run only in the browser (and the desktop app). The server never runs plugin code ([#157](https://github.com/circagraph/timeline-app/issues/157)):
 
 - **The server compiles scripts it is given, and nothing more.** That refuses a plugin whose script doesn't compile: one being published, or new to a timeline that's created or saved, or to a pull request. It compiles them in worker threads that hold only the compiler (`server/plugin-sandbox.mjs`). The workers have no environment and are limited to 64 MiB of old-generation and 16 MiB of young-generation memory, a 16 MiB code range, a 4 MiB stack and 2 s per script. A worker past a limit is stopped and replaced, and the request's thread is unaffected. The results of the last 1,000 distinct scripts are remembered, so each is usually compiled once per process; one whose worker was stopped is compiled again next time. The built-in plugins' scripts, and those a timeline already has, aren't compiled again, so most saves compile nothing.
 - **Each plugin validates its own metadata.** The server stores a moment's metadata as given, within its generic limits (JSON, sizes, IDs, times, and the core's own title, notes and tags). Neither the server nor the browser's core checks plugins' fields on their behalf. Each field kind reads whatever it finds: a value of the wrong shape is ignored or shown as unreadable, and never stops a timeline from loading. Where a plugin offers an editor, the editor checks what it writes.
@@ -341,7 +341,7 @@ Moment shapes version 3 adds **ellipse**: a horizontal oval, wider than tall, fo
 
 ## Presumptive outline
 
-Install **Presumptive outline** (`presumptive-outline`, version 1) to mark moments, stack entries and durations as presumptive: not yet confirmed by evidence. Events and causal factors charts draw presumptive events and conditions with dashed outlines, and so does the timeline ([#325](https://github.com/openchronology/timeline-app/issues/325)). Its field is a checkbox, **Presumptive (unconfirmed)**, stored as `presumptive`:
+Install **Presumptive outline** (`presumptive-outline`, version 1) to mark moments, stack entries and durations as presumptive: not yet confirmed by evidence. Events and causal factors charts draw presumptive events and conditions with dashed outlines, and so does the timeline ([#325](https://github.com/circagraph/timeline-app/issues/325)). Its field is a checkbox, **Presumptive (unconfirmed)**, stored as `presumptive`:
 
 ```json
 { "title": "Valve left open", "presumptive": true }
@@ -472,7 +472,7 @@ Custom plugins can declare a `size` field and return `api.size(api.get("fieldKey
 
 ## File thumbnails
 
-The official **File thumbnails** plugin (`file-thumbnails`, [#440](https://github.com/openchronology/timeline-app/issues/440)) shows, in the desktop app, a small picture of a moment's photo or video as its marker: the first of its `sources` that is a `file:///` link to a photo or video on this computer ([#442](https://github.com/openchronology/timeline-app/issues/442) added videos). Its marker component is `{ "kind": "file-thumbnail", "metadataKey": "sources" }`; it has no fields. On the website and in the offline file such moments keep their usual markers. See [timelines from files](file-populator.md#thumbnails).
+The official **File thumbnails** plugin (`file-thumbnails`, [#440](https://github.com/circagraph/timeline-app/issues/440)) shows, in the desktop app, a small picture of a moment's photo or video as its marker: the first of its `sources` that is a `file:///` link to a photo or video on this computer ([#442](https://github.com/circagraph/timeline-app/issues/442) added videos). Its marker component is `{ "kind": "file-thumbnail", "metadataKey": "sources" }`; it has no fields. On the website and in the offline file such moments keep their usual markers. See [timelines from files](file-populator.md#thumbnails).
 
 ## Sources
 

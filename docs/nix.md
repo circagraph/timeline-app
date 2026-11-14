@@ -4,7 +4,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-The repository is a Nix flake ([#461](https://github.com/openchronology/timeline-app/issues/461)). It builds OpenChronology from source and has a NixOS module that runs a server, with PostgreSQL and the `pgmp` extension, as the Debian package does.
+The repository is a Nix flake ([#461](https://github.com/circagraph/timeline-app/issues/461)). It builds OpenChronology from source and has a NixOS module that runs a server, with PostgreSQL and the `pgmp` extension, as the Debian package does.
 
 ## Packages
 
@@ -18,16 +18,16 @@ The repository is a Nix flake ([#461](https://github.com/openchronology/timeline
 They build for `x86_64-linux` and `aarch64-linux`. To try the desktop app, or the server's commands:
 
 ```sh
-nix run github:openchronology/timeline-app#openchronology-desktop
-nix profile install github:openchronology/timeline-app#openchronology-server
+nix run github:circagraph/timeline-app#openchronology-desktop
+nix profile install github:circagraph/timeline-app#openchronology-server
 ```
 
-A release's packages are at its tag: `github:openchronology/timeline-app/<tag>`. Without one, they are `main`'s.
+A release's packages are at its tag: `github:circagraph/timeline-app/<tag>`. Without one, they are `main`'s.
 
 Without flakes, `default.nix` gives `nix-env` and `nix-build` the same packages, from a release's archive:
 
 ````sh
-nix-env -f https://github.com/openchronology/timeline-app/archive/<tag>.tar.gz -iA openchronology-desktop
+nix-env -f https://github.com/circagraph/timeline-app/archive/<tag>.tar.gz -iA openchronology-desktop
 ``` The server's commands are the Debian package's:
 
 - `openchronology-server`, `openchronology-migrate` and `openchronology-reset-admin-password`;
@@ -45,7 +45,7 @@ Add the flake to your system's flake, then turn the service on:
 ```nix
 {
   # A release's tag after the repository's name pins that release.
-  inputs.openchronology.url = "github:openchronology/timeline-app";
+  inputs.openchronology.url = "github:circagraph/timeline-app";
 
   outputs =
     { nixpkgs, openchronology, ... }:
