@@ -159,6 +159,16 @@ IDs come from the source: `gh:<owner>:<repo>:<number>` for an item, and `gh:<own
 }
 ```
 
+**A renamed or transferred repository.** Every item's ID includes its repository's name, so after a rename the receiver would write each issue and pull request a second time. Route the new name and give the old one as `formerly`; its events then keep the IDs (and the timeline) they had, and the items already written are updated rather than repeated. The old name must be one repository, not `owner/*`. To import it again, pass the old name to `--repo`: GitHub's API redirects it to the renamed repository for as long as no other repository takes the old name.
+
+```json
+{
+  "repository": "circagraph/timeline-app",
+  "formerly": "openchronology/timeline-app",
+  "timeline": "…"
+}
+```
+
 ## Importing what exists
 
 ```sh
