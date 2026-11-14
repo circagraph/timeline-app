@@ -56,7 +56,7 @@ export default async function HelpPage({ params }) {
       )}
       <p className="muted help-source">
         This page is <code>{source}</code> in the{' '}
-        <a href={'https://github.com/openchronology/timeline-app/blob/main/' + source}>
+        <a href={'https://github.com/circagraph/timeline-app/blob/main/' + source}>
           source code
         </a>
         , as this server runs it.

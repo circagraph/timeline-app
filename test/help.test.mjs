@@ -63,7 +63,7 @@ test('links: other docs are help pages, other files are on GitHub', () => {
   assert.equal(helpLink('../README.md'), '/help/readme');
   assert.equal(
     helpLink('../server/http.mjs'),
-    'https://github.com/openchronology/timeline-app/blob/main/server/http.mjs',
+    'https://github.com/circagraph/timeline-app/blob/main/server/http.mjs',
   );
   assert.equal(helpLink('https://example.com/a.md'), 'https://example.com/a.md');
 });
@@ -105,7 +105,7 @@ test('every doc renders, belongs to a section, and links only to what exists', a
           problems.push(`${page.slug}: ${address} leads to no heading`);
       }
       const source =
-        /^https:\/\/github\.com\/openchronology\/timeline-app\/blob\/main\/([^#]+)/.exec(address);
+        /^https:\/\/github\.com\/circagraph\/timeline-app\/blob\/main\/([^#]+)/.exec(address);
       if (source && !existsSync(new URL('../' + source[1], import.meta.url)))
         problems.push(`${page.slug}: ${address} names no file`);
     }

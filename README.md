@@ -2,7 +2,7 @@
 
 OpenChronology is a free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event. Use it at [timescale.info](https://timescale.info), as a desktop app for Windows, macOS and Linux, as a single offline HTML file, or on your own server.
 
-**[Open timescale.info](https://timescale.info)** · **[Download](https://timescale.info/download)** · **[Try it offline](https://openchronology.github.io/)** · **[User guide](docs/guide.md)** · **[FAQ](docs/faq.md)**
+**[Open timescale.info](https://timescale.info)** · **[Download](https://timescale.info/download)** · **[Try it offline](https://circagraph.github.io/)** · **[User guide](docs/guide.md)** · **[FAQ](docs/faq.md)**
 
 ## What it does
 

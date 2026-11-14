@@ -38,7 +38,7 @@ What a time _means_ is up to the timeline's **Time display**. A new timeline sho
 
 The home page, **Timelines**, has **Explore timelines** for everyone. Signed in, its filters also find your own timelines and the ones you starred, and **＋ New timeline** and **Your public profile** sit beside the heading.
 
-**Explore timelines** has one search field across the page. It finds timelines by their titles, notes and tags, and events (moments and durations) by their titles and notes ([#459](https://github.com/openchronology/timeline-app/issues/459)):
+**Explore timelines** has one search field across the page. It finds timelines by their titles, notes and tags, and events (moments and durations) by their titles and notes ([#459](https://github.com/circagraph/timeline-app/issues/459)):
 
 - **Results:** matching timelines as cards, then the matching events. Each event shows whether it's a moment or a duration, its time, its timeline and owner, and its notes where they match. Its title opens its own page.
 - **Highlighting:** the words you searched for are highlighted in titles, descriptions and notes.

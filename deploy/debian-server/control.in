@@ -8,7 +8,7 @@ Installed-Size: @INSTALLED_SIZE@
 Depends: postgresql-@PG_MAJOR@, postgresql-common, adduser, libgmp10, libsqlite3-0, ca-certificates
 Recommends: systemd
 Suggests: nginx | caddy | apache2
-Homepage: https://github.com/openchronology/timeline-app
+Homepage: https://github.com/circagraph/timeline-app
 Description: OpenChronology timeline platform server
  The OpenChronology platform: accounts, shared and public timelines, collaboration,
  search and live updates, served by Next.js with PostgreSQL storage. Times are exact

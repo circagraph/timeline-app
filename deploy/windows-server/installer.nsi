@@ -54,7 +54,7 @@ Section "OpenChronology Server"
   WriteRegStr HKLM "${UNINSTALL}" "DisplayName" "OpenChronology Server"
   WriteRegStr HKLM "${UNINSTALL}" "DisplayVersion" "${VERSION}"
   WriteRegStr HKLM "${UNINSTALL}" "Publisher" "OpenChronology"
-  WriteRegStr HKLM "${UNINSTALL}" "URLInfoAbout" "https://github.com/openchronology/timeline-app"
+  WriteRegStr HKLM "${UNINSTALL}" "URLInfoAbout" "https://github.com/circagraph/timeline-app"
   WriteRegStr HKLM "${UNINSTALL}" "InstallLocation" "$INSTDIR"
   WriteRegStr HKLM "${UNINSTALL}" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegStr HKLM "${UNINSTALL}" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'

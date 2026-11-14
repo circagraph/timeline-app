@@ -4,11 +4,11 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-Timelines show images by linking to them: a moment's icon, a duration's background, a stack entry's picture or the timeline's own image is an HTTPS address where its owner hosts it ([#109](https://github.com/openchronology/timeline-app/issues/109)). The server stores the link, never a copy of the image, and readers' browsers load the image from its host.
+Timelines show images by linking to them: a moment's icon, a duration's background, a stack entry's picture or the timeline's own image is an HTTPS address where its owner hosts it ([#109](https://github.com/circagraph/timeline-app/issues/109)). The server stores the link, never a copy of the image, and readers' browsers load the image from its host.
 
 ## Image addresses
 
-An image address is at most 4,096 characters. A duration's background is drawn from the band the timeline loads for each duration in view, which keeps web addresses of at most **1,024 characters** ([#365](https://github.com/openchronology/timeline-app/issues/365)); a background with a longer address shows nothing. Wikimedia Commons thumbnail addresses repeat the file's name, so a long name can pass that: link the original file's shorter address instead. Wherever such an address is set, you're told:
+An image address is at most 4,096 characters. A duration's background is drawn from the band the timeline loads for each duration in view, which keeps web addresses of at most **1,024 characters** ([#365](https://github.com/circagraph/timeline-app/issues/365)); a background with a longer address shows nothing. Wikimedia Commons thumbnail addresses repeat the file's name, so a long name can pass that: link the original file's shorter address instead. Wherever such an address is set, you're told:
 
 - the duration's details in the editor say so;
 - importing a file in the editor says how many durations have one;
@@ -18,7 +18,7 @@ Releases before this one kept addresses of at most 256 characters in bands. `ope
 
 ## A timeline's own image
 
-A timeline can have an image of its own ([#339](https://github.com/openchronology/timeline-app/issues/339)): its owner sets, replaces or removes it under **Sharing & settings** → **Image**, with a link to the image and alt text saying what it shows. It is shown:
+A timeline can have an image of its own ([#339](https://github.com/circagraph/timeline-app/issues/339)): its owner sets, replaces or removes it under **Sharing & settings** → **Image**, with a link to the image and alt text saying what it shows. It is shown:
 
 - above the timeline's title, in the editor and as readers see it (blurred, like its other images, on a timeline with [sensitive-content labels](moderation.md#sensitive-content-labels));
 - at the top of its card wherever timelines are listed (the dashboard, profiles and search results), cropped to 16 : 9 and loaded as it scrolls into view; a card without one, or of a labelled timeline, shows a plain placeholder of the same shape;

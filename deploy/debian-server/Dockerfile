@@ -5,7 +5,7 @@
 #   DEB_VERSION, OCH_BUILD_COMMIT, OCH_BUILD_VERSION
 ARG BASE=debian:trixie@sha256:9c6e381421d0f48d1b8133e573f33c185ee16cbf505eda9c4a8a4791b25ea8a6
 # The tools stages below, or prebuilt images of them (#605): scripts/server-package.mjs passes
-# ghcr.io/openchronology/server-build images whose tag matches these stages, when they exist.
+# ghcr.io/circagraph/server-build images whose tag matches these stages, when they exist.
 ARG NATIVE_TOOLS=native-tools
 ARG PACKAGE_TOOLS=package-tools
 

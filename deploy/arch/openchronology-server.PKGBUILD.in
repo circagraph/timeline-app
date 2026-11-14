@@ -9,7 +9,7 @@ pkgver=@VERSION@
 pkgrel=1
 pkgdesc='Exact timelines, shared on your terms: the OpenChronology platform server'
 arch=('x86_64')
-url='https://github.com/openchronology/timeline-app'
+url='https://github.com/circagraph/timeline-app'
 license=('GPL-3.0-only')
 depends=('nodejs>=24' 'postgresql' 'gmp' 'sqlite' 'util-linux' 'ca-certificates')
 makedepends=('cargo' 'cmake' 'pkgconf' 'python')

@@ -4,7 +4,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-The dashboard's timeline browser lists public timelines. To keep spam out of it without blocking anyone from publishing, it ranks by **account standing**. Standing is computed from what an account has done and how long it has existed. Only administrators see it ([#103](https://github.com/openchronology/timeline-app/issues/103)).
+The dashboard's timeline browser lists public timelines. To keep spam out of it without blocking anyone from publishing, it ranks by **account standing**. Standing is computed from what an account has done and how long it has existed. Only administrators see it ([#103](https://github.com/circagraph/timeline-app/issues/103)).
 
 ## What browsing lists
 
@@ -54,7 +54,7 @@ The total is capped at 1. An account that isn't established has standing 0. Admi
 
 ## Searching the lists
 
-Every timeline list on the dashboard and on profiles searches, sorts and pages on its own, with its own query parameters, so a search in one keeps the others' state ([#337](https://github.com/openchronology/timeline-app/issues/337)):
+Every timeline list on the dashboard and on profiles searches, sorts and pages on its own, with its own query parameters, so a search in one keeps the others' state ([#337](https://github.com/circagraph/timeline-app/issues/337)):
 
 | List                   | Parameters                                                                                                                |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -65,11 +65,11 @@ Every timeline list on the dashboard and on profiles searches, sorts and pages o
 
 Explore takes the place of separate lists of your own timelines and your favorites: signed in, `within=mine` keeps your own timelines, `starred=1` the ones you starred, and `visibility` (`public` or `private`) one or the other, each for timelines and events alike. Any of them, like search text, looks through every timeline you may read rather than the public library alone. A guest's `starred` and `visibility` are ignored. Drafts are searched in the browser, by their titles, descriptions and tags, with the same syntax: words, `"quoted phrases"` and `-exclusions`. The API's search takes the same `visibility` filter and the `updated` sort ([API](api.md)).
 
-With JavaScript, each list searches in place ([#338](https://github.com/openchronology/timeline-app/issues/338)): it changes the address with `history.pushState` (or `replaceState` while typing) and fetches its page from the search API, so the page doesn't load again and Back works. Each result also carries what its card shows of its moments: `first_time` and `last_time` (exact), `time_span` (the two in the timeline's own time display, as precise as the span calls for: years for a 200-year timeline, clock times for a 3-hour incident, ages in deep time) and `shape` (how densely 24 equal parts of the span hold moments, read from the top three levels of its moment tree). Forks that read through to their source, and comparisons, have none of these, as reading them would cost far more.
+With JavaScript, each list searches in place ([#338](https://github.com/circagraph/timeline-app/issues/338)): it changes the address with `history.pushState` (or `replaceState` while typing) and fetches its page from the search API, so the page doesn't load again and Back works. Each result also carries what its card shows of its moments: `first_time` and `last_time` (exact), `time_span` (the two in the timeline's own time display, as precise as the span calls for: years for a 200-year timeline, clock times for a 3-hour incident, ages in deep time) and `shape` (how densely 24 equal parts of the span hold moments, read from the top three levels of its moment tree). Forks that read through to their source, and comparisons, have none of these, as reading them would cost far more.
 
 ## Searching events
 
-Explore's search also finds events: moments and durations on every timeline the reader may search ([#459](https://github.com/openchronology/timeline-app/issues/459)). Its parameters:
+Explore's search also finds events: moments and durations on every timeline the reader may search ([#459](https://github.com/circagraph/timeline-app/issues/459)). Its parameters:
 
 | Parameter    | Means                                                                                   |
 | ------------ | --------------------------------------------------------------------------------------- |
@@ -94,7 +94,7 @@ The API is `POST /api/timelines/entities/search` ([API](api.md)).
 
 ## Related timelines
 
-Below a timeline on the website, **Related timelines** lists up to six others about the same things ([#447](https://github.com/openchronology/timeline-app/issues/447)), as cards that open their pages. The page's text summary, which screen readers and search engines read, lists them as links too.
+Below a timeline on the website, **Related timelines** lists up to six others about the same things ([#447](https://github.com/circagraph/timeline-app/issues/447)), as cards that open their pages. The page's text summary, which screen readers and search engines read, lists them as links too.
 
 They match the timeline's own words: the 24 most telling words of its title and tags, then its description, against the same parts of other timelines. Moments' text isn't used, as it would match nearly anything. Sharing a tag counts for more than a word. Ties go to the timeline with more stars.
 

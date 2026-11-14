@@ -22,13 +22,13 @@
     "custom-element",
     "openchronology"
   ],
-  "homepage": "https://github.com/openchronology/timeline-app/tree/main/packages/timeline#readme",
+  "homepage": "https://github.com/circagraph/timeline-app/tree/main/packages/timeline#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/openchronology/timeline-app.git",
+    "url": "git+https://github.com/circagraph/timeline-app.git",
     "directory": "packages/timeline"
   },
-  "bugs": "https://github.com/openchronology/timeline-app/issues",
+  "bugs": "https://github.com/circagraph/timeline-app/issues",
   "license": "GPL-3.0-only",
   "author": "Athan Clark"
 }
