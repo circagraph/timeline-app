@@ -296,8 +296,8 @@ jobs:
       - name: Rust and NSIS
         shell: pwsh
         run: |
-          rustup toolchain install 1.99.0 --profile minimal --no-self-update
-          rustup default 1.99.0
+          rustup toolchain install 1.99.1 --profile minimal --no-self-update
+          rustup default 1.99.1
           ./deploy/windows-server/nsis.ps1 -Destination "${{ runner.temp }}/nsis"
       - name: Build the installer
         timeout-minutes: 15

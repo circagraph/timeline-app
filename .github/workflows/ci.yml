@@ -318,7 +318,7 @@ jobs:
       - run: node scripts/npm-ci.mjs
       - run: npm run build
       - run: node test/sql-oracle.mjs
-      # Rust 1.99.0 is the image's.
+      # Rust 1.99.1 is the image's.
       - name: Build the isolated SQLite file converter
         run: |
           cargo build --manifest-path native-store/Cargo.toml --locked --release --bin och-convert
@@ -568,8 +568,8 @@ jobs:
           sudo apt-get install -y build-essential cmake pkg-config libgmp-dev libsqlite3-dev libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev webkit2gtk-driver xvfb
       - name: Rust and tauri-driver
         run: |
-          rustup toolchain install 1.99.0 --profile minimal --no-self-update
-          rustup default 1.99.0
+          rustup toolchain install 1.99.1 --profile minimal --no-self-update
+          rustup default 1.99.1
           command -v tauri-driver || cargo install tauri-driver --locked
       - run: node scripts/npm-ci.mjs
       - run: npm run build:editor

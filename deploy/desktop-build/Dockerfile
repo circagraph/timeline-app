@@ -38,7 +38,7 @@ RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-l
 # A fixed Rust release, as every build of the project uses (#514), for any user, and the
 # pinned tauri-driver the desktop UI test drives the app with.
 ENV RUSTUP_HOME=/usr/local/rustup CARGO_HOME=/usr/local/cargo PATH=/usr/local/cargo/bin:$PATH
-RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal --default-toolchain 1.99.0 --component rustfmt \
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal --default-toolchain 1.99.1 --component rustfmt \
     && cargo install tauri-driver --version 2.1.0 --locked \
     && rm -rf "$CARGO_HOME/registry" "$CARGO_HOME/git" \
     && chmod -R a+rwX "$RUSTUP_HOME" "$CARGO_HOME"
