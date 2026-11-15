@@ -47,13 +47,16 @@ function standing(item) {
  * The administration page's body (/admin), for administrators (the API refuses anyone else).
  *
  * Lists users, timelines or report cases, 25 a page, from GET /api/admin/users,
- * /api/admin/timelines (with `search` and `page`) or /api/admin/reports (with `view` and
+ * /api/admin/timelines (with `search` and `page`, and `owner` for one account's) or /api/admin/reports (with `view` and
  * `page`), each answering `{items, total}` (users also with the site's `settings`). Every
  * change is a PATCH to /api/admin/<kind>/<id> (or /api/admin/settings) through `change`.
  */
 export default function Admin() {
   const [kind, setKind] = useState('users'),
     [search, setSearch] = useState(''),
+    // Timelines only: the username whose timelines alone are listed (a user card's Timelines),
+    // private ones included, or '' for every account's.
+    [owner, setOwner] = useState(''),
     // Which reports (#115): awaiting a decision, restricted, or closed.
     [view, setView] = useState('open'),
     [page, setPage] = useState(1),
@@ -91,7 +94,13 @@ export default function Admin() {
           kind +
           '?' +
           new URLSearchParams(
-            kind === 'reports' ? { view, page: String(page) } : { search, page: String(page) },
+            kind === 'reports'
+              ? { view, page: String(page) }
+              : {
+                  search,
+                  page: String(page),
+                  ...(kind === 'timelines' && owner ? { owner } : {}),
+                },
           ),
         {
           signal: controller.signal,
@@ -112,7 +121,7 @@ export default function Admin() {
       active = false;
       controller.abort();
     };
-  }, [kind, search, view, page, reload]);
+  }, [kind, search, view, page, owner, reload]);
   /**
    * Applies one administrative change, then reloads the list; a failure is shown above it.
    *
@@ -218,6 +227,7 @@ export default function Admin() {
             onChange={(e) => {
               setResult(null);
               setKind(e.target.value);
+              setOwner('');
               setPage(1);
             }}
           >
@@ -256,6 +266,23 @@ export default function Admin() {
           </label>
         )}
       </div>
+      {kind === 'timelines' && owner && (
+        <div className="actions">
+          <span>
+            Timelines of @{owner}, private ones included. Administrators can open each one, and can
+            also save changes to it, so look without saving.
+          </span>
+          <button
+            onClick={() => {
+              setResult(null);
+              setOwner('');
+              setPage(1);
+            }}
+          >
+            Show every account's
+          </button>
+        </div>
+      )}
       <p role="alert" className="error">
         {error}
       </p>
@@ -326,6 +353,20 @@ export default function Admin() {
                     </label>
                     <button disabled={busy}>Apply user settings</button>
                   </form>
+                  <div className="actions">
+                    {/* Its timelines, private ones included, each opened from its card. */}
+                    <button
+                      onClick={() => {
+                        setResult(null);
+                        setKind('timelines');
+                        setOwner(item.username);
+                        setSearch('');
+                        setPage(1);
+                      }}
+                    >
+                      Timelines
+                    </button>
+                  </div>
                   {/* Only for an account that signs in only through the directory, which may
                       not gain a password otherwise (AccountSecurity.releaseDirectory). */}
                   {item.directory_only && (

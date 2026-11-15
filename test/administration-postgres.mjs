@@ -236,6 +236,34 @@ try {
   // An administrator sees every timeline, but their API key has only its scopes: someone
   // else's private timeline is unavailable through it, to read, check or change.
   await request('timelines/' + timeline.id, 'GET', undefined, admin);
+  // A user card's Timelines: that account's alone, private ones included, for administrators.
+  const owned = await request(
+    'admin/timelines?' + new URLSearchParams({ owner: owner.u.username.toUpperCase() }),
+    'GET',
+    undefined,
+    admin,
+  );
+  assert.ok(owned.items.length > 0);
+  assert.ok(owned.items.every((item) => item.owner === owner.u.username));
+  assert.equal(owned.items.find((item) => item.id === timeline.id)?.visibility, 'private');
+  assert.equal(
+    (
+      await request(
+        'admin/timelines?' + new URLSearchParams({ owner: stranger.u.username }),
+        'GET',
+        undefined,
+        admin,
+      )
+    ).items.some((item) => item.id === timeline.id),
+    false,
+  );
+  await request(
+    'admin/timelines?' + new URLSearchParams({ owner: owner.u.username }),
+    'GET',
+    undefined,
+    owner.headers,
+    403,
+  );
   const adminKey = await request(
     'auth/api-keys',
     'POST',
