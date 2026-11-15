@@ -55,7 +55,7 @@ Add the flake to your system's flake, then turn the service on:
         modules = [
           openchronology.nixosModules.default
           {
-            services.openchronology = {
+            services.circagraph = {
               enable = true;
               origin = "https://timelines.example.org";
               nginx.enable = true;
@@ -117,7 +117,7 @@ As with the other packages, set `ADMIN_USERNAME`, `ADMIN_EMAIL` and `ADMIN_INITI
 The syslog receiver and the journald follower post to the server's API with an API key. Make one as an administrator, put it as `OCH_API_KEY` in an environment file of their own, then:
 
 ```nix
-services.openchronology.syslog = {
+services.circagraph.syslog = {
   enable = true;
   environmentFile = "/run/secrets/openchronology-syslog.env";
   settings = {
@@ -136,7 +136,7 @@ The journald follower runs with the `systemd-journal` group, so it can read the 
 The [GitHub receiver](github.md) runs the same way, as `openchronology-logs` with its own `settings` and `environmentFile`. Give it `OCH_API_KEY` and `GITHUB_WEBHOOK_SECRET` (and `GITHUB_TOKEN`, for project boards) in that file:
 
 ```nix
-services.openchronology.github = {
+services.circagraph.github = {
   enable = true;
   environmentFile = "/run/secrets/openchronology-github.env";
   settings.GITHUB_ROUTES = "/etc/openchronology/github-routes.json";

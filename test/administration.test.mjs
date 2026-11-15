@@ -4,7 +4,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { quotaValue, avatarValue } from '../server/administration.mjs';
-import { keyInput, authorizeKey } from '../server/api-keys.mjs';
+import { keyInput, authorizeKey, bearsApiKey } from '../server/api-keys.mjs';
+import { TimelineWriter } from '../server/timeline-writer.mjs';
 test('quotas accept bounded whole bytes or sizes with units only', () => {
   for (const v of [0, '104857600', 10_000_000_000_000]) assert.equal(quotaValue(v), String(v));
   assert.equal(quotaValue('01'), '1');
@@ -86,4 +87,17 @@ test('live streaming cannot bypass the API key endpoint boundary', async () => {
     },
   );
   assert.equal(response.status, 403);
+});
+
+test('API keys are recognized under the Circagraph prefix and the old one', () => {
+  const secret = 'a'.repeat(32) + '_' + 'b'.repeat(64);
+  for (const prefix of ['cg_key_', 'och_key_']) {
+    assert.ok(bearsApiKey(`Bearer ${prefix}${secret}`));
+    assert.doesNotThrow(
+      () => new TimelineWriter({ api: 'https://example.org', key: prefix + secret }),
+    );
+  }
+  for (const header of [undefined, '', 'Bearer xx_key_1', 'Basic cg_key_1', 'Bearer session'])
+    assert.ok(!bearsApiKey(header));
+  assert.throws(() => new TimelineWriter({ api: 'https://example.org', key: 'xx_key_' + secret }));
 });

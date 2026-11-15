@@ -1,5 +1,6 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-# services.openchronology (#461; docs/nix.md): the OpenChronology server on NixOS, doing what
+# services.circagraph (#461; docs/nix.md), formerly services.openchronology (still accepted, with
+# a warning): the OpenChronology server on NixOS, doing what
 # the Debian package's scripts do (deploy/debian-server): system users (the log importers their
 # own, #501), a local PostgreSQL database with pgmp, a generated AUTH_ENCRYPTION_KEY, the migration before each start, the
 # server as a hardened systemd service, and optionally the mail worker, the log importers and
@@ -12,7 +13,7 @@ self:
   ...
 }:
 let
-  cfg = config.services.openchronology;
+  cfg = config.services.circagraph;
   inherit (lib)
     mkEnableOption
     mkIf
@@ -142,7 +143,12 @@ let
     };
 in
 {
-  options.services.openchronology = {
+  # The project became Circagraph: configurations written for services.openchronology keep
+  # working, with a warning to rename them.
+  imports = [
+    (lib.mkRenamedOptionModule [ "services" "openchronology" ] [ "services" "circagraph" ])
+  ];
+  options.services.circagraph = {
     enable = mkEnableOption "OpenChronology, the exact timeline platform";
 
     package = mkOption {
@@ -294,7 +300,7 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     {
-      services.openchronology.settings = {
+      services.circagraph.settings = {
         APP_ORIGIN = lib.mkDefault cfg.origin;
         HOST = lib.mkDefault cfg.host;
         PORT = lib.mkDefault cfg.port;
@@ -372,7 +378,7 @@ in
           }
         ];
       };
-      services.openchronology.settings.DATABASE_URL = lib.mkDefault "postgresql:///openchronology?host=/run/postgresql";
+      services.circagraph.settings.DATABASE_URL = lib.mkDefault "postgresql:///openchronology?host=/run/postgresql";
     })
 
     (mkIf cfg.mail.enable {
@@ -394,8 +400,8 @@ in
 
     (mkIf cfg.syslog.enable {
       warnings = lib.optional (cfg.syslog.environmentFile == null) ''
-        services.openchronology.syslog.environmentFile is not set: the syslog receiver does not
-        read services.openchronology.environmentFile (#501), so give its OCH_API_KEY there.
+        services.circagraph.syslog.environmentFile is not set: the syslog receiver does not
+        read services.circagraph.environmentFile (#501), so give its OCH_API_KEY there.
       '';
       systemd.services.openchronology-syslog = logService {
         description = "OpenChronology syslog receiver";
@@ -406,8 +412,8 @@ in
 
     (mkIf cfg.github.enable {
       warnings = lib.optional (cfg.github.environmentFile == null) ''
-        services.openchronology.github.environmentFile is not set: the GitHub receiver does not
-        read services.openchronology.environmentFile (#501), so give its OCH_API_KEY and
+        services.circagraph.github.environmentFile is not set: the GitHub receiver does not
+        read services.circagraph.environmentFile (#501), so give its OCH_API_KEY and
         GITHUB_WEBHOOK_SECRET there.
       '';
       systemd.services.openchronology-github = logService {
@@ -427,8 +433,8 @@ in
 
     (mkIf cfg.journald.enable {
       warnings = lib.optional (cfg.journald.environmentFile == null) ''
-        services.openchronology.journald.environmentFile is not set: the journald follower does
-        not read services.openchronology.environmentFile (#501), so give its OCH_API_KEY there.
+        services.circagraph.journald.environmentFile is not set: the journald follower does
+        not read services.circagraph.environmentFile (#501), so give its OCH_API_KEY there.
       '';
       systemd.services.openchronology-journald = logService {
         description = "OpenChronology journald follower";
@@ -448,7 +454,7 @@ in
 
     (mkIf cfg.nginx.enable {
       # nginx replaces X-Forwarded-For with the client's address, so the server may trust it.
-      services.openchronology.settings.TRUST_PROXY = lib.mkDefault true;
+      services.circagraph.settings.TRUST_PROXY = lib.mkDefault true;
       services.nginx = {
         enable = true;
         # No nginx version in the Server header and error pages (#521); NixOS's default too.

@@ -6,7 +6,12 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { parseEnvFile, loadEnvFile, loadConfiguration } from '../server/env-file.mjs';
+import {
+  parseEnvFile,
+  loadEnvFile,
+  loadConfiguration,
+  renamedSettings,
+} from '../server/env-file.mjs';
 
 test('configuration files read as systemd reads them: a # inside a value is part of it', () => {
   const settings = parseEnvFile(
@@ -63,6 +68,27 @@ test('loading a configuration keeps what the environment already sets', async ()
     const none = {};
     loadConfiguration(none);
     assert.deepEqual(none, {});
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('settings under their Circagraph names are read as the old OCH_ names', async () => {
+  const env = { CIRCAGRAPH_API_KEY: 'new', OCH_API_KEY: 'old', OCH_API_URL: 'kept' };
+  renamedSettings(env);
+  assert.equal(env.OCH_API_KEY, 'new', 'the new name wins');
+  assert.equal(env.OCH_API_URL, 'kept', 'an old name alone keeps working');
+  renamedSettings({ CIRCAGRAPH_: 'nothing' });
+  const dir = await mkdtemp(join(tmpdir(), 'och-env-'));
+  try {
+    // CIRCAGRAPH_CONFIG names the file, and the file may use the new names too.
+    const file = join(dir, 'circagraph.env');
+    await writeFile(file, 'CIRCAGRAPH_API_URL=https://circagraph.com\nB=b\n');
+    const named = { CIRCAGRAPH_CONFIG: file };
+    loadConfiguration(named);
+    assert.equal(named.OCH_CONFIG, file);
+    assert.equal(named.OCH_API_URL, 'https://circagraph.com');
+    assert.equal(named.B, 'b');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

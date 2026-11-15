@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-# The NixOS test of services.openchronology (#461): a machine with the module and nginx in
+# The NixOS test of services.circagraph (#461): a machine with the module and nginx in
 # front, whose server answers through nginx; PostgreSQL has pgmp; the client (test-client.mjs)
 # signs in as the configured administrator, saves, searches and downloads a timeline as .och;
 # the generated key survives a restart; and the syslog receiver runs as its own user, which
@@ -18,7 +18,7 @@ pkgs.testers.runNixOSTest {
     systemd.services.openchronology.serviceConfig.TimeoutStartSec = "20min";
     # As many servers set it: the module's virtual host keeps its own proxy headers regardless.
     services.nginx.recommendedProxySettings = true;
-    services.openchronology = {
+    services.circagraph = {
       enable = true;
       origin = "http://localhost";
       nginx.enable = true;

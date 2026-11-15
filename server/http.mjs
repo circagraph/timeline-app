@@ -30,7 +30,7 @@ import { mapTimes } from './time-map.mjs';
 import { changeMeasures } from './measure-change.mjs';
 import { saveBase } from './save-merge.mjs';
 import { timelineSettings } from './incremental.mjs';
-import { authorizeKey, keyRequestRead } from './api-keys.mjs';
+import { authorizeKey, bearsApiKey, keyRequestRead } from './api-keys.mjs';
 import { asKeyRequest } from './key-requests.mjs';
 import { BrowserForks } from './browser-forks.mjs';
 import { queryPlugins } from './query-plugins.mjs';
@@ -161,9 +161,11 @@ async function body(req, maximum = 16 * 1024 * 1024) {
  */
 async function fileBody(req, limit = 64 * 1024 * 1024) {
   if (
-    !['application/vnd.openchronology.sqlite', 'application/octet-stream'].includes(
-      req.headers['content-type'],
-    )
+    ![
+      'application/vnd.openchronology.sqlite',
+      'application/vnd.circagraph.sqlite',
+      'application/octet-stream',
+    ].includes(req.headers['content-type'])
   )
     throw new HttpError(415, 'Send a SQLite timeline file.');
   let size = 0,
@@ -537,7 +539,7 @@ export function createRequestHandler({
       // API keys reach only the timeline and view endpoints (#550), refused before anything
       // else is read.
       if (
-        (req.headers.authorization ?? '').startsWith('Bearer och_key_') &&
+        bearsApiKey(req.headers.authorization) &&
         !pathname.startsWith('/api/timelines') &&
         pathname !== '/api/views' &&
         !pathname.startsWith('/api/views/')
@@ -750,7 +752,7 @@ export function createRequestHandler({
             touch: !(method === 'GET' && /^\/api\/timelines\/[^/]+\/revision$/.test(pathname)),
           }),
           userId = session?.id;
-        if ((req.headers.authorization ?? '').startsWith('Bearer och_key_') && !session)
+        if (bearsApiKey(req.headers.authorization) && !session)
           throw new HttpError(401, 'API key is expired, revoked, or invalid.');
         authorizeKey(session, pathname, method);
         // An account that has not agreed to the terms and privacy policy in force may still
@@ -2431,7 +2433,7 @@ export function createRequestHandler({
   // A request with an API key runs as one (key-requests.mjs), so the timeline access checks
   // give it the key's scopes and the account's own timelines, never an administrator's access.
   return (req, res) =>
-    (req.headers.authorization ?? '').startsWith('Bearer och_key_')
+    bearsApiKey(req.headers.authorization)
       ? asKeyRequest(() => handle(req, res))
       : handle(req, res);
 }

@@ -1345,7 +1345,7 @@ export const schemas = {
       id: ref('Uuid'),
       token: {
         type: 'string',
-        pattern: '^och_key_[a-f0-9]{32}_[a-f0-9]{64}$',
+        pattern: '^(?:cg|och)_key_[a-f0-9]{32}_[a-f0-9]{64}$',
         description:
           'The key, sent as `Authorization: Bearer …`. Shown only now; the server keeps only its hash.',
       },

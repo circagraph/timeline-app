@@ -369,7 +369,7 @@ async fn desktop_open(app: tauri::AppHandle) -> Result<Option<Opened>, String> {
     let Some(file) = app
         .dialog()
         .file()
-        .add_filter("OpenChronology timeline", &["och", "sqlite"])
+        .add_filter("OpenChronology timeline", &["och", "circa", "sqlite"])
         .blocking_pick_file()
     else {
         return Ok(None);
@@ -404,7 +404,7 @@ async fn desktop_import(app: tauri::AppHandle) -> Result<Option<Opened>, String>
     let Some(file) = app
         .dialog()
         .file()
-        .add_filter("OpenChronology JSON timeline", &["ochx", "json"])
+        .add_filter("OpenChronology JSON timeline", &["ochx", "circax", "json"])
         .blocking_pick_file()
     else {
         return Ok(None);
@@ -926,7 +926,7 @@ async fn desktop_save(
         let Some(file) = app
             .dialog()
             .file()
-            .add_filter("OpenChronology timeline", &["och", "sqlite"])
+            .add_filter("OpenChronology timeline", &["och", "circa", "sqlite"])
             .set_file_name("timeline.och")
             .blocking_save_file()
         else {
