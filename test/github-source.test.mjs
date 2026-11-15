@@ -27,7 +27,7 @@ import {
   projectStatusChange,
   timelineEvent,
 } from '../server/github-events.mjs';
-import { GithubIngest, listenGithub } from '../server/github-receiver.mjs';
+import { GithubIngest, formerNames, listenGithub } from '../server/github-receiver.mjs';
 import { GithubReader, main, readRepository } from '../server/import-github.mjs';
 import { EVENT_KINDS } from '../server/github-events.mjs';
 import { validateDuration, Q } from '../dist/core.mjs';
@@ -163,6 +163,48 @@ test('routes choose a timeline by repository, then the default', () => {
   assert.equal(routes.route('else/where'), null);
   assert.equal(githubRoutes({ default: TIMELINE }).route('else/where'), TIMELINE);
   assert.throws(() => githubRoutes({ routes: [{ repository: 'acme', timeline: TIMELINE }] }));
+});
+
+test('a renamed repository keeps the IDs and timeline of its former name', () => {
+  const routes = githubRoutes({
+    routes: [{ repository: 'circa/app', formerly: 'Old/app', timeline: TIMELINE }],
+  });
+  assert.equal(routes.route('circa/app'), TIMELINE);
+  assert.equal(routes.route('old/App'), TIMELINE, 'its events arrive under the old name');
+  assert.equal(routes.formerName('Circa/App'), 'Old/app');
+  assert.equal(routes.formerName('else/where'), 'else/where');
+  for (const formerly of ['old/*', 'old'])
+    assert.throws(() =>
+      githubRoutes({ routes: [{ repository: 'circa/app', formerly, timeline: TIMELINE }] }),
+    );
+  assert.throws(() =>
+    githubRoutes({ routes: [{ repository: 'circa/*', formerly: 'old/app', timeline: TIMELINE }] }),
+  );
+  // A delivery from the new name writes the same entities as one from the old name.
+  const delivery = (name) => ({
+    action: 'opened',
+    issue: {
+      number: 7,
+      title: 'Rename',
+      state: 'open',
+      html_url: 'https://github.com/circa/app/issues/7',
+      user: { login: 'mona' },
+      created_at: '2026-11-14T00:00:00Z',
+      updated_at: '2026-11-14T00:00:00Z',
+    },
+    repository: { full_name: name },
+    sender: { login: 'mona' },
+  });
+  const renamed = delivery('circa/app');
+  formerNames(renamed, (name) => routes.formerName(name));
+  const ids = (payload) =>
+    deliveryChanges('issues', payload).flatMap((c) => [
+      c.repository,
+      ...c.durations.map((d) => d.id),
+      ...c.moments.map((m) => m.id),
+    ]);
+  assert.deepEqual(ids(renamed), ids(delivery('Old/app')));
+  assert.ok(ids(renamed).length > 1);
 });
 
 test('deliveries become changes: edits, events, deletions, mentions and links', () => {

@@ -417,6 +417,8 @@ export class GithubIngest {
   }
   /** A checked delivery, in GitHub's shape: queued (202) or not kept (204). */
   handle(event, payload) {
+    // A renamed repository's events keep the IDs of its old name (routes' `formerly`).
+    if (this.routes.formerName) formerNames(payload, (name) => this.routes.formerName(name));
     if (
       event === 'projects_v2_item' &&
       String(payload?.changes?.field_value?.field_type ?? '').toLowerCase() === 'date'
@@ -736,4 +738,19 @@ if (invoked) {
     console.error('github:', error.message);
     process.exit(1);
   });
+}
+
+/**
+ * Renames, in place, every repository named in a delivery (each `full_name`) to the name its
+ * IDs use, so a renamed repository's items, mentions and sub-issues keep their IDs.
+ */
+export function formerNames(value, rename, depth = 0) {
+  if (!value || typeof value !== 'object' || depth > 32) return;
+  if (Array.isArray(value)) {
+    for (const item of value) formerNames(item, rename, depth + 1);
+    return;
+  }
+  for (const [key, inner] of Object.entries(value))
+    if (key === 'full_name' && typeof inner === 'string') value[key] = rename(inner);
+    else formerNames(inner, rename, depth + 1);
 }

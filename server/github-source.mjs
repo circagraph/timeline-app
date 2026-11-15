@@ -302,7 +302,10 @@ export function validSignature(secret, body, header) {
  * `{"routes": [{"repository": "owner/name" | "owner/*", "timeline": "<uuid>"}, …],
  *   "default": "<uuid>"}`. The first rule that matches wins; then `default`; else the event
  * is not kept. Names compare without regard to case, as GitHub's do. `"only": ["commits",
- * …]` records only those kinds, and `"except": ["forks", …]` all but those.
+ * …]` records only those kinds, and `"except": ["forks", …]` all but those. A renamed or
+ * transferred repository's route names its old name as `"formerly": "owner/name"`: its
+ * events keep the IDs they had under that name (formerName), so the items it already wrote
+ * are updated rather than written again.
  */
 export function githubRoutes(config) {
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -343,14 +346,37 @@ export function githubRoutes(config) {
         );
       const wild = pattern.endsWith('/*'),
         path = parsed.path.toLowerCase();
+      const formerly = route.formerly === undefined ? null : parseRepository(route.formerly);
+      if (route.formerly !== undefined && (wild || !formerly || /\/\*$/.test(route.formerly)))
+        throw new Error(
+          `Route ${i + 1}: "formerly" is the repository's old name, such as "owner/name", on a route for one repository.`,
+        );
       return {
         platform: parsed.platform,
         host: parsed.host,
         path: wild ? path.slice(0, -1) : path,
         wild,
         timeline: route.timeline.toLowerCase(),
+        formerly: formerly && {
+          ...formerly,
+          path: formerly.path.toLowerCase(),
+          name: route.formerly,
+        },
       };
     });
+  // A renamed repository's events are routed by its old name too, which formerName gives them.
+  const matches = (route, r, path) =>
+    route.platform === r.platform &&
+    route.host === r.host &&
+    (route.wild ? path.startsWith(route.path) : path === route.path);
+  const former = (r, path) =>
+    routes.find(
+      (route) =>
+        route.formerly &&
+        route.formerly.platform === r.platform &&
+        route.formerly.host === r.host &&
+        route.formerly.path === path,
+    );
   if (config.default !== undefined && !uuid.test(config.default))
     throw new Error('The default timeline must be a timeline ID.');
   const fallback = config.default?.toLowerCase() ?? null;
@@ -390,13 +416,23 @@ export function githubRoutes(config) {
       if (!r) return null;
       const path = r.path.toLowerCase();
       return (
-        routes.find(
-          (route) =>
-            route.platform === r.platform &&
-            route.host === r.host &&
-            (route.wild ? path.startsWith(route.path) : path === route.path),
-        )?.timeline ?? fallback
+        routes.find((route) => matches(route, r, path))?.timeline ??
+        former(r, path)?.timeline ??
+        fallback
       );
+    },
+    /**
+     * The name a repository's IDs use: its old name when a route says it was renamed from one
+     * (`formerly`), else the name given.
+     */
+    formerName(repository) {
+      const r = parseRepository(repository);
+      if (!r) return repository;
+      const path = r.path.toLowerCase();
+      const route = routes.find(
+        (route) => !route.wild && route.formerly && matches(route, r, path),
+      );
+      return route ? route.formerly.name : repository;
     },
   };
 }
