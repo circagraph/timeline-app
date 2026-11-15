@@ -174,7 +174,8 @@ export class Administration {
   }
   /**
    * A page of accounts (`kind` 'users') or timelines (any other kind) for /admin: `search`
-   * (up to 200 characters) and `page` (25 a page). Accounts come with their standing (#103)
+   * (up to 200 characters) and `page` (25 a page), and for timelines `owner`, a username whose
+   * timelines alone are listed, private ones included. Accounts come with their standing (#103)
    * and whether they sign in only through the directory (`directory_only`);
    * the result also carries the site's default quota and whether the environment sets it.
    * @returns {Promise<{total: number, items: object[], page: number, settings: object}>}
@@ -185,7 +186,13 @@ export class Administration {
       page = Math.max(
         1,
         Math.min(10000, Number.isSafeInteger(Number(query.page)) ? Number(query.page) : 1),
-      );
+      ),
+      // Timelines only: one account's, by its exact username (a user card's Timelines), private
+      // ones included, which an administrator may open (Store.access gives it the admin role).
+      owner =
+        typeof query.owner === 'string' && query.owner
+          ? query.owner.slice(0, 64).toLowerCase()
+          : null;
     // One round trip for a page and its total: the CTE `matching` holds every row whose
     // username and email (accounts), or title and owner's username (timelines), contain the
     // search case-insensitively (strpos, so the search is plain text, not a LIKE pattern; an
@@ -195,8 +202,8 @@ export class Administration {
     const result = await this.pool.query(
       kind === 'users'
         ? `WITH matching AS (SELECT id,username,email,is_admin,is_disabled,quota_bypass,quota_bytes,used_bytes,created_at,trust,password_hash IS NULL AND array(SELECT provider FROM oc_identities i WHERE i.user_id=oc_users.id)='{ldap}'::text[] AS directory_only FROM oc_users WHERE strpos(lower(username||' '||coalesce(email,'')),lower($1))>0) SELECT (SELECT count(*) FROM matching) AS total,coalesce((SELECT jsonb_agg(p) FROM (SELECT * FROM matching ORDER BY username,id LIMIT 25 OFFSET $2)p),'[]') AS items`
-        : `WITH matching AS (SELECT t.id,t.title,t.visibility,t.featured,t.event_count,u.username AS owner FROM oc_timelines t JOIN oc_users u ON u.id=t.owner_id WHERE strpos(lower(t.title||' '||u.username),lower($1))>0) SELECT (SELECT count(*) FROM matching) AS total,coalesce((SELECT jsonb_agg(p) FROM (SELECT *,(SELECT count(*) FROM oc_timeline_links l WHERE l.a_timeline=m.id)+(SELECT count(*) FROM oc_timeline_links l WHERE l.b_timeline=m.id) AS link_count FROM matching m ORDER BY title,id LIMIT 25 OFFSET $2)p),'[]') AS items`,
-      [search, (page - 1) * 25],
+        : `WITH matching AS (SELECT t.id,t.title,t.visibility,t.featured,t.event_count,u.username AS owner FROM oc_timelines t JOIN oc_users u ON u.id=t.owner_id WHERE strpos(lower(t.title||' '||u.username),lower($1))>0 AND ($3::text IS NULL OR u.username=$3)) SELECT (SELECT count(*) FROM matching) AS total,coalesce((SELECT jsonb_agg(p) FROM (SELECT *,(SELECT count(*) FROM oc_timeline_links l WHERE l.a_timeline=m.id)+(SELECT count(*) FROM oc_timeline_links l WHERE l.b_timeline=m.id) AS link_count FROM matching m ORDER BY title,id LIMIT 25 OFFSET $2)p),'[]') AS items`,
+      kind === 'users' ? [search, (page - 1) * 25] : [search, (page - 1) * 25, owner],
     );
     const listed = result.rows[0];
     // Each account's standing (#103) and what it rests on, as it stands now.
