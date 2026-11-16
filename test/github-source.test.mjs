@@ -797,9 +797,7 @@ test('the importer reads every page of issues and their timelines, and links wha
   // #3 closes #2 and mentions it: one link. #99 was not read, so no link to it.
   assert.equal(changes.links.length, 1);
   assert.ok(github.seen.every((r) => r.headers.Authorization === 'Bearer ghp_x'));
-  assert.ok(
-    github.seen.every((r) => /^Circagraph-github-source/.test(r.headers['User-Agent'])),
-  );
+  assert.ok(github.seen.every((r) => /^Circagraph-github-source/.test(r.headers['User-Agent'])));
   // Since a time: the listing asks GitHub for it, and earlier events are left out.
   const recent = await readRepository(reader, 'acme/app', {
     since: '2026-11-01T12:30:00Z',
@@ -821,6 +819,50 @@ test('the importer reads every page of issues and their timelines, and links wha
   github.seen.length = 0;
   await readRepository(reader, 'acme/app', { kinds: new Set() });
   assert.ok(github.seen.every((r) => !r.url.includes('/timeline')));
+});
+
+test('the importer follows a renamed repository within the API, keeping the IDs of the name given', async () => {
+  // GitHub answers a repository's old name with a redirect to /repositories/<id>/….
+  const github = fakeGithub();
+  const seen = [];
+  const fetcher = async (url, options) => {
+    seen.push({ url, redirect: options.redirect, headers: options.headers });
+    const u = new URL(url);
+    if (u.pathname.startsWith('/repos/old/app'))
+      return {
+        status: 301,
+        json: async () => ({}),
+        headers: {
+          get: (name) =>
+            name === 'location'
+              ? `https://api.github.com/repositories/42${u.pathname.slice('/repos/old/app'.length)}${u.search}`
+              : null,
+        },
+      };
+    const renamed = new URL(url.replace('/repositories/42', '/repos/acme/app'));
+    return github.fetcher(renamed.href, options);
+  };
+  const reader = new GithubReader({ token: 'ghp_x', fetcher });
+  const changes = await readRepository(reader, 'old/app', {
+    kinds: selectKinds({ only: ['items'] }),
+  });
+  assert.ok(changes.durations.length > 0);
+  assert.ok(changes.durations.every((d) => d.id.startsWith('gh:old:app:')));
+  assert.ok(seen.some((r) => r.url.includes('/repositories/42/issues')));
+  assert.ok(
+    seen.every((r) => r.redirect === 'manual' && r.headers.Authorization === 'Bearer ghp_x'),
+  );
+
+  // A redirect to another origin is refused, before the token goes there.
+  const away = new GithubReader({
+    token: 'ghp_x',
+    fetcher: async () => ({
+      status: 301,
+      json: async () => ({}),
+      headers: { get: (name) => (name === 'location' ? 'https://example.com/steal' : null) },
+    }),
+  });
+  await assert.rejects(away.get('https://api.github.com/repos/old/app'), /another origin/);
 });
 
 test('the command imports one repository into one timeline, of the kinds asked for', async () => {

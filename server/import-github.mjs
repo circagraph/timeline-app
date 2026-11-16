@@ -97,12 +97,13 @@ export class GithubReader {
     this.requests = 0;
   }
   async get(url) {
-    for (let attempt = 1; ; attempt++) {
+    for (let attempt = 1, redirects = 0; ; attempt++) {
       this.requests++;
       let response;
       try {
         response = await this.fetcher(url, {
-          redirect: 'error',
+          // Redirects are followed below, and only within the API's own origin, with the token.
+          redirect: 'manual',
           signal: AbortSignal.timeout(60000),
           headers: {
             Accept: 'application/vnd.github+json',
@@ -116,6 +117,18 @@ export class GithubReader {
         if (attempt >= 3) throw error;
         this.log.error(`${new URL(url).host}: ${error.message}; trying again.`);
         await sleep(2000 * attempt);
+        continue;
+      }
+      // A renamed or transferred repository: GitHub's API answers its old name with a redirect
+      // to /repositories/<id>/…, which reads the repository under its new name.
+      if ([301, 302, 307, 308].includes(response.status)) {
+        const location = response.headers.get('location');
+        const target = location && new URL(location, url);
+        if (!target || target.origin !== new URL(this.api).origin)
+          throw new Error(`${new URL(url).host} redirected ${url} to another origin.`);
+        if (++redirects > 5) throw new Error(`${new URL(url).host} redirected ${url} too often.`);
+        url = target.href;
+        attempt = 0;
         continue;
       }
       const remaining = response.headers.get('x-ratelimit-remaining');
