@@ -21,7 +21,7 @@ const INK = '#192d25',
   ACCENT = '#c8643b',
   MUTED = '#5d6b63';
 /** The software's name, which the card always shows. */
-const SOFTWARE = 'OpenChronology';
+const SOFTWARE = 'Circagraph';
 /** What the software is, as the home page and FAQ open with (#481). */
 export const DEFINITION =
   'A free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event.';

@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
-export const alt = 'A duration on OpenChronology';
+export const alt = 'A duration on Circagraph';
 export default async function Image({ params }) {
   const { id, duration } = await params;
   const entity = entityParam(duration);

@@ -13,10 +13,10 @@
 
 ```sh
 # With Docker Compose, next to the platform (listens on host loopback port 5514):
-SYSLOG_API_KEY=och_key_... docker compose --profile syslog up -d syslog
+SYSLOG_API_KEY=cg_key_... docker compose --profile syslog up -d syslog
 
-# Or directly, against any OpenChronology server:
-OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_... \
+# Or directly, against any Circagraph server:
+OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... \
   SYSLOG_ROUTES=./syslog-routes.json npm run syslog
 ```
 
@@ -24,8 +24,8 @@ OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_... \
 
 | Variable                     | Default              | Meaning                                                                                                                                  |
 | ---------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `OCH_API_URL`                | (required)           | The server's origin, such as `https://timescale.info`. Compose uses `http://app:5173`.                                                   |
-| `OCH_API_KEY`                | (required)           | A read/write API key (`och_key_…`). In Compose, set `SYSLOG_API_KEY`.                                                                    |
+| `OCH_API_URL`                | (required)           | The server's origin, such as `https://circagraph.org`. Compose uses `http://app:5173`.                                                   |
+| `OCH_API_KEY`                | (required)           | A read/write API key (`cg_key_…`). In Compose, set `SYSLOG_API_KEY`.                                                                     |
 | `SYSLOG_ROUTES`              | `syslog-routes.json` | Path of the routing rules; `SYSLOG_ROUTES_JSON` may hold the rules inline instead. In Compose, `SYSLOG_ROUTES_FILE` names the host file. |
 | `SYSLOG_HOST`, `SYSLOG_PORT` | `127.0.0.1`, `5514`  | Address and port for both UDP and TCP.                                                                                                   |
 | `SYSLOG_FLUSH_MS`            | `1000`               | How long messages gather before they are saved; 500 queued messages save at once.                                                        |

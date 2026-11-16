@@ -292,7 +292,7 @@ export function desktopGuides(release) {
   };
   const appImage = desktop('linux-appimage');
   const intro =
-    'Work with local timeline files, offline, and connect to OpenChronology servers when you want to share.';
+    'Work with local timeline files, offline, and connect to Circagraph servers when you want to share.';
   return {
     windows: {
       heading: 'Desktop app for Windows',
@@ -304,7 +304,7 @@ export function desktopGuides(release) {
       heading: 'Desktop app for macOS',
       intro,
       files: [{ ...file('macos-arm64', true), name: 'macOS' }, file('macos-amd64')],
-      steps: [{ text: 'Open the disk image and drag OpenChronology into Applications.' }],
+      steps: [{ text: 'Open the disk image and drag the app into Applications.' }],
       note: 'Most Macs since 2020 have Apple silicon; choose Intel for older ones (Apple menu → About This Mac).',
     },
     'linux/debian': {
@@ -390,7 +390,7 @@ export function serverGuides(release, first = null) {
   };
   const guide = (key) => ({ href: `${DOCS}/${server(key).guide}`, label: 'Setup guide' });
   const intro =
-    'Run your own OpenChronology server for your organization or community. The package installs PostgreSQL, sets up the database and starts the service on port 5173; put an HTTPS proxy in front of it and set your address in /etc/openchronology/openchronology.env.';
+    'Run your own Circagraph server for your organization or community. The package installs PostgreSQL, sets up the database and starts the service on port 5173; put an HTTPS proxy in front of it and set your address in /etc/openchronology/openchronology.env.';
   const docker = {
     text: 'Then build and run the server and its database from the source:',
     command: DOCKER_COMMAND,

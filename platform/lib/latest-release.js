@@ -18,7 +18,7 @@ export async function latestRelease(now = Date.now()) {
   let release = null;
   try {
     const response = await fetch(url, {
-      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'OpenChronology' },
+      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Circagraph' },
       signal: AbortSignal.timeout(3000),
       cache: 'no-store',
     });

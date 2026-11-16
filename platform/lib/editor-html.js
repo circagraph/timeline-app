@@ -80,7 +80,7 @@ export function titledEditor(html, title, canonical) {
   return html.replace(
     /<title>[^<]*<\/title>/,
     () =>
-      `<title>${escape(title)} · OpenChronology</title><link rel="canonical" href="${escape(canonical)}" />`,
+      `<title>${escape(title)} · Circagraph</title><link rel="canonical" href="${escape(canonical)}" />`,
   );
 }
 /** The editor's content security policy; `ancestors` are the pages that may frame it. */

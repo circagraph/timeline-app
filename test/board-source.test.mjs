@@ -578,7 +578,7 @@ test('comparing readings, and the tracker’s column stints', () => {
   assert.deepEqual(tracker.keys('planner:p'), ['T1']);
 });
 
-/** A fake OpenChronology server that records saves. */
+/** A fake Circagraph server that records saves. */
 function fakeServer() {
   const saves = [];
   const fetcher = async (url, options = {}) => {

@@ -142,7 +142,7 @@ export class AccountSecurity {
     if (user.email && user.email_verified_at && this.available)
       await queueMail(c, this.key, {
         to: user.email,
-        subject: 'OpenChronology account security',
+        subject: 'Circagraph account security',
         text,
       });
   }
@@ -250,7 +250,7 @@ export class AccountSecurity {
       );
       await queueMail(c, this.key, {
         to: email,
-        subject: 'Confirm your OpenChronology email',
+        subject: 'Confirm your Circagraph email',
         text: `Confirm registration for @${username} using the browser where you registered:\n${this.auth.origin}/login#verify=${token}\nThis link expires in 24 hours. Ignore it if you did not request this account.`,
       });
     });
@@ -439,7 +439,7 @@ export class AccountSecurity {
     await this.notify(
       c,
       user,
-      'Someone completed the first step of signing in to your OpenChronology account (your ' +
+      'Someone completed the first step of signing in to your Circagraph account (your ' +
         `password, or a linked sign-in) and then entered ${FACTOR_FAILURES} wrong two-factor ` +
         'codes. Codes are refused for up to fifteen minutes; a passkey still works. If this was ' +
         'not you, change your password and review your linked sign-in methods.',
@@ -602,7 +602,7 @@ export class AccountSecurity {
       );
       await queueMail(c, this.key, {
         to: email,
-        subject: 'Confirm your OpenChronology email',
+        subject: 'Confirm your Circagraph email',
         text: `Confirm email for @${user.username} in the browser where you requested it:\n${this.auth.origin}/login#verify=${token}\nThis link expires in 24 hours. Ignore it if you did not request this.`,
       });
     });
@@ -709,7 +709,7 @@ export class AccountSecurity {
         await this.notify(
           c,
           user,
-          'Your OpenChronology email address was changed. Contact the operator if you did not authorize this.',
+          'Your Circagraph email address was changed. Contact the operator if you did not authorize this.',
         );
     }).catch((e) => {
       // 23505 is PostgreSQL's unique_violation: the username or address is now another
@@ -780,7 +780,7 @@ export class AccountSecurity {
     );
     await queueMail(c, this.key, {
       to: email,
-      subject: 'Reset your OpenChronology password',
+      subject: 'Reset your Circagraph password',
       text: `${intro}\n${this.auth.origin}/login#reset=${token}\nThis link expires in 30 minutes. Resetting your password removes your passkeys but does not disable two-factor authentication. Ignore this message if you did not request it.`,
     });
   }
@@ -808,7 +808,7 @@ export class AccountSecurity {
       c,
       user,
       user.email.toLowerCase(),
-      'An administrator moved your OpenChronology account off directory sign-in. ' +
+      'An administrator moved your Circagraph account off directory sign-in. ' +
         'Choose a password to sign in:',
     );
     return true;
@@ -878,7 +878,7 @@ export class AccountSecurity {
       await this.notify(
         c,
         user,
-        'Your OpenChronology password was reset. All sessions were signed out. ' +
+        'Your Circagraph password was reset. All sessions were signed out. ' +
           (passkeys
             ? 'Your passkeys were removed; add them again under Account → Security. '
             : '') +
@@ -979,7 +979,7 @@ export class AccountSecurity {
       );
       return {
         secret,
-        uri: `otpauth://totp/${encodeURIComponent('OpenChronology:' + user.username)}?secret=${secret}&issuer=OpenChronology&algorithm=SHA1&digits=6&period=30`,
+        uri: `otpauth://totp/${encodeURIComponent('Circagraph:' + user.username)}?secret=${secret}&issuer=Circagraph&algorithm=SHA1&digits=6&period=30`,
       };
     });
   }
@@ -1085,7 +1085,7 @@ export class AccountSecurity {
         await this.notify(
           c,
           user,
-          'Your OpenChronology password changed. All sessions were signed out.',
+          'Your Circagraph password changed. All sessions were signed out.',
         );
       } else if (action === 'email') {
         const token = randomBytes(32).toString('hex');
@@ -1110,14 +1110,14 @@ export class AccountSecurity {
           );
           await queueMail(c, this.key, {
             to: email,
-            subject: 'Confirm your new OpenChronology email',
+            subject: 'Confirm your new Circagraph email',
             text: `Confirm your new email in the requesting browser:\n${this.auth.origin}/login#verify=${token}\nThis link expires in 24 hours.`,
           });
         }
         await this.notify(
           c,
           user,
-          'A change to your OpenChronology email was requested. Your current address remains active until confirmation.',
+          'A change to your Circagraph email was requested. Your current address remains active until confirmation.',
         );
       } else {
         if (!user.mfa_enabled)

@@ -2,7 +2,7 @@
 
 <!-- description: Mirror Trello, Jira, Planner, OpenProject and Microsoft Project cards, columns and Gantt plans into timelines, by webhook, polling or import. -->
 
-OpenChronology can aggregate the work your boards and plans record, as it does for [GitHub, GitLab and Forgejo](github.md) (#538):
+Circagraph can aggregate the work your boards and plans record, as it does for [GitHub, GitLab and Forgejo](github.md) (#538):
 
 - **Trello** boards;
 - **Jira** projects, on Jira Cloud or Data Center;
@@ -213,7 +213,7 @@ Tasks are tagged `msproject/<WBS>`, such as `msproject/1.2`. The files' times ha
 ## Importing what exists
 
 ```sh
-export OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_...
+export OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_...
 
 TRELLO_KEY=… TRELLO_TOKEN=… och-import-github --board trello:AbCd1234 --timeline 6f1c… --done Shipped
 JIRA_EMAIL=… JIRA_TOKEN=… och-import-github --board jira:acme.atlassian.net/PROJ --timeline 6f1c… --since 2026-11-01

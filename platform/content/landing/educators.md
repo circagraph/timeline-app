@@ -6,7 +6,7 @@ promise: Students read public timelines without an account. With one, they propo
 description: Free, open-source timelines for teaching. Students read without an account and propose changes you review, and every moment can carry its sources.
 card: Class timelines that students add to and you review.
 examples: Timelines to teach from
-video: OpenChronology for educators
+video: Circagraph for educators
 ---
 
 ## What you can do
@@ -20,7 +20,7 @@ video: OpenChronology for educators
 
 ## What you can count on
 
-- **Free and open source.** OpenChronology is free software under the GNU GPL version 3, with no payments or paid features.
+- **Free and open source.** Circagraph is free software under the GNU GPL version 3, with no payments or paid features.
 - **No account needed to read.** Anyone can read public timelines, and anyone can start a timeline in the browser and export it as a file.
 - **Accounts are for people 13 and older.** Sign-up asks for a year of birth, and refuses anyone younger. Younger students can still read public timelines.
 - **Private until you share.** A timeline saved to the server starts private: only you and the collaborators you add can open it.

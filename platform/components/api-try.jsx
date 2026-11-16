@@ -93,7 +93,7 @@ export default function ApiTry({ method, path, parameters, body }) {
             type="password"
             autoComplete="off"
             value={key}
-            placeholder="och_key_…"
+            placeholder="cg_key_…"
             onChange={(e) => setKey(e.target.value)}
           />
         </label>

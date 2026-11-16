@@ -1073,7 +1073,7 @@ impl Snapshot {
     /// the change; otherwise a changed copy of the baseline replaces the file.
     ///
     /// Either way the file is changed in one transaction, so a failed save leaves it as it
-    /// was. A target that is neither an OpenChronology timeline nor an empty database is
+    /// was. A target that is neither a Circagraph timeline nor an empty database is
     /// refused. The returned baseline shares this one's disk copy after an in-place save; the
     /// caller drops this one.
     pub fn save_patch(&self, target: &Path, patch: &Patch) -> Result<Self, String> {

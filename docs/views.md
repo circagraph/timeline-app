@@ -69,7 +69,7 @@ In a document, the list is `views`. The default view names one with `id`:
 
 ## The API: making views from scripts and AI assistants
 
-Everything in this guide can be done through the [HTTP API](api.md), so scripts and AI assistants can build views for you. Make an API key in **Account → API keys**, with the `timelines:read` scope to read views and `timelines:write` to change them. Send it as `Authorization: Bearer och_key_…`. Keys need no CSRF token.
+Everything in this guide can be done through the [HTTP API](api.md), so scripts and AI assistants can build views for you. Make an API key in **Account → API keys**, with the `timelines:read` scope to read views and `timelines:write` to change them. Send it as `Authorization: Bearer cg_key_…`. Keys need no CSRF token.
 
 | Request                                                 | What it does                                                                                       |
 | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |

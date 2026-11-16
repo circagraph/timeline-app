@@ -2691,7 +2691,7 @@ function momentCount(): bigint {
     : (model?.points.entryCount ?? BigInt(remote?.event_count ?? 0));
 }
 const DESKTOP_DOWNLOADS = 'https://github.com/circagraph/timeline-app/releases/latest';
-const HOSTED_PLATFORM = 'https://timescale.info';
+const HOSTED_PLATFORM = 'https://circagraph.org';
 /** Where the open timeline lives, for capacity advice; null when there is nothing to advise on. */
 function capacityPlatform(): Platform | null {
   if (comparison || !model || document.body.dataset.dashboard === 'true') return null;
@@ -2801,7 +2801,7 @@ function capacityMessage(advice: Advice): string {
   if (advice.kind === 'desktop')
     return `Views of this timeline take about ${seconds(capacity.views.at(-1) ?? 0)} on this computer. Saved to a server, the server does that work, and others can view and edit it too.`;
   const elsewhere = offlineHtml
-    ? 'Large timelines are faster in the desktop app or on the OpenChronology platform.'
+    ? 'Large timelines are faster in the desktop app or on the Circagraph platform.'
     : session.server
       ? 'Large timelines are faster in the desktop app, or saved to your account on this server.'
       : 'Large timelines are faster in the desktop app.';
@@ -2884,9 +2884,9 @@ async function checkForUpdate(now = Date.now()) {
   }
   const latest = known.latest!;
   if (!newerRelease(current, latest) || updateStorage('och-update-dismissed') === latest) return;
-  text('update-text', `OpenChronology ${latest} is available. This app is ${current}.`);
+  text('update-text', `Circagraph ${latest} is available. This app is ${current}.`);
   el<HTMLAnchorElement>('update-notes').href = known.notes!;
-  el<HTMLAnchorElement>('update-download').href = 'https://timescale.info/download';
+  el<HTMLAnchorElement>('update-download').href = 'https://circagraph.org/download';
   el('update-notice').dataset.release = latest;
   el('update-notice').hidden = false;
 }
@@ -3022,7 +3022,7 @@ for (const button of document.querySelectorAll<HTMLButtonElement>('.reveal-image
   };
 let pageTitled: string | null = null;
 /**
- * Names the open timeline in the page's title (#210): "Its title · OpenChronology", and on
+ * Names the open timeline in the page's title (#210): "Its title · Circagraph", and on
  * the website, through the page around the editor, with the site's name. The dashboard, or a
  * timeline still loading, leaves the page's own title.
  */
@@ -3036,7 +3036,7 @@ function updatePageTitle() {
         : shown || 'Untitled timeline';
   if (name === pageTitled) return;
   pageTitled = name;
-  document.title = name ? `${name} · OpenChronology` : 'OpenChronology — a place for moments';
+  document.title = name ? `${name} · Circagraph` : 'Circagraph — a place for moments';
   // Also kept here, for a page around the editor that starts listening after this is sent.
   document.documentElement.dataset.timelineTitle = name;
   if (platformEditor)
@@ -5870,14 +5870,14 @@ el('timeline-help-button').onclick = () =>
   el<HTMLDialogElement>('timeline-help-dialog').showModal();
 /**
  * A help page's address (#172): the server's own help on the website, the connected server's
- * on the desktop, and timescale.info's in the offline file and the plain browser edition.
+ * on the desktop, and circagraph.org's in the offline file and the plain browser edition.
  */
 function helpAddress(topic: string) {
   const origin = platformEditor
     ? ''
     : desktop && serverOrigin
       ? serverOrigin
-      : 'https://timescale.info';
+      : 'https://circagraph.org';
   return `${origin}/help/${topic}`;
 }
 /** Opens help beside the editor: in a new tab, or the desktop's own browser. */
@@ -9316,7 +9316,7 @@ void (async () => {
     try {
       await nativeServers();
       useServer(connected[0] ?? null);
-      input('server-origin').value = connected.length ? '' : 'https://timescale.info';
+      input('server-origin').value = connected.length ? '' : 'https://circagraph.org';
       // Each server's sign-in, at once; one that cannot be reached leaves the others.
       await Promise.all(connected.map((origin) => refreshSession(origin).catch(() => {})));
       accountHeading();

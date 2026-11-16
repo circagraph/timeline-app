@@ -95,7 +95,7 @@ image.
 
 The site's other pages (the landing page, profiles, help and the rest) preview with the site's
 own card, `/previews/site.png`, which each server draws for itself at 1200 × 630: the logo and
-"OpenChronology", what it is in one sentence, and the server's name (`PLATFORM_NAME`) or address,
+"Circagraph", what it is in one sentence, and the server's name (`PLATFORM_NAME`) or address,
 over a strip of the ancient Rome timeline cut from `/social-preview.jpg`, a screenshot of the
 editor. Each audience's page has a card of its own, `/previews/<audience>.png`, with its heading
 and promise in place of the sentence, so a link to `/for/educators` speaks to teachers. Each has
@@ -154,7 +154,7 @@ described by their labels instead of their notes, and ask search engines not to 
     the addresses listed.
 - **For AI engines and agents** ([#482](https://github.com/circagraph/timeline-app/issues/482)):
   `/llms.txt` ([llmstxt.org](https://llmstxt.org)) says in Markdown what the site is (its name,
-  and that it runs OpenChronology), and links its main pages, every help page, the API reference
+  and that it runs Circagraph), and links its main pages, every help page, the API reference
   and its OpenAPI description, and up to ten featured public timelines, each with a line from its
   description. `/llms-full.txt` holds every help page's Markdown in one file. Both are generated
   from the help and the site's settings, so they follow the docs; every page's footer links
@@ -247,14 +247,14 @@ judge this more finely is [#476](https://github.com/circagraph/timeline-app/issu
 ## Embedding
 
 `/embed/<id>` is a public timeline for other sites to frame: the timeline and its title, with
-search, zoom, Fit all and an **Open on OpenChronology** link that follows what is open. It is
+search, zoom, Fit all and an **Open on Circagraph** link that follows what is open. It is
 read-only, and anonymous: it sends no cookies, so it shows what a guest sees even to a visitor
 who is signed in and owns the timeline. A private timeline is not embedded. The **Embed on a
 website** code is an iframe:
 
 ```html
 <iframe
-  src="https://timescale.info/embed/<id>#moment/<moment>"
+  src="https://circagraph.org/embed/<id>#moment/<moment>"
   title="…"
   width="100%"
   height="480"
@@ -321,7 +321,7 @@ services that discover oEmbed from a page (such as Iframely and Embedly, and the
 editors that use them) can turn a pasted link into the timeline itself:
 
 ```
-GET /api/oembed?url=https://timescale.info/<username>/<slug>&maxwidth=600&format=json
+GET /api/oembed?url=https://circagraph.org/<username>/<slug>&maxwidth=600&format=json
 ```
 
 It answers a `rich` embed with the iframe above (opening at the page's event, or at

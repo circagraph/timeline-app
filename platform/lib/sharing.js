@@ -21,7 +21,7 @@ import { siteName } from '../../server/site.mjs';
 import { timelineEntityLimit } from '../../server/indexnow.mjs';
 import { profilePath, timelinePath } from '../../src/addresses.ts';
 
-/** The platform's name in titles and link previews (PLATFORM_NAME, or OpenChronology). */
+/** The platform's name in titles and link previews (PLATFORM_NAME, or Circagraph). */
 export { siteName };
 /**
  * A page's title: what it is, then what it belongs to, then the site's name (#210), fitted to
@@ -536,7 +536,7 @@ export function previewOf(timeline) {
 }
 /**
  * The image links to the site's own pages preview with: a card the server draws
- * (lib/site-preview.jsx, /previews/<name>.png) with its name, what OpenChronology is and its
+ * (lib/site-preview.jsx, /previews/<name>.png) with its name, what Circagraph is and its
  * address over a strip of a timeline, for pages with no image of their own (a timeline's page
  * draws one). `name` is `site`, or an audience for its page's card, with that page's heading;
  * `alt` describes it.
@@ -549,7 +549,7 @@ export function sitePreview(name = 'site', alt = null) {
     height: 630,
     alt:
       alt ??
-      'OpenChronology: a free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event. Below, a timeline of ancient Rome.',
+      'Circagraph: a free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event. Below, a timeline of ancient Rome.',
   };
 }
 /**
@@ -774,7 +774,9 @@ export function entityBreadcrumbs(timeline, entity, title) {
 export function softwareData(more = {}) {
   return {
     '@type': 'SoftwareApplication',
-    name: 'OpenChronology',
+    name: 'Circagraph',
+    // Its name until 2026-11-14, so search engines and AI answers tie the two together.
+    alternateName: 'OpenChronology',
     applicationCategory: 'Timeline editor',
     operatingSystem: 'Web, Windows, macOS, Linux',
     license: 'https://www.gnu.org/licenses/gpl-3.0.html',
@@ -783,7 +785,7 @@ export function softwareData(more = {}) {
   };
 }
 /** The software's own name, which a server named otherwise runs. */
-export const SOFTWARE_NAME = 'OpenChronology';
+export const SOFTWARE_NAME = 'Circagraph';
 /**
  * The site as schema.org's `WebSite` (#472): its name, address and, when its name isn't the
  * software's (PLATFORM_NAME, such as timescale.info), the software's as another name for it
@@ -801,6 +803,7 @@ export function websiteData() {
           alternateName: SOFTWARE_NAME,
           description: `${name} runs ${SOFTWARE_NAME}, a free, open-source timeline editor.`,
         }
-      : {}),
+      : // The software's name until 2026-11-14, so the old name still finds the site.
+        { alternateName: 'OpenChronology' }),
   };
 }

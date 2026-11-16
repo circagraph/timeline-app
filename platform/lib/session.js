@@ -23,7 +23,7 @@ export async function currentSession() {
   const services = await platformServices();
   const values = Object.fromEntries(await headers());
   // Automation credentials authenticate only through the scoped timeline API. `auth.session`
-  // would accept an API key (`Bearer och_key_…`) too, so it is refused here: a key must not
+  // would accept an API key (`Bearer cg_key_…`) too, so it is refused here: a key must not
   // open the site's pages, its account settings or its administration as its owner would.
   const session =
     services.auth && !bearsApiKey(values.authorization)

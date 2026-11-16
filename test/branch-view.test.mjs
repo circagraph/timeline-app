@@ -200,7 +200,7 @@ test('pull requests from forks name a branch elsewhere and are left out', async 
   ]);
 });
 
-/** An OpenChronology API with one timeline and the key owner's saved views. */
+/** An Circagraph API with one timeline and the key owner's saved views. */
 function fakeApi({ view = null, views = [] } = {}) {
   const state = { revision: '3', view, views, saves: [], conflicts: 0 };
   const fetcher = async (url, options = {}) => {

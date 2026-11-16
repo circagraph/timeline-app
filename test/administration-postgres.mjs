@@ -518,7 +518,7 @@ try {
     true,
   );
   const releaseMail = (await sentTo(dirEmail)).at(-1);
-  assert.match(releaseMail.text, /moved your OpenChronology account off directory sign-in/);
+  assert.match(releaseMail.text, /moved your Circagraph account off directory sign-in/);
   assert.deepEqual(
     (
       await pool.query(

@@ -1,7 +1,8 @@
-# timescale.info — privacy policy
+# Circagraph — privacy policy
 
 Effective 7 November 2026. This policy describes how the hosted service at
-https://timescale.info, and the desktop app when connected to it, collects, uses,
+https://circagraph.org (called timescale.info until 14 November 2026, an address that
+still leads to it), and the desktop app when connected to it, collects, uses,
 shares and keeps information. The service is operated by Athan Clark, an individual
 (the "operator"). For any privacy question or request, write to
 **privacy@timescale.info**.
@@ -33,7 +34,7 @@ plugins. Provider privacy notices also apply to their own services.
 If you choose **Sign in with Google** (or link Google to your account), the service
 asks Google only for the `openid` and `profile` scopes. From Google's answer it keeps
 just one thing: your Google account's stable identifier (the ID token's subject), linked
-to your timescale.info account so that you can sign in with Google again. It does not
+to your Circagraph account so that you can sign in with Google again. It does not
 keep your name, email address, profile picture or any other Google profile data; it
 does not request access to Gmail, Drive, contacts, calendars or any other Google service;
 and it discards Google's access and ID tokens as soon as your identity is verified. Your
@@ -159,7 +160,7 @@ definitions are public independently of private timelines using them.
 
 ## Embedded videos
 
-Some pages that describe the service (the landing page at https://timescale.info and the
+Some pages that describe the service (the landing page at https://circagraph.org and the
 pages under /for/) can show a video hosted on YouTube. Opening such a page loads nothing
 from YouTube or Google: the page shows a still image, a play button and a link to the
 video on youtube.com.

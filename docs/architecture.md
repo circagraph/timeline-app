@@ -1,6 +1,6 @@
 # Timeline and query contract
 
-<!-- description: How OpenChronology stores and exchanges timelines: the .ochx and .och formats, exact times, window summaries, saved history and server operations. -->
+<!-- description: How Circagraph stores and exchanges timelines: the .ochx and .och formats, exact times, window summaries, saved history and server operations. -->
 
 The browser model is `RationalMap<readonly PointEvent[]>`, weighted by bucket size. An auxiliary ID map locates edits without searching the time domain. Different moments can occupy the same rational coordinate. IDs are unique ASCII strings of 1–128 characters from `[A-Za-z0-9_.:-]`; this preserves identical moment ordering across JavaScript, PostgreSQL's C collation, and SQLite.
 
@@ -165,7 +165,7 @@ See [collaboration.md](collaboration.md) for the owner custody model, public ful
 
 ## Hosted platform (Next.js)
 
-`platform/app` is the Next.js App Router application for timescale.info. `/` renders the dashboard on the server, with the account’s own timelines above public full-text search results. Search and pagination use URL parameters and Next forms/links. `/login` and `/account` own browser sign-in, OAuth initiation and session management; `/connect/desktop/:code` owns explicit desktop authorization. `/timelines/:id`, its `/pulls` routes and `/settings` enforce access before rendering. The plugin catalogue and legal pages also use Next routes. Private pages are dynamic, without shared page caching.
+`platform/app` is the Next.js App Router application for circagraph.org. `/` renders the dashboard on the server, with the account’s own timelines above public full-text search results. Search and pagination use URL parameters and Next forms/links. `/login` and `/account` own browser sign-in, OAuth initiation and session management; `/connect/desktop/:code` owns explicit desktop authorization. `/timelines/:id`, its `/pulls` routes and `/settings` enforce access before rendering. The plugin catalogue and legal pages also use Next routes. Private pages are dynamic, without shared page caching.
 
 App Router handlers under `/api` dispatch streamed requests directly to the existing database/authentication controllers through `server/next-handler.mjs`. There is no second HTTP server or internal HTTP proxy in production. The controllers remain independently testable; `createApplication` is a local test/Tauri development harness. PostgreSQL, pgmp, revision checks, CSRF, signed-in access checks, bounded uploads, OAuth PKCE and session expiration remain server-side. React state never contains provider secrets or native bearer tokens.
 

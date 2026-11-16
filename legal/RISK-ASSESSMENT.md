@@ -1,6 +1,6 @@
 # Online safety risk assessment (template)
 
-A working template for the operator of a hosted installation, such as timescale.info. Use it for the UK Online Safety Act's illegal-content risk assessment and its children's access and risk assessments, and as a record for other regimes. It is not legal advice. Ofcom's current guidance and risk profiles are the reference; review this against them, and again whenever the service changes in a way that affects risk. Record the date and who reviewed it each time.
+A working template for the operator of a hosted installation, such as circagraph.org. Use it for the UK Online Safety Act's illegal-content risk assessment and its children's access and risk assessments, and as a record for other regimes. It is not legal advice. Ofcom's current guidance and risk profiles are the reference; review this against them, and again whenever the service changes in a way that affects risk. Record the date and who reviewed it each time.
 
 Assessment date: \_\_\_\_ · Reviewed by: \_\_\_\_ · Next review: \_\_\_\_
 

@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 // GitHub as a source (#538): issues and pull requests as durations (ongoing while open),
 // assignments as moments, "closes #n" as links; the webhook receiver's signatures, routing,
-// batching and retries; and the importer's paging, against fake GitHub and OpenChronology APIs.
+// batching and retries; and the importer's paging, against fake GitHub and Circagraph APIs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
@@ -440,7 +440,7 @@ test('a project status change names its issue through GraphQL', async () => {
   );
 });
 
-/** A fake OpenChronology API: a Gregorian timeline per ID; saves recorded; failures scripted. */
+/** A fake Circagraph API: a Gregorian timeline per ID; saves recorded; failures scripted. */
 function fakeServer({ failures = [], refuse = () => null } = {}) {
   const saves = [];
   const fetcher = async (url, options = {}) => {
@@ -798,7 +798,7 @@ test('the importer reads every page of issues and their timelines, and links wha
   assert.equal(changes.links.length, 1);
   assert.ok(github.seen.every((r) => r.headers.Authorization === 'Bearer ghp_x'));
   assert.ok(
-    github.seen.every((r) => /^OpenChronology-github-source/.test(r.headers['User-Agent'])),
+    github.seen.every((r) => /^Circagraph-github-source/.test(r.headers['User-Agent'])),
   );
   // Since a time: the listing asks GitHub for it, and earlier events are left out.
   const recent = await readRepository(reader, 'acme/app', {

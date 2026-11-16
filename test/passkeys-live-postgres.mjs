@@ -34,7 +34,7 @@ const env = {
   // Account security needs email and an encryption key configured. The accounts here have no
   // address, so nothing is sent.
   RESEND_API_KEY: 're_test_passkeys',
-  AUTH_EMAIL_FROM: 'OpenChronology <accounts@example.test>',
+  AUTH_EMAIL_FROM: 'Circagraph <accounts@example.test>',
   AUTH_ENCRYPTION_KEY: randomBytes(32).toString('hex'),
   CHALLENGE_PROVIDER: 'off',
   // The last steps come from an address of their own (X-Forwarded-For), with its own limits.

@@ -67,7 +67,7 @@ const routes = await load();
 
 test("an embed's title is its timeline's, as written, with no $ patterns expanded", () => {
   const page =
-    '<!doctype html><html><head><title>OpenChronology</title></head><body><p>rest</p></body></html>';
+    '<!doctype html><html><head><title>Circagraph</title></head><body><p>rest</p></body></html>';
   for (const [title, text] of [
     ["x $' y", 'x $&#39; y'],
     ['a $& b', 'a $&amp; b'],
@@ -76,13 +76,13 @@ test("an embed's title is its timeline's, as written, with no $ patterns expande
   ]) {
     const html = routes.titledEditor(page, title, 'https://timescale.info/ada/voyages');
     // Nothing but the title changes; its text is escaped, its $ kept as written.
-    const tag = `<title>${text} · OpenChronology</title><link rel="canonical" href="https://timescale.info/ada/voyages" />`;
-    assert.equal(html, page.split('<title>OpenChronology</title>').join(tag), title);
+    const tag = `<title>${text} · Circagraph</title><link rel="canonical" href="https://timescale.info/ada/voyages" />`;
+    assert.equal(html, page.split('<title>Circagraph</title>').join(tag), title);
     assert.equal(html.match(/<title>/g).length, 1);
   }
   assert.match(
     routes.titledEditor(page, '<b>"x" & y</b>', '/a"b'),
-    /<title>&lt;b&gt;&quot;x&quot; &amp; y&lt;\/b&gt; · OpenChronology<\/title><link rel="canonical" href="\/a&quot;b" \/>/,
+    /<title>&lt;b&gt;&quot;x&quot; &amp; y&lt;\/b&gt; · Circagraph<\/title><link rel="canonical" href="\/a&quot;b" \/>/,
   );
 });
 

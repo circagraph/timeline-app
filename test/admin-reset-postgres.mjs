@@ -32,7 +32,7 @@ try {
   const password = 'Abc!def#ghi@jkl-mno#pqr';
   const config = join(dir, 'openchronology.env');
   const write = (settings) =>
-    writeFile(config, `# OpenChronology\nDATABASE_URL=${process.env.DATABASE_URL}\n${settings}\n`);
+    writeFile(config, `# Circagraph\nDATABASE_URL=${process.env.DATABASE_URL}\n${settings}\n`);
   // Run without the test's environment, as the package command does: only OCH_CONFIG.
   const reset = () =>
     run(process.execPath, ['server/reset-admin-password.mjs'], {

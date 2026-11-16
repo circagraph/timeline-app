@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-// SQLite .och file exchange: converts timelines to and from OpenChronology's SQLite file
+// SQLite .och file exchange: converts timelines to and from Circagraph's SQLite file
 // format by running the native och-convert binary (native-store/), at most two at a time.
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -56,7 +56,7 @@ export class TimelineFiles {
         if (input.length > this.limit)
           throw new HttpError(413, `SQLite upload exceeds ${mebibytes(this.limit)}.`);
         if (!input.subarray(0, 16).equals(Buffer.from('SQLite format 3\0')))
-          throw new HttpError(400, 'Expected an OpenChronology SQLite .och file.');
+          throw new HttpError(400, 'Expected a Circagraph SQLite .och file.');
         await writeFile(path, input, { mode: 0o600 });
       }
       const stdout = await new Promise((resolve, reject) => {

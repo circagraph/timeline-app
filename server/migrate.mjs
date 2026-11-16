@@ -44,7 +44,7 @@ try {
   // Browsing lists established accounts' timelines (#103): ranked from the start.
   await sweepStanding(client);
   await client.query('COMMIT');
-  console.log('OpenChronology schema installed.');
+  console.log('Circagraph schema installed.');
 } finally {
   await client.end();
 }

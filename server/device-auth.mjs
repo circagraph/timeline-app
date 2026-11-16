@@ -233,7 +233,7 @@ export class DeviceAuth {
       await security.notify(
         c,
         user,
-        'A desktop app was signed in to your OpenChronology account, approved in your browser. ' +
+        'A desktop app was signed in to your Circagraph account, approved in your browser. ' +
           `It started signing in${named} at ${new Date(started).toUTCString()} ` +
           `from ${from ?? 'an unknown address'}. If this was not you, choose ` +
           'Sign out other sessions on your account page and change your password.',

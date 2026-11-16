@@ -1,6 +1,6 @@
 # Benchmarks
 
-<!-- description: How OpenChronology's speed holds up as timelines grow: measured times for saves, searches, downloads and interactions on each storage backend. -->
+<!-- description: How Circagraph's speed holds up as timelines grow: measured times for saves, searches, downloads and interactions on each storage backend. -->
 
 The benchmark suite measures how operation latency grows with timeline size on each storage backend:
 

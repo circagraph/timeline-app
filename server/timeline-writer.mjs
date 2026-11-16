@@ -50,7 +50,7 @@ export class TimelineWriter {
   constructor({ api, key, fetcher = fetch, now = () => performance.now() }) {
     if (!/^https?:\/\//.test(api ?? '')) throw new Error('OCH_API_URL must be an http(s) origin.');
     if (!KEY.test(key ?? ''))
-      throw new Error('OCH_API_KEY must be an OpenChronology API key (och_key_...).');
+      throw new Error('OCH_API_KEY must be a Circagraph API key (cg_key_... or cg_key_...).');
     this.api = api.replace(/\/+$/, '');
     this.key = key;
     this.fetcher = fetcher;

@@ -1,10 +1,10 @@
-# Using OpenChronology
+# Using Circagraph
 
-<!-- description: A walk through OpenChronology: making a timeline, adding moments and durations, zooming from millennia to fractions of a second, and sharing it. -->
+<!-- description: A walk through Circagraph: making a timeline, adding moments and durations, zooming from millennia to fractions of a second, and sharing it. -->
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-OpenChronology is a timeline editor. You place moments and periods on a line of time, zoom from millennia down to fractions of a second, and share what you make. This guide walks through the app task by task. Each chapter links to a more detailed page when you want the full story. For quick answers, see the [frequently asked questions](faq.md).
+Circagraph is a timeline editor. You place moments and periods on a line of time, zoom from millennia down to fractions of a second, and share what you make. This guide walks through the app task by task. Each chapter links to a more detailed page when you want the full story. For quick answers, see the [frequently asked questions](faq.md).
 
 ## What a timeline is
 
@@ -95,7 +95,7 @@ Drafts stay in this browser only, and only for your account. Save to the server 
 
 **Download** in the header offers:
 
-- **The desktop app** for Windows, macOS and Linux. It works with timeline files on your computer: **Open**, **Save** and **Save As…** read and write `.och` files, and **Import** reads `.ochx` files. **From files…** makes a timeline of the photos, videos or other files in your folders, dated when each was taken or when the file was created or changed, each opening in its own app ([timelines from files](file-populator.md)). It works without a network. **Server connection** connects it to OpenChronology servers (by default `https://timescale.info`), up to eight at once ([several servers](authentication.md#several-servers-on-the-desktop)). To sign in from the desktop, choose **Sign in using your browser**, then, on the website, check when and where the request started, type the code the desktop app shows and choose **Approve connection**. Approve only a sign-in you just started on your own computer, never a link someone sent you. The desktop app does not remember your sign-in after it closes.
+- **The desktop app** for Windows, macOS and Linux. It works with timeline files on your computer: **Open**, **Save** and **Save As…** read and write `.och` files, and **Import** reads `.ochx` files. **From files…** makes a timeline of the photos, videos or other files in your folders, dated when each was taken or when the file was created or changed, each opening in its own app ([timelines from files](file-populator.md)). It works without a network. **Server connection** connects it to Circagraph servers (by default `https://circagraph.org`), up to eight at once ([several servers](authentication.md#several-servers-on-the-desktop)). To sign in from the desktop, choose **Sign in using your browser**, then, on the website, check when and where the request started, type the code the desktop app shows and choose **Approve connection**. Approve only a sign-in you just started on your own computer, never a link someone sent you. The desktop app does not remember your sign-in after it closes.
 - **The offline browser file** (`.html`): the whole editor in one file. It never uses the network. Work stays in memory, so export it as `.ochx` to keep it.
 
 ## Moving around
@@ -357,7 +357,7 @@ Undo and redo work outside text fields; inside one, they undo your typing.
 
 - **The tour:** **Help** under the timeline lists its controls and offers **Take the tour**, which lights up the main controls one at a time. Use **Next** and **Back**, or the arrow keys; Escape ends it. On the website, **Take the tour of the editor** on the help page starts it too.
 - **? buttons:** beside the harder settings, in dialogs and on the website's settings pages. Point at one, or move to it with the keyboard, to read a short tip; select it to open the help about it.
-- **The help:** **Help** in the website's header has this guide, the [frequently asked questions](faq.md) and every topic in detail, with a search box. The desktop app opens its server's help in your browser (timescale.info's when it isn't connected), and the offline file opens timescale.info's.
+- **The help:** **Help** in the website's header has this guide, the [frequently asked questions](faq.md) and every topic in detail, with a search box. The desktop app opens its server's help in your browser (circagraph.org's when it isn't connected), and the offline file opens circagraph.org's.
 
 ## Where to go next
 

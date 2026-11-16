@@ -33,7 +33,7 @@ export default function UpdateBanner({ current, latest, notes, upgrade }) {
   return (
     <aside className="update-banner" role="status" data-release={latest}>
       <span>
-        OpenChronology <strong>{latest}</strong> is available; this server runs {current}. Only
+        Circagraph <strong>{latest}</strong> is available; this server runs {current}. Only
         administrators see this.
       </span>
       <span className="update-banner-actions">

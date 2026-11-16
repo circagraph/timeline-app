@@ -557,7 +557,7 @@ export const schemas = {
   TimelineDocument: {
     type: 'object',
     description:
-      'An OpenChronology document, as in an `.ochx` file. Each kind of entry (moments, durations, relationships) is limited to the server’s entry limit, 200,000 by default. Unknown fields are dropped. The server stores no copies of images: it drops `assets` when it saves, and keeps them only in exports.',
+      'A Circagraph document, as in an `.ochx` file. Each kind of entry (moments, durations, relationships) is limited to the server’s entry limit, 200,000 by default. Unknown fields are dropped. The server stores no copies of images: it drops `assets` when it saves, and keeps them only in exports.',
     required: ['format', 'version', 'title', 'description', 'events'],
     properties: {
       format: { const: 'openchronology' },

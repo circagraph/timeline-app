@@ -35,7 +35,7 @@ Gregorian display treats the transformed quantity as seconds from 1970-01-01T00:
 
 The reference is `openchronology-old2/graph/src/Chrono/Time/Class.hs`, which wrapped Haskell's `UniversalTime` as rational MJD days. [Data.Time.Clock](https://hackage-content.haskell.org/package/time-1.9.3/docs/Data-Time-Clock.html) exposes that rational representation, and [Data.Time.Format](https://hackage-content-origin.haskell.org/package/time-1.14/docs/Data-Time-Format.html) provides separate printers and parsers. This implementation follows that separation using local BigInt arithmetic; it does not execute Haskell.
 
-The Gregorian preset uses a proleptic calendar, arbitrary integer years and a configurable fixed UTC offset in minutes. Input requires `Z` or `±HH:MM`; its own offset determines the instant. Finite fractional seconds print as decimals when practical; other fractions use the `{+n/d}` extension to preserve every rational. That extension is OpenChronology-specific, not standard ISO 8601. Named zones, daylight saving, leap seconds, and physical UT1/UTC adjustments are outside this preset.
+The Gregorian preset uses a proleptic calendar, arbitrary integer years and a configurable fixed UTC offset in minutes. Input requires `Z` or `±HH:MM`; its own offset determines the instant. Finite fractional seconds print as decimals when practical; other fractions use the `{+n/d}` extension to preserve every rational. That extension is Circagraph-specific, not standard ISO 8601. Named zones, daylight saving, leap seconds, and physical UT1/UTC adjustments are outside this preset.
 
 ## Viewport context
 

@@ -86,14 +86,14 @@ export const IMAGES = {
     dockerfile: 'deploy/desktop-build/Dockerfile',
     files: [],
     repo: () => process.env.OCH_DESKTOP_IMAGES || 'ghcr.io/circagraph/desktop-build',
-    description: "OpenChronology's Linux desktop build image (scripts/build-images.mjs)",
+    description: "Circagraph's Linux desktop build image (scripts/build-images.mjs)",
   },
   'postgres-ci': {
     dockerfile: 'deploy/postgres-ci/Dockerfile',
     files: ['deploy/postgres-ci/och-ci-postgres'],
     repo: () => process.env.OCH_POSTGRES_IMAGES || 'ghcr.io/circagraph/postgres-ci',
     description:
-      "OpenChronology's PostgreSQL CI image: PostgreSQL 16 with pgmp (scripts/build-images.mjs)",
+      "Circagraph's PostgreSQL CI image: PostgreSQL 16 with pgmp (scripts/build-images.mjs)",
   },
 };
 /** A whole-Dockerfile image's reference, tagged with a hash of its Dockerfile, then its files. */
@@ -248,7 +248,7 @@ async function main(argv) {
     for (const stage of stages) {
       const ref = await toolImage(name, stage, process.env.OCH_TOOL_IMAGES || TOOL_IMAGES);
       const args = ['--file', dockerfileOf(target), '--target', stage, ...targetArgs(target), '.'];
-      const description = `OpenChronology's ${name} server package ${stage} (scripts/build-images.mjs)`;
+      const description = `Circagraph's ${name} server package ${stage} (scripts/build-images.mjs)`;
       built.push(await buildImage(ref, args, description, push));
     }
   }

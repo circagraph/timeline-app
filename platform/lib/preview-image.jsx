@@ -66,7 +66,7 @@ function Card({ eyebrow, title, facts, notes, groups, mark }) {
       }}
     >
       <div style={{ display: 'flex', fontSize: 28, color: MUTED, letterSpacing: 1 }}>
-        {'openchronology' + (eyebrow ? ' · ' + excerpt(eyebrow, 60) : '')}
+        {'circagraph' + (eyebrow ? ' · ' + excerpt(eyebrow, 60) : '')}
       </div>
       <div
         style={{

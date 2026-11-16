@@ -121,13 +121,14 @@ export const OFFICIAL_NAMES: ReadonlySet<string> = new Set([
  * Whether `name` is a username new accounts may take: it follows USERNAME, and is not one of
  * the site's own pages (RESERVED_NAMES) or OFFICIAL_NAMES, written plainly or with hyphens and
  * underscores (`sign-in`, `ad_min`). Nor is it an official name or a site page with a number
- * after it (`admin1`, `root-2`), or a name starting with "openchronology".
+ * after it (`admin1`, `root-2`), or a name starting with "circagraph" or "openchronology".
  */
 export function availableUsername(name: string): boolean {
   if (!USERNAME.test(name)) return false;
   const bare = name.replace(/[-_]/g, ''),
     stem = bare.replace(/\d+$/, '');
   return (
+    !bare.startsWith('circagraph') &&
     !bare.startsWith('openchronology') &&
     ![name, bare, stem].some((n) => RESERVED_NAMES.has(n) || OFFICIAL_NAMES.has(n))
   );

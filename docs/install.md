@@ -1,8 +1,8 @@
 # Installing a server
 
-<!-- description: Install your own OpenChronology server: a package for Debian, Ubuntu, Fedora, RHEL, Arch, FreeBSD, macOS or Windows, Docker Compose, Nix, or from source. -->
+<!-- description: Install your own Circagraph server: a package for Debian, Ubuntu, Fedora, RHEL, Arch, FreeBSD, macOS or Windows, Docker Compose, Nix, or from source. -->
 
-An OpenChronology server is the website at [timescale.info](https://timescale.info): accounts, sharing, search and collaboration over PostgreSQL with the `pgmp` extension. Choose one way to install it:
+A Circagraph server is the website at [circagraph.org](https://circagraph.org): accounts, sharing, search and collaboration over PostgreSQL with the `pgmp` extension. Choose one way to install it:
 
 - **[A package](#server-packages)** for your system, with everything but PostgreSQL inside.
 - **[Docker Compose](#docker-compose)**, on any system with Docker.
@@ -57,7 +57,7 @@ docker compose logs -f app
 
 Open http://localhost:5173 after startup. See [the Docker deployment guide](docker.md) for upgrades, backups, and production configuration. Compose passes PostgreSQL connection variables directly, so special characters in passwords do not need URL encoding.
 
-The database has a persistent volume and no published database port. A migration service creates the extension and schema before the application starts. The app binds to `127.0.0.1:5173` on the host. For public hosting, put an HTTPS reverse proxy in front of that port and set `APP_ORIGIN` to the exact external origin, `https://timescale.info`. Secure session cookies are selected from that origin. `APP_ORIGIN` has no trailing slash or path.
+The database has a persistent volume and no published database port. A migration service creates the extension and schema before the application starts. The app binds to `127.0.0.1:5173` on the host. For public hosting, put an HTTPS reverse proxy in front of that port and set `APP_ORIGIN` to the exact external origin, `https://circagraph.org`. Secure session cookies are selected from that origin. `APP_ORIGIN` has no trailing slash or path.
 
 ## Nix and NixOS
 

@@ -1,7 +1,7 @@
 {
   "name": "@openchronology/timeline",
   "version": "0.0.0",
-  "description": "The OpenChronology timeline editor as an <och-timeline> element for any page, chat reply or artifact",
+  "description": "The Circagraph timeline editor as an <och-timeline> element for any page, chat reply or artifact",
   "type": "module",
   "main": "dist/timeline.js",
   "browser": "dist/timeline.js",

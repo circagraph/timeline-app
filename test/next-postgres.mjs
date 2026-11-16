@@ -112,11 +112,11 @@ try {
     await delay(200);
   }
   assert(ready, logs);
-  // Unnamed and without analytics: OpenChronology's name, and no Google hosts allowed.
+  // Unnamed and without analytics: Circagraph's name, and no Google hosts allowed.
   const home = await fetch(origin + '/'),
     homeHtml = await home.text();
   assert.match(homeHtml, /src="\/logo-mark\.svg"[^>]*\/>(<!-- -->)?openchronology<\/a>/);
-  assert.match(homeHtml, /<title>OpenChronology<\/title>/);
+  assert.match(homeHtml, /<title>Circagraph<\/title>/);
   assert.doesNotMatch(homeHtml, /Powered by |Analytics settings|Support this site/);
   assert.doesNotMatch(home.headers.get('content-security-policy'), /google/);
   const download = await (

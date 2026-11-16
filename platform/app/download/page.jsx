@@ -35,7 +35,7 @@ import { StructuredData } from '../../components/landing.jsx';
 export const dynamic = 'force-dynamic';
 /** What the page offers, for its metadata and structured data. */
 const DOWNLOAD_DESCRIPTION =
-  'The OpenChronology desktop app for Windows, macOS and Linux, and the server.';
+  'The Circagraph desktop app for Windows, macOS and Linux, and the server.';
 /** The page's title, description and canonical address. */
 export function generateMetadata() {
   return {
@@ -123,7 +123,7 @@ export default async function Download() {
     <main className="platform download-page">
       {/* The software and where to download it, for search engines (#474). */}
       <StructuredData
-        data={webPageData('/download', 'Download OpenChronology', DOWNLOAD_DESCRIPTION, {
+        data={webPageData('/download', 'Download Circagraph', DOWNLOAD_DESCRIPTION, {
           mainEntity: softwareData({
             downloadUrl: siteOrigin() + '/download',
             ...(release?.tag ? { softwareVersion: release.tag.replace(/^v/, '') } : {}),
@@ -131,7 +131,7 @@ export default async function Download() {
           }),
         })}
       />
-      <h1>Download OpenChronology</h1>
+      <h1>Download Circagraph</h1>
       <p className="muted download-release">
         {release ? (
           <>
@@ -148,14 +148,14 @@ export default async function Download() {
 
       {desktop ? null : (
         <section className="download-recommended" aria-labelledby="browser-heading">
-          <h2 id="browser-heading">Use OpenChronology in your browser</h2>
+          <h2 id="browser-heading">Use Circagraph in your browser</h2>
           <p>
             The desktop app runs on Windows, macOS and Linux. On this device, open the website, or
             download the offline file to use without a network.
           </p>
           <div className="download-actions">
             <a className="button primary download-primary" href="/">
-              Open OpenChronology
+              Open Circagraph
             </a>
             <a className="download-file" href={assetLink(release, OFFLINE.asset)}>
               Offline browser file (.html)
@@ -324,8 +324,8 @@ export default async function Download() {
           <li>
             Source code: <a href={assetLink(release, OTHER_ASSETS.source)}>web and server</a>,{' '}
             <a href={assetLink(release, OTHER_ASSETS.desktopSource)}>desktop</a>, and the{' '}
-            <a href={`https://github.com/${REPOSITORY}`}>repository</a>. OpenChronology is free
-            software under the GNU GPL version 3.
+            <a href={`https://github.com/${REPOSITORY}`}>repository</a>. Circagraph is free software
+            under the GNU GPL version 3.
           </li>
           <li>
             <a href={RELEASES}>All releases</a>

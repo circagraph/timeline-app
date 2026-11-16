@@ -52,7 +52,7 @@ export default function DeviceApproval({ code }) {
   }
   return (
     <div className="account-card">
-      <h1>Connect OpenChronology desktop</h1>
+      <h1>Connect Circagraph desktop</h1>
       <p className="notice">
         <strong>Approve only if you just started signing in on your own computer.</strong> If
         someone sent you this link or asked you to approve a code, do not: approving signs their
@@ -93,7 +93,7 @@ export default function DeviceApproval({ code }) {
           )}
           <form onSubmit={approve}>
             <label>
-              The code in the OpenChronology window on your computer
+              The code in the Circagraph window on your computer
               <input
                 value={typed}
                 onChange={(e) => setTyped(e.target.value)}

@@ -1,10 +1,10 @@
-# timescale.info — terms of service
+# Circagraph — terms of service
 
 Effective 7 November 2026. Operator: Athan Clark, an individual (the "operator").
 Contact: **privacy@timescale.info**. The [privacy policy](/privacy) describes how
 information is handled.
-These terms cover the hosted service at timescale.info and desktop connections
-to that service. Independent installations have their own operators and policies.
+These terms cover the hosted service at circagraph.org (called timescale.info until
+14 November 2026) and desktop connections to that service. Independent installations have their own operators and policies.
 
 ## Accounts and use of the service
 
@@ -84,7 +84,7 @@ permission to impersonate the owner or change ownership.
 
 ## Plugins, scripts, and the library
 
-Official OpenChronology plugins are part of the GPLv3 software. Original custom
+Official Circagraph plugins are part of the GPLv3 software. Original custom
 scripts remain their author's property, subject to any applicable derivative-work
 requirements and licenses on incorporated code. Installing a plugin stores its
 definition in the timeline; exporting a timeline includes that definition.
@@ -184,11 +184,11 @@ prohibited. The software's separate warranty terms are in the GPLv3 license.
 
 ## Software rights, identity, and changes
 
-OpenChronology software is copyright 2026 Athan Clark and licensed GPL-3.0-only.
+Circagraph software is copyright 2026 Athan Clark and licensed GPL-3.0-only.
 These hosted-service terms do not restrict copying, modification, redistribution,
 self-hosting, or commercial use permitted by that license. Names and domain rights
 are distinct; forks may accurately acknowledge their origin but must not suggest
-they are the official timescale.info service without authorization.
+they are the official circagraph.org service without authorization.
 
 No nonprofit currently operates the service. A future operator or copyright
 assignment will be disclosed; it is not assumed by these terms. Material service

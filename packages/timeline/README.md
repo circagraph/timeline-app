@@ -2,11 +2,11 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-The [OpenChronology](https://timescale.info) timeline editor as one element, `<och-timeline>`, for
+The [Circagraph](https://circagraph.org) timeline editor as one element, `<och-timeline>`, for
 any web page, and for the HTML an AI chat writes into a reply or an artifact. Give it a timeline in
 the `.ochx` format and it shows it: exact dates at any scale, zooming, search, tags, durations,
 links between events and saved views. Readers can edit it there and **Export** the result as an
-`.ochx` file, which opens at [timescale.info](https://timescale.info), in the desktop app or in the
+`.ochx` file, which opens at [circagraph.org](https://circagraph.org), in the desktop app or in the
 [offline editor](https://circagraph.github.io/).
 
 It is the offline editor, the same file as `openchronology-offline.html`, in a sandboxed frame of
@@ -90,7 +90,7 @@ The script is about 730 KB (less compressed), all of it the editor.
 
 ## License
 
-GPL-3.0-only, as OpenChronology is. The package carries `LICENSE`, `NOTICE` and the licenses of
+GPL-3.0-only, as Circagraph is. The package carries `LICENSE`, `NOTICE` and the licenses of
 the libraries inside the editor (`THIRD_PARTY.txt`). The source is at
 [github.com/circagraph/timeline-app](https://github.com/circagraph/timeline-app).
 

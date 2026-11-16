@@ -450,7 +450,7 @@ export class OAuth {
         headers: {
           Authorization: `Bearer ${tokens.access_token}`,
           Accept: 'application/json',
-          'User-Agent': 'OpenChronology',
+          'User-Agent': 'Circagraph',
         },
       });
       if (
@@ -497,7 +497,7 @@ export class OAuth {
       if (user && linkUser && user.id !== linkUser)
         throw new HttpError(
           409,
-          'That provider account belongs to another OpenChronology account.',
+          'That provider account belongs to another Circagraph account.',
         );
       if (!user) {
         const id = linkUser ?? randomUUID();
@@ -548,7 +548,7 @@ export class OAuth {
           if (linkUser && user.id !== linkUser)
             throw new HttpError(
               409,
-              'That provider account belongs to another OpenChronology account.',
+              'That provider account belongs to another Circagraph account.',
             );
         }
       }

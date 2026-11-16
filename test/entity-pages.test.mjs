@@ -315,7 +315,8 @@ test('Trails and kinds of page for search engines and previews (#474)', () => {
   // The software, with what a page adds.
   assert.deepEqual(sharing.softwareData({ softwareVersion: '0.23.0' }), {
     '@type': 'SoftwareApplication',
-    name: 'OpenChronology',
+    name: 'Circagraph',
+    alternateName: 'OpenChronology',
     applicationCategory: 'Timeline editor',
     operatingSystem: 'Web, Windows, macOS, Linux',
     license: 'https://www.gnu.org/licenses/gpl-3.0.html',
@@ -332,15 +333,16 @@ test('The site is named with the software it runs, where they differ (#472)', ()
       '@type': 'WebSite',
       name: 'timescale.example',
       url: 'https://chronology.example/',
-      alternateName: 'OpenChronology',
-      description: 'timescale.example runs OpenChronology, a free, open-source timeline editor.',
+      alternateName: 'Circagraph',
+      description: 'timescale.example runs Circagraph, a free, open-source timeline editor.',
     });
     assert.deepEqual(sharing.webPageData('/for', 'For', 'Who').isPartOf, sharing.websiteData());
     delete process.env.PLATFORM_NAME;
     assert.deepEqual(sharing.websiteData(), {
       '@type': 'WebSite',
-      name: 'OpenChronology',
+      name: 'Circagraph',
       url: 'https://chronology.example/',
+      alternateName: 'OpenChronology',
     });
   } finally {
     if (before === undefined) delete process.env.PLATFORM_NAME;
@@ -351,7 +353,7 @@ test('The site is named with the software it runs, where they differ (#472)', ()
 test('Metadata: labelled timelines describe their labels, not the notes, and are not indexed', () => {
   const entity = { kind: 'moment', id: 'leg:2' };
   const shown = sharing.entityMetadata(timeline(), entity, 'Storm', '2 Jan 1970', 'Rough seas');
-  assert.equal(shown.title, 'Storm · Voyages · OpenChronology');
+  assert.equal(shown.title, 'Storm · Voyages · Circagraph');
   assert.equal(shown.description, '2 Jan 1970. Rough seas');
   // Notes as plain text, without their Markdown, cut between words near 155 characters.
   const long = sharing.entityMetadata(

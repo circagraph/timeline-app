@@ -2,9 +2,9 @@
 /**
  * Receives GitHub webhooks and keeps timelines in step with issues and pull requests (#538):
  * each delivery is checked against the webhook's secret, routed by repository, and written
- * through the OpenChronology API with an API key (docs/github.md).
+ * through the Circagraph API with an API key (docs/github.md).
  *
- *   OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_... GITHUB_WEBHOOK_SECRET=... \
+ *   OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... GITHUB_WEBHOOK_SECRET=... \
  *   GITHUB_ROUTES=./github-routes.json node server/github-receiver.mjs
  */
 import { createServer } from 'node:http';

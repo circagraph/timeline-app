@@ -134,7 +134,7 @@ try {
   assert.equal(await frame.locator('#timeline-title').inputValue(), 'Default view ' + suffix);
   assert.equal(
     await frame.locator('html').evaluate(() => document.title),
-    `Default view ${suffix} · OpenChronology`,
+    `Default view ${suffix} · Circagraph`,
   );
   if (process.env.SCREENSHOT_DIR) {
     await mkdir(process.env.SCREENSHOT_DIR, { recursive: true });

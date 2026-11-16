@@ -148,7 +148,7 @@ export function subjectOf(entry) {
 
 /**
  * A username for a new account from the directory's name for it, when that is a valid,
- * available OpenChronology username (lowercased; dots and spaces become hyphens); else null,
+ * available Circagraph username (lowercased; dots and spaces become hyphens); else null,
  * and the account gets a generated one.
  */
 export function preferredUsername(name) {

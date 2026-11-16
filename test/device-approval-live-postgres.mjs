@@ -46,7 +46,7 @@ child.on('exit', () => (exited = true));
 const id = randomUUID(),
   username = 'device_' + Date.now().toString(36),
   password = 'device-approval-password-2026',
-  program = 'OpenChronology-Desktop/0.1';
+  program = 'Circagraph-Desktop/0.1';
 let browser;
 try {
   for (let i = 0; i < 100 && !exited; i++) {
@@ -101,7 +101,7 @@ try {
   assert.equal(await card.getByRole('checkbox').count(), 0);
   // The code is not on the page or in its field; approving waits for it to be typed.
   assert(!(await card.textContent()).includes(started.userCode));
-  const field = card.getByLabel('The code in the OpenChronology window on your computer'),
+  const field = card.getByLabel('The code in the Circagraph window on your computer'),
     approve = card.getByRole('button', { name: 'Approve connection' });
   assert.equal(await field.inputValue(), '');
   assert(await approve.isDisabled());
@@ -134,7 +134,7 @@ try {
   await card.getByText('This request came from another network than this browser.').waitFor();
   await card.getByText('Not given', { exact: true }).first().waitFor();
   await card
-    .getByLabel('The code in the OpenChronology window on your computer')
+    .getByLabel('The code in the Circagraph window on your computer')
     .fill(distant.userCode);
   const mine = card.getByRole('checkbox', { name: 'I started this sign-in myself', exact: false });
   assert(await approve.isDisabled());

@@ -1,6 +1,6 @@
 # Administration, storage limits and automation
 
-<!-- description: Run an OpenChronology server: the first administrator, storage quotas, the landing page, IndexNow, page caching, terms, API keys and other operator settings. -->
+<!-- description: Run a Circagraph server: the first administrator, storage quotas, the landing page, IndexNow, page caching, terms, API keys and other operator settings. -->
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
@@ -76,10 +76,10 @@ state instead of trusting a browser-supplied role.
 
 An upgrade of the Linux and FreeBSD packages stops the server, the mail worker, the log importers ([syslog](syslog.md) and, on Linux, [journald](journald.md)) and the [GitHub receiver](github.md) until the database is migrated. `openchronology-migrate` then starts the server, and each of the mail worker, the log importers and the GitHub receiver that is enabled (on macOS, whose launchd agent was started; on Windows, whose service starts with Windows, as the installer also does). One left disabled, because it is not configured, stays stopped. `openchronology-migrate --no-restart` migrates only and starts nothing. Releases up to 0.12.1 started only the server, so account email (confirmations, password resets, security notices) waited in `oc_mail_outbox` until someone started the worker (#371), and logs went unimported until someone started the importers (#374); after upgrading such an installation, check them with `systemctl is-active openchronology-mail openchronology-syslog openchronology-journald`. With Docker Compose, see [upgrades](docker.md#upgrades-and-backups).
 
-**The rename to Circagraph.** The project is becoming Circagraph. Configurations written for OpenChronology keep working, and the new names can be used now:
+**The rename to Circagraph.** The project was called OpenChronology until 2026-11-14. Configurations written for OpenChronology keep working beside the new names:
 
 - **Settings:** each `OCH_<name>` setting may be given as `CIRCAGRAPH_<name>` instead, such as `CIRCAGRAPH_API_KEY`, `CIRCAGRAPH_API_URL` or `CIRCAGRAPH_CONFIG`, in the environment or in a configuration file. When both are set, the new name wins.
-- **API keys:** keys beginning `cg_key_` are accepted beside `och_key_`. Keys made so far keep working until they expire or are revoked.
+- **API keys:** new keys begin `cg_key_`. Keys beginning `och_key_`, made before the rename, keep working until they expire or are revoked.
 - **Files:** the editor and the desktop app open `.circa` (desktop) and `.circax` (exchange) files as they open `.och` and `.ochx`, and the server accepts `application/vnd.circagraph.sqlite` beside `application/vnd.openchronology.sqlite`.
 - **NixOS:** the module's options are `services.circagraph`; `services.openchronology` still works, with a warning to rename it ([Nix](nix.md)).
 
@@ -332,10 +332,10 @@ Settings in the environment file:
   a web server or CDN in front of `EXPORT_CACHE_DIR`, or the bucket's public address (or a CDN
   in front of it). When set, downloads of **public** timelines' files, once cached, redirect
   there (`302`) from the editor's export address and saved revisions' downloads, so the
-  file is served by that server rather than by OpenChronology. A file's address is
+  file is served by that server rather than by Circagraph. A file's address is
   `<EXPORT_CACHE_PUBLIC_URL>/<key>`: its folder (32 random hexadecimal digits) and file name
   under the directory, or the bucket key (with `EXPORT_CACHE_S3_PREFIX`). Private
-  timelines' files are never redirected: OpenChronology checks access and sends them itself.
+  timelines' files are never redirected: Circagraph checks access and sends them itself.
 - For `s3` (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO, SeaweedFS or another
   S3-compatible store):
   - `EXPORT_CACHE_S3_ENDPOINT`: the service's address, such as `https://s3.us-east-1.amazonaws.com`,
@@ -352,7 +352,7 @@ cannot be written, it logs why and serves downloads without the cache.
 
 **The files are named so they can't be guessed**, with 32 random hexadecimal digits each, but
 a server or CDN in front of the cache's directory or bucket serves every file in it, private
-timelines' included, to anyone who has its address. OpenChronology never hands out a private
+timelines' included, to anyone who has its address. Circagraph never hands out a private
 timeline's file address, so keep directory listings off (and the bucket's listing private).
 When a timeline is deleted, its cached files go at once. When one that was handed out at the
 public address stops being public (made private by its owner, or restricted by moderators),
@@ -369,7 +369,7 @@ for it and is then sent from the cache.
 
 ## Name and analytics
 
-`PLATFORM_NAME` (for example `timescale.info`) replaces "openchronology" in the platform's header. It is also used as the site name in page titles, link previews and oEmbed responses, and the footer then adds "Powered by OpenChronology", linked to the project. The pages' structured data names the site with OpenChronology as its other name, and says that it runs OpenChronology, so search engines and AI answers tie the two names together ([#472](https://github.com/circagraph/timeline-app/issues/472)). When it is empty, OpenChronology's name is shown. The name is at most 60 characters, and the server refuses to start if it is longer.
+`PLATFORM_NAME` (for example `Example Timelines`) replaces "circagraph" in the platform's header. It is also used as the site name in page titles, link previews and oEmbed responses, and the footer then adds "Powered by Circagraph", linked to the project. The pages' structured data names the site with Circagraph as its other name, and says that it runs Circagraph, so search engines and AI answers tie the two names together ([#472](https://github.com/circagraph/timeline-app/issues/472)). When it is empty, Circagraph's name is shown. The name is at most 60 characters, and the server refuses to start if it is longer.
 
 `SUPPORT_URL` is where visitors can support the platform, such as `https://github.com/sponsors/you`, an Open Collective page or a page of your own. When it is set, the header ends with a **♥ Support** link and the footer has **Support this site**. When it is empty, neither appears. It must be an `https://` address; the server refuses to start with anything else.
 
@@ -385,7 +385,7 @@ for it and is then sent from the cache.
   - Every other page of a timeline (a private or unlisted one, its settings and history, a page that doesn't exist) is sent as `/timelines`, titled "Timeline": not its owner, address or title.
   - `/compare` is sent without the timelines it compares, `/editor` without what it opens, and desktop sign-in as `/connect`, without its code.
   - No address keeps its query (searches, which can name private timelines, and where to return after signing in), and any other ID in a path is sent as `(id)`.
-  - Titles are the site's own names for its pages ("Help · timescale.info"), never the browser's title, which on the editor's pages follows the open timeline.
+  - Titles are the site's own names for its pages ("Help · Example Timelines"), never the browser's title, which on the editor's pages follows the open timeline.
 
   In the Google Analytics data stream's **Enhanced measurement**, turn off **Page changes based on browser history events**, which would count pages twice and may send their real addresses, and **Outbound clicks** and **File downloads**, which report the addresses of links a visitor follows, such as a private timeline's sources.
 
@@ -404,7 +404,7 @@ LANDING_VIDEO_EDUCATORS=https://www.youtube.com/watch?v=…
 
 `LANDING_PAGE` is on when it is `1`, `true` or `yes`, and off otherwise, which is the default. When it is on:
 
-- **`/`** is the landing page: "Any span of time, on one exact line" (titled "OpenChronology: free timeline editor for history and research" for search engines and link previews), with **Explore timelines**, **Sign up** (when the site takes registrations; **Your timelines** when signed in) and **Start a timeline**, the video, a card for each audience, a few public timelines, and the page's copy.
+- **`/`** is the landing page: "Any span of time, on one exact line" (titled "Circagraph: free timeline editor for history and research" for search engines and link previews), with **Explore timelines**, **Sign up** (when the site takes registrations; **Your timelines** when signed in) and **Start a timeline**, the video, a card for each audience, a few public timelines, and the page's copy.
 - **`/for`** lists the audiences, and **`/for/<audience>`** is each one's page: `educators`, `researchers`, `investigators`, `operations`, `writers` and `developers`. Each has a one-line promise, its example timelines, its video, what that audience can do, and what it can count on. Any other audience is not found.
 - **`/explore`** is the timeline browser, with everything `/` had: drafts, and Explore's search of the library, whose filters also find your own timelines and favorites, with each list's search, tag, sort and page in the address. The header gains an **Explore** link, the account menu **Your timelines**, and signing in without a page to return to goes there.
 - The sitemap's `pages.xml` lists `/explore`, `/for` and each audience's page. Each page has its own title, description, canonical address, link preview and schema.org `WebPage` description, and all of them work without JavaScript, at phone width, and in light or dark mode.
@@ -558,7 +558,7 @@ Example ingestion sequence (store the key in your process environment):
 
 ```sh
 # Create a timeline from an exported, validated .ochx JSON document.
-curl --fail-with-body https://timescale.info/api/timelines \
+curl --fail-with-body https://circagraph.org/api/timelines \
   -H "Authorization: Bearer $OCH_API_KEY" \
   -H 'Content-Type: application/json' --data-binary @timeline.ochx
 ```

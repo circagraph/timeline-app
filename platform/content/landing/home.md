@@ -1,11 +1,11 @@
 ---
 heading: Any span of time, on one exact line
-title: OpenChronology: free timeline editor for history and research
-promise: OpenChronology is a free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event. Share what you make with anyone.
+title: Circagraph: free timeline editor for history and research
+promise: Circagraph is a free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event. Share what you make with anyone.
 description: Free, open-source timeline editor for history, research and teaching. Exact dates at any scale, sources on every moment, and public timelines anyone can read.
 audiences: Who it’s for
 examples: Public timelines
-video: OpenChronology in a few minutes
+video: Circagraph in a few minutes
 ---
 
 ## Why one exact line
@@ -14,4 +14,4 @@ video: OpenChronology in a few minutes
 - **Moments, durations and the links between them.** Place events, give periods a start and an end, and connect the ones that belong together.
 - **Read without an account.** Anyone can read a public timeline or embed it on a website, and anyone can start one in the browser and export it as a file.
 - **Work together.** Collaborators propose changes as pull requests, and the timeline's writers merge them. Every save to the server is a revision you can go back to.
-- **Yours to run.** OpenChronology is free software under the GNU GPL version 3. Use it here, as a desktop app, as a single offline file, or on your own server.
+- **Yours to run.** Circagraph is free software under the GNU GPL version 3. Use it here, as a desktop app, as a single offline file, or on your own server.
