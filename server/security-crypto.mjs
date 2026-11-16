@@ -166,7 +166,7 @@ export function newPassword(password, confirmation, username = '') {
   ]);
   if (
     blocked.has(password.toLowerCase()) ||
-    [username, 'openchronology', 'timescale.info']
+    [username, 'circagraph', 'circagraph.org', 'openchronology', 'timescale.info']
       .filter(Boolean)
       .some((s) => password.toLowerCase() === s.repeat(Math.ceil(15 / s.length)))
   )
@@ -205,7 +205,7 @@ export async function checkPasswordBreach(password, fetcher = fetch) {
     response = await fetcher('https://api.pwnedpasswords.com/range/' + hash.slice(0, 5), {
       redirect: 'error',
       signal: AbortSignal.timeout(5000),
-      headers: { 'Add-Padding': 'true', 'User-Agent': 'OpenChronology' },
+      headers: { 'Add-Padding': 'true', 'User-Agent': 'Circagraph' },
     });
     if (!response.ok || !response.body) throw new Error();
     // Read the body in chunks so an oversized or endless response is cut off at 1 MiB.

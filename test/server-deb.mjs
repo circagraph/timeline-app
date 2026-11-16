@@ -42,7 +42,7 @@ try {
     `export DEBIAN_FRONTEND=noninteractive; apt-get update -qq && apt-get install -y -qq /tmp/${basename(deb)} curl 2>&1`,
   );
   assert.match(install, /OpenChronology is installed and ready/, install.slice(-3000));
-  assert.match(install, /OpenChronology schema installed\./);
+  assert.match(install, /Circagraph schema installed\./);
 
   // The database, its pgmp extension and the configuration.
   assert.equal(
@@ -179,7 +179,7 @@ try {
     new RegExp('^' + key + '$', 'm'),
   );
   assert.equal(await psql("SELECT count(*) FROM oc_users WHERE username='kept'"), '1');
-  assert.match(migrate, /OpenChronology schema installed\./);
+  assert.match(migrate, /Circagraph schema installed\./);
 
   // Purging removes the configuration and keeps the database.
   const purge = await sh('apt-get purge -y -qq openchronology-server 2>&1');

@@ -37,7 +37,7 @@ const DESCRIPTION = `The API the web app, the desktop app and the command-line t
 **Exact times.** Times are exact rational numbers in coordinates, written as text (\`"86400/1"\`, \`"-3/2"\`); how they read as dates is the timeline's \`presentation\`.`;
 
 /** The API's description, for a server at `origin`. */
-export function openApiDocument({ origin = '', name = 'OpenChronology' } = {}) {
+export function openApiDocument({ origin = '', name = 'Circagraph' } = {}) {
   const paths = {},
     schemas = { ...common },
     tags = [];

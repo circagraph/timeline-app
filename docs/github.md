@@ -2,7 +2,7 @@
 
 <!-- description: Mirror GitHub, GitLab, Forgejo and Gitea issues, pull requests and commits into timelines, ongoing while open, by webhook or import. -->
 
-OpenChronology can aggregate the work your tools already record, from GitHub, from Forgejo and Gitea ([below](#forgejo-and-gitea)), and from GitLab ([below](#gitlab)) (#538). Each issue and pull request becomes a **duration**:
+Circagraph can aggregate the work your tools already record, from GitHub, from Forgejo and Gitea ([below](#forgejo-and-gitea)), and from GitLab ([below](#gitlab)) (#538). Each issue and pull request becomes a **duration**:
 
 - it starts when the item was opened;
 - it is [ongoing](durations.md#ongoing-durations) while the item is open;
@@ -172,7 +172,7 @@ IDs come from the source: `gh:<owner>:<repo>:<number>` for an item, and `gh:<own
 ## Importing what exists
 
 ```sh
-export OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_... GITHUB_TOKEN=github_pat_...
+export OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... GITHUB_TOKEN=github_pat_...
 
 och-import-github --repo acme/app --timeline 6f1c… --dry-run
 och-import-github --repo acme/app --timeline 6f1c… --only commits
@@ -228,7 +228,7 @@ The webhook receiver does not change the view. Run the importer with `--since` t
 Run the receiver where GitHub can reach it, behind a reverse proxy that provides HTTPS:
 
 ```sh
-OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_... GITHUB_WEBHOOK_SECRET=... \
+OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... GITHUB_WEBHOOK_SECRET=... \
   GITHUB_ROUTES=./github-routes.json npm run github
 ```
 

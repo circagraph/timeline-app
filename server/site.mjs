@@ -7,7 +7,7 @@
  */
 export class SiteError extends Error {}
 
-/** The platform's own name, if it has one; null shows OpenChronology's. */
+/** The platform's own name, if it has one; null shows Circagraph's. */
 export function platformName(env = process.env) {
   const name = (env.PLATFORM_NAME ?? '').trim();
   if (!name) return null;
@@ -18,9 +18,9 @@ export function platformName(env = process.env) {
 /** The name pages, titles and previews use. */
 export function siteName(env = process.env) {
   try {
-    return platformName(env) ?? 'OpenChronology';
+    return platformName(env) ?? 'Circagraph';
   } catch {
-    return 'OpenChronology';
+    return 'Circagraph';
   }
 }
 /** Where visitors can support the platform, if it says; null shows no Support link. */

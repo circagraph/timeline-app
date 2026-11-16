@@ -228,7 +228,7 @@ export async function checkDesktopCache(browser) {
     await page.locator('#update-notice').waitFor();
     assert.equal(
       await page.locator('#update-text').textContent(),
-      'OpenChronology v0.26.0 is available. This app is v0.1.0.',
+      'Circagraph v0.26.0 is available. This app is v0.1.0.',
     );
     assert.deepEqual(updateAsks, [false, true]);
     await page.locator('#update-dismiss').click();

@@ -1,11 +1,11 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-# The OpenChronology desktop app for Arch Linux (#331), published to the AUR by releases
+# The Circagraph desktop app for Arch Linux (#331), published to the AUR by releases
 # (scripts/aur-packages.mjs renders this template): the release's Linux .deb, unpacked.
 # Maintainer: Athan Clark <athan.clark@gmail.com>
 pkgname=openchronology-desktop-bin
 pkgver=@VERSION@
 pkgrel=1
-pkgdesc='Exact timelines, shared on your terms: the OpenChronology desktop app'
+pkgdesc='Exact timelines, shared on your terms: the Circagraph desktop app'
 arch=('x86_64')
 url='https://github.com/circagraph/timeline-app'
 license=('GPL-3.0-only')
@@ -21,6 +21,6 @@ package() {
   bsdtar -xOf "openchronology-desktop-$pkgver.deb" 'data.tar*' | bsdtar -xf - -C "$pkgdir"
   # Directories as Arch has them.
   find "$pkgdir" -type d -exec chmod 755 {} +
-  install -Dm644 "$pkgdir/usr/lib/OpenChronology/_up_/LICENSE" \
+  install -Dm644 "$pkgdir/usr/lib/Circagraph/_up_/LICENSE" \
     "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

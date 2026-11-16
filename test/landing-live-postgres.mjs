@@ -184,14 +184,14 @@ try {
     // The title says what the site is (#390), naming it once.
     assert.match(
       home.html,
-      /<title>OpenChronology: free timeline editor for history and research<\/title>/,
+      /<title>Circagraph: free timeline editor for history and research<\/title>/,
     );
     assert.equal(canonical(home.html), o);
-    assert.match(home.html, /<meta property="og:title" content="OpenChronology: free timeline/);
+    assert.match(home.html, /<meta property="og:title" content="Circagraph: free timeline/);
     // What it is, in one sentence with its name, under the heading (#481).
     assert.match(
       home.html,
-      /<p class="landing-promise">OpenChronology is a free, open-source timeline editor for exact dates at any scale/,
+      /<p class="landing-promise">Circagraph is a free, open-source timeline editor for exact dates at any scale/,
     );
     assert.match(
       home.html,
@@ -212,7 +212,7 @@ try {
     const explore = await get(o, `/explore?search=${word}&sort=alphabetical&page=1`);
     assert.equal(explore.status, 200);
     assert.equal(canonical(explore.html), o + '/explore');
-    assert.match(explore.html, /<title>Explore timelines · OpenChronology<\/title>/);
+    assert.match(explore.html, /<title>Explore timelines · Circagraph<\/title>/);
     assert.match(explore.html, new RegExp(`Alpha ${word}[\\s\\S]*Beta ${word}`));
     assert.doesNotMatch(explore.html, new RegExp(`Secret ${word}`));
     assert.match(explore.html, /action="\/explore#explore"/);

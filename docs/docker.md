@@ -1,6 +1,6 @@
 # Docker deployment
 
-<!-- description: Run your own OpenChronology server with Docker Compose: public hosting, upgrades and backups, and email for account security. -->
+<!-- description: Run your own Circagraph server with Docker Compose: public hosting, upgrades and backups, and email for account security. -->
 
 Run commands from `timeline-app` (or the root of its GitHub repository). Install Docker Engine with the Compose plugin. The suite builds PostgreSQL 16 with native GMP-backed pgmp, a Next.js App Router server on Node 24, and the native SQLite `.och` converter. Rust and Node build tools remain in separate build stages; the web container runs as the unprivileged `node` user, which cannot change the application's files (they belong to root; only Next.js's cache folder is writable).
 
@@ -32,7 +32,7 @@ docker compose up --wait
 
 ## Public hosting
 
-Set `APP_ORIGIN=https://timescale.info` and put an HTTPS reverse proxy on the same host in front of `127.0.0.1:5173`. The origin must exactly match the browser URL, without a trailing slash or path. A plain `http://` origin other than localhost is refused unless `ALLOW_INSECURE_ORIGIN=1`, which is meant only for trusted private networks: sessions and passwords then travel unencrypted. Register OAuth providers and set their server-side variables following [authentication.md](authentication.md). Desktop clients can connect to that same public origin.
+Set `APP_ORIGIN=https://circagraph.org` and put an HTTPS reverse proxy on the same host in front of `127.0.0.1:5173`. The origin must exactly match the browser URL, without a trailing slash or path. A plain `http://` origin other than localhost is refused unless `ALLOW_INSECURE_ORIGIN=1`, which is meant only for trusted private networks: sessions and passwords then travel unencrypted. Register OAuth providers and set their server-side variables following [authentication.md](authentication.md). Desktop clients can connect to that same public origin.
 
 Set `TRUST_PROXY=1` only when the proxy overwrites `X-Forwarded-For` with a single client IP and the application port cannot be accessed directly. Without it, per-address limits such as sign-in count each request under the address it connected from, which under Compose is Docker's gateway for every client, so all visitors share one limit. A proxy running in another container needs a Compose override connecting it to the app's network and forwarding to `app:5173`; its own loopback will not reach the host-bound port.
 

@@ -12,15 +12,15 @@ import {
   transportSecurity,
 } from '../server/site.mjs';
 
-test('a platform names itself, or shows OpenChronology', () => {
+test('a platform names itself, or shows Circagraph', () => {
   assert.equal(platformName({}), null);
   assert.equal(platformName({ PLATFORM_NAME: '  ' }), null);
   assert.equal(platformName({ PLATFORM_NAME: ' timescale.info ' }), 'timescale.info');
-  assert.equal(siteName({}), 'OpenChronology');
+  assert.equal(siteName({}), 'Circagraph');
   assert.equal(siteName({ PLATFORM_NAME: 'timescale.info' }), 'timescale.info');
   for (const name of ['x'.repeat(61), '<b>bold</b>', 'two\nlines'])
     assert.throws(() => platformName({ PLATFORM_NAME: name }), /PLATFORM_NAME/);
-  assert.equal(siteName({ PLATFORM_NAME: 'x'.repeat(61) }), 'OpenChronology');
+  assert.equal(siteName({ PLATFORM_NAME: 'x'.repeat(61) }), 'Circagraph');
 });
 
 test('a platform links to where it can be supported, over HTTPS only', () => {

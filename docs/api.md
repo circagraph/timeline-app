@@ -16,10 +16,10 @@ The footer of every page links to the reference, and so does **Account → API k
 ## Calling it
 
 - **From a browser** the session cookie signs requests in. Changes also send the session's CSRF token, the `csrf` of `GET /api/session`, as `X-CSRF-Token`.
-- **For automation**, make an API key in **Account → API keys** and send it as `Authorization: Bearer och_key_…`. Keys reach the timeline endpoints only (`/api/timelines…`): `timelines:read` for reads (GET, and POST searches and queries) and `timelines:write` for changes. They need no CSRF token.
+- **For automation**, make an API key in **Account → API keys** and send it as `Authorization: Bearer cg_key_…`. Keys reach the timeline endpoints only (`/api/timelines…`): `timelines:read` for reads (GET, and POST searches and queries) and `timelines:write` for changes. They need no CSRF token.
 
 ```sh
-curl -H "Authorization: Bearer $OCH_KEY" https://timescale.info/api/timelines
+curl -H "Authorization: Bearer $OCH_KEY" https://circagraph.org/api/timelines
 ```
 
 - **Try it** in the reference sends requests as the account signed in to the page, or with an API key typed into it. The key stays in the page while it is open and is sent to this server only.

@@ -142,7 +142,7 @@ try {
   );
   assert.doesNotMatch(windows, /openchronology-offline-cfam\.html/);
   const phone = await download('Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X)');
-  assert.match(phone, /Use OpenChronology in your browser/);
+  assert.match(phone, /Use Circagraph in your browser/);
   assert.match(html, /id="explore"/);
   assert.match(html, /Sort timelines/);
   assert.doesNotMatch(html, /id="favorites"/);
@@ -174,7 +174,7 @@ try {
   );
   assert.match(html, /<meta property="og:image:width" content="1200"/);
   assert.match(html, /<meta property="og:image:height" content="630"/);
-  assert.match(html, /<meta property="og:image:alt" content="OpenChronology: a free, open-source/);
+  assert.match(html, /<meta property="og:image:alt" content="Circagraph: a free, open-source/);
   assert.match(html, /<meta name="twitter:card" content="summary_large_image"/);
   assert.match(
     html,
@@ -202,11 +202,11 @@ try {
     const frame = bytes.indexOf(Buffer.from([0xff, 0xc0]));
     assert.deepEqual([bytes.readUInt16BE(frame + 7), bytes.readUInt16BE(frame + 5)], [1200, 630]);
   }
-  assert.match(html, /<title>timescale\.test · OpenChronology<\/title>/);
+  assert.match(html, /<title>timescale\.test · Circagraph<\/title>/);
   // The software the site runs, linked from its footer (#472).
   assert.match(
     html,
-    /Powered by (<!-- -->)?<a href="https:\/\/github\.com\/circagraph\/timeline-app">OpenChronology<\/a>/,
+    /Powered by (<!-- -->)?<a href="https:\/\/github\.com\/circagraph\/timeline-app">Circagraph<\/a>/,
   );
   // The footer links to the source repository (#276).
   assert.match(html, /href="https:\/\/github\.com\/circagraph\/timeline-app">GitHub<\/a>/);
@@ -273,7 +273,7 @@ try {
     const text = await llms.text();
     assert.match(
       text,
-      /^# timescale\.test\n\n> timescale\.test runs OpenChronology\. OpenChronology is a free, open-source timeline editor/,
+      /^# timescale\.test\n\n> timescale\.test runs Circagraph\. Circagraph is a free, open-source timeline editor/,
     );
     for (const path of [
       '/help/faq',
@@ -586,7 +586,7 @@ try {
       // The header's Download goes to the download page; its commands can be copied.
       await page.getByRole('link', { name: 'Download', exact: true }).click();
       await page.waitForURL(origin + '/download');
-      await page.getByRole('heading', { name: 'Download OpenChronology' }).waitFor();
+      await page.getByRole('heading', { name: 'Download Circagraph' }).waitFor();
       const copy = page.locator('[data-server="debian13"] .copy-command button');
       await copy.click();
       await page.waitForFunction(

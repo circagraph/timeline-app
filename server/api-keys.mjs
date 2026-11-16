@@ -47,8 +47,9 @@ export const bearsApiKey = (authorization) => /^Bearer (?:cg|och)_key_/.test(aut
 /**
  * Personal API keys (oc_api_keys): long-lived Bearer credentials for scripts, limited to the
  * timeline API and to the scopes chosen when they are made. A key is
- * `och_key_<id without dashes>_<64 random hex>`; only its SHA-256 and a short prefix (to tell
- * keys apart in a list) are stored.
+ * `cg_key_<id without dashes>_<64 random hex>` (`och_key_` for keys made before the rename to
+ * Circagraph, which keep working); only its SHA-256 and a short prefix (to tell keys apart in a
+ * list) are stored.
  */
 export class ApiKeys {
   /** `auth` is the Auth instance, for its pool and AccountSecurity. */
@@ -57,7 +58,7 @@ export class ApiKeys {
     this.pool = auth.pool;
   }
   /**
-   * The session for a request with `Authorization: Bearer och_key_…`, or null when the header is
+   * The session for a request with `Authorization: Bearer cg_key_…` (or `och_key_…`), or null when the header is
    * not shaped like a key or the key is unknown, revoked or expired. The session has kind `api`,
    * the key's id and scopes, and the account's id, username, admin flag and avatar. `client`
    * lets a caller read it inside its transaction.
@@ -118,12 +119,20 @@ export class ApiKeys {
       if (Number(count.count) >= 100)
         throw new HttpError(409, 'Remove old API keys before creating another (100-key limit).');
       const id = randomUUID(),
-        token = `och_key_${id.replaceAll('-', '')}_${randomBytes(32).toString('hex')}`;
-      // The id is embedded in the key; the stored prefix (`och_key_` and 12 hex digits of the
+        token = `cg_key_${id.replaceAll('-', '')}_${randomBytes(32).toString('hex')}`;
+      // The id is embedded in the key; the stored prefix (`cg_key_` and 12 hex digits of the
       // id) identifies it in lists without revealing any of its secret part.
       await c.query(
         "INSERT INTO oc_api_keys(id,user_id,name,prefix,token_hash,scopes,expires_at) VALUES($1,$2,$3,$4,$5,$6,now()+$7*interval '1 day')",
-        [id, user.id, input.name, token.slice(0, 20), hash(token), input.scopes, input.days],
+        [
+          id,
+          user.id,
+          input.name,
+          token.slice(0, 'cg_key_'.length + 12),
+          hash(token),
+          input.scopes,
+          input.days,
+        ],
       );
       return { id, token, message: 'Copy this key now. It cannot be displayed again.' };
     });

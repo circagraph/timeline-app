@@ -15,11 +15,11 @@ import { timelinePath } from '../../src/addresses.ts';
 import { descriptionExcerpt, siteName, siteOrigin, timelineTitle } from './sharing.js';
 
 /** The software's own name, which a server named otherwise runs. */
-const SOFTWARE_NAME = 'OpenChronology';
+const SOFTWARE_NAME = 'Circagraph';
 
 /** What the software is, in the sentence the home page and FAQ open with (#481). */
 export const DEFINITION =
-  'OpenChronology is a free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event.';
+  'Circagraph is a free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event.';
 /** How many public timelines llms.txt names. */
 const TIMELINES = 10;
 

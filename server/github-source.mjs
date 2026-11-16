@@ -30,7 +30,7 @@ import { parseBoard } from './board-source.mjs';
 
 /** The User-Agent GitHub requires of API clients: the project, never a person. */
 export const USER_AGENT =
-  'OpenChronology-github-source/1.0 (https://github.com/circagraph/timeline-app)';
+  'Circagraph-github-source/1.0 (https://github.com/circagraph/timeline-app)';
 export { clip };
 /** The most characters of an issue's text a duration keeps as its notes. */
 export const NOTES_LIMIT = 4000;

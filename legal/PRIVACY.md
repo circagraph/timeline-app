@@ -1,10 +1,11 @@
-# timescale.info — privacy policy
+# Circagraph — privacy policy
 
 Effective 7 November 2026. This policy describes how the hosted service at
-https://timescale.info, and the desktop app when connected to it, collects, uses,
+https://circagraph.org (called timescale.info until 14 November 2026, an address that
+still leads to it), and the desktop app when connected to it, collects, uses,
 shares and keeps information. The service is operated by Athan Clark, an individual
 (the "operator"). For any privacy question or request, write to
-**privacy@timescale.info**.
+**privacy@circagraph.org**.
 
 The service runs on a server rented from DigitalOcean in the United States, which
 holds its database, files and logs; information you give it is stored and processed
@@ -33,7 +34,7 @@ plugins. Provider privacy notices also apply to their own services.
 If you choose **Sign in with Google** (or link Google to your account), the service
 asks Google only for the `openid` and `profile` scopes. From Google's answer it keeps
 just one thing: your Google account's stable identifier (the ID token's subject), linked
-to your timescale.info account so that you can sign in with Google again. It does not
+to your Circagraph account so that you can sign in with Google again. It does not
 keep your name, email address, profile picture or any other Google profile data; it
 does not request access to Gmail, Drive, contacts, calendars or any other Google service;
 and it discards Google's access and ID tokens as soon as your identity is verified. Your
@@ -159,7 +160,7 @@ definitions are public independently of private timelines using them.
 
 ## Embedded videos
 
-Some pages that describe the service (the landing page at https://timescale.info and the
+Some pages that describe the service (the landing page at https://circagraph.org and the
 pages under /for/) can show a video hosted on YouTube. Opening such a page loads nothing
 from YouTube or Google: the page shows a still image, a play button and a link to the
 video on youtube.com.
@@ -198,7 +199,7 @@ sign-in methods, sessions and security records. Kept: changes already merged int
 people's timelines, which are part of their history (it names an account that no longer
 exists), others' forks of your timelines, and moderation records, which no longer name
 you. The last administrator of an installation cannot delete their account. Other
-requests, such as about content of yours elsewhere, go to privacy@timescale.info. Expired login flows and sessions are cleaned by authentication
+requests, such as about content of yours elsewhere, go to privacy@circagraph.org. Expired login flows and sessions are cleaned by authentication
 operations, rather than guaranteed immediate physical erasure at expiry.
 
 The operator takes copies of the database (backups) before upgrades, kept on the
@@ -216,7 +217,7 @@ information and respond within applicable deadlines. Service delivery, security,
 and legal obligations are the purposes; where GDPR applies, the intended bases are
 contract necessity, legitimate interests in secure operation subject to balancing,
 and legal obligations, with consent for optional processing where required. Send
-requests to privacy@timescale.info. Information is processed in the United States;
+requests to privacy@circagraph.org. Information is processed in the United States;
 using the service from elsewhere transfers your information there.
 
 Accounts are for people aged 13 or older; the service does not knowingly offer
@@ -239,5 +240,5 @@ online-safety laws.
 Material changes to this policy are announced on the service before they take effect,
 with the new effective date; existing data is not repurposed incompatibly without the
 necessary legal basis. Questions, requests and complaints about privacy:
-**privacy@timescale.info**. Security reports and copyright or abuse reports: see the
+**privacy@circagraph.org**. Security reports and copyright or abuse reports: see the
 [copyright, abuse and security page](/legal#copyright).

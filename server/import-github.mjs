@@ -3,10 +3,10 @@
 /**
  * The och-import-github command (#538): imports repositories' issues and pull requests into
  * timelines as durations (ongoing while open), their assignments as moments, and "closes #n"
- * as links, through the OpenChronology API (docs/github.md). Running it again updates what it
+ * as links, through the Circagraph API (docs/github.md). Running it again updates what it
  * imported before, by the same IDs the webhook receiver writes.
  *
- *   OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_... GITHUB_TOKEN=github_pat_... \
+ *   OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... GITHUB_TOKEN=github_pat_... \
  *   och-import-github --repo owner/name --timeline <uuid>
  */
 import { realpathSync } from 'node:fs';

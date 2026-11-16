@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 /**
  * Follows the systemd journal and appends each entry as a moment to the timelines its routes
- * choose, through the OpenChronology API with an API key (docs/journald.md, #151): live what
+ * choose, through the Circagraph API with an API key (docs/journald.md, #151): live what
  * `och-import-logs --format journald` reads from `journalctl -o json` after the fact, as the
  * same moments with the same IDs, so a live stream and an import of the same entries never
  * duplicate each other.
@@ -10,7 +10,7 @@
  * remembers the cursor of the last entry it has sent, and on restart resumes after it, so
  * nothing is missed while it was down and nothing already sent is sent twice.
  *
- *   OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_... \
+ *   OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... \
  *   JOURNALD_TIMELINE=<uuid> JOURNALD_UNITS=forgejo.service node server/journald-receiver.mjs
  */
 import { spawn } from 'node:child_process';

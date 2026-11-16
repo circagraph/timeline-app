@@ -123,8 +123,8 @@ test('each page is described for search results, in its own words (#470)', async
   }
   // What it is, in one sentence with its name, answering the FAQ's first question (#481).
   const faq = pages.get('faq');
-  const what = faq.sections.find((s) => s.title === 'What is OpenChronology?');
-  assert.match(what.text, /^OpenChronology is a free, open-source timeline editor for /);
+  const what = faq.sections.find((s) => s.title === 'What is Circagraph?');
+  assert.match(what.text, /^Circagraph is a free, open-source timeline editor for /);
   // The FAQ as structured data (#483): every question with its answer's first paragraph.
   const questions = pages.get('faq');
   const data = faqData(questions, 'https://example.org/help/faq');
@@ -133,7 +133,7 @@ test('each page is described for search results, in its own words (#470)', async
   assert.equal(data.mainEntity.length, asked.length);
   assert(data.mainEntity.length >= 10);
   const first = data.mainEntity[0];
-  assert.equal(first.name, 'What is OpenChronology?');
+  assert.equal(first.name, 'What is Circagraph?');
   assert.match(first.acceptedAnswer.text, /timeline editor/);
   for (const q of data.mainEntity) {
     assert.equal(q['@type'], 'Question');

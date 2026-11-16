@@ -1,16 +1,16 @@
 # Comparison of timeline tools
 
-<!-- description: OpenChronology beside TimelineJS, Aeon Timeline, Chronos, Time.Graphics, Preceden, Tiki-Toki and Timeline: dates, sources, size, offline use, price. -->
+<!-- description: Circagraph beside TimelineJS, Aeon Timeline, Chronos, Time.Graphics, Preceden, Tiki-Toki and Timeline: dates, sources, size, offline use, price. -->
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-How OpenChronology compares with seven other timeline tools on dates before year 1, date precision, sources, size, offline use, hosting and export, licence and price, and working together. Each tool's facts come from its own website or documentation, linked in its section below. **Last checked: 2026-11-06.** Prices and features change; check the linked page before you decide. "Not stated" means we could not find the fact in the tool's own documentation, not that the tool lacks it. OpenChronology's facts come from this help.
+How Circagraph compares with seven other timeline tools on dates before year 1, date precision, sources, size, offline use, hosting and export, licence and price, and working together. Each tool's facts come from its own website or documentation, linked in its section below. **Last checked: 2026-11-06.** Prices and features change; check the linked page before you decide. "Not stated" means we could not find the fact in the tool's own documentation, not that the tool lacks it. Circagraph's facts come from this help.
 
 ## Summary
 
 | Tool                                  | Before year 1                                             | Precision and uncertain dates                                         | Sources and notes per event                  | Size                                                 | Offline and desktop                                    | Self-hosting and export                                      | Licence and price (as of 2026-11-06)              | Collaboration                                           |
 | ------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------- | ------------------------------------------------------- |
-| [OpenChronology](#openchronology)     | Yes, any integer year (CE/BCE), and deep time             | Exact, to any fraction of a second; precision and estimates by plugin | List of source links, notes                  | 200,000 moments (a self-hosted server can change it) | Desktop app (Windows, macOS, Linux), offline HTML file | Self-hosted server; `.ochx` (JSON) and `.och` (SQLite) files | GPLv3; free                                       | Roles, forks, pull requests, merged saves               |
+| [Circagraph](#circagraph)             | Yes, any integer year (CE/BCE), and deep time             | Exact, to any fraction of a second; precision and estimates by plugin | List of source links, notes                  | 200,000 moments (a self-hosted server can change it) | Desktop app (Windows, macOS, Linux), offline HTML file | Self-hosted server; `.ochx` (JSON) and `.och` (SQLite) files | GPLv3; free                                       | Roles, forks, pull requests, merged saves               |
 | [TimelineJS](#timelinejs)             | Yes, negative years; year-only beyond about 250,000 years | Year to millisecond; a display date for unknown dates                 | Text, media with credit and caption          | Recommends no more than 20 slides                    | Not stated                                             | Host its files yourself; data in a Google Sheet or JSON      | MPL 2.0; free                                     | Not stated                                              |
 | [Aeon Timeline](#aeon-timeline)       | Yes, BC/AD eras; custom calendars                         | Year to second; uncertain start or end as a range                     | Links, attachments, summaries, custom fields | Not stated                                           | Mac, Windows, iOS apps; offline after sign-in          | No web publishing; CSV/TSV, image, PDF, Markdown, Word       | Proprietary; $65 once, with a year of updates     | Shared files on a shared drive; no simultaneous editing |
 | [Chronos Timeline](#chronos-timeline) | Yes, back to 271,821 BCE                                  | Year to second; uncertain dates not stated                            | Description, link to an Obsidian note        | Not stated                                           | Runs inside Obsidian                                   | Plain text in your notes; a web playground                   | MIT; price not stated                             | Not stated                                              |
@@ -22,14 +22,14 @@ How OpenChronology compares with seven other timeline tools on dates before year
 ## Which to choose
 
 - **A quick story timeline to embed in an article, from a spreadsheet:** TimelineJS is built for this and is the simpler choice.
-- **Planning a novel or a fictional world:** Aeon Timeline has story views, custom calendars and sync with Scrivener and Ulysses; OpenChronology has none of these.
-- **A presentation or report slide:** Preceden exports to PowerPoint, and Time.Graphics to large images and posters; OpenChronology exports only its own files.
-- **Editing with others at the same moment:** Time.Graphics describes real-time collaboration; OpenChronology merges each person's saves instead.
+- **Planning a novel or a fictional world:** Aeon Timeline has story views, custom calendars and sync with Scrivener and Ulysses; Circagraph has none of these.
+- **A presentation or report slide:** Preceden exports to PowerPoint, and Time.Graphics to large images and posters; Circagraph exports only its own files.
+- **Editing with others at the same moment:** Time.Graphics describes real-time collaboration; Circagraph merges each person's saves instead.
 - **A timeline of notes you already keep in Obsidian:** Chronos Timeline builds timelines from your notes.
-- **A small desktop program with Pharaonic or Coptic calendars, or iCalendar import:** Timeline does these; OpenChronology doesn't.
-- **Exact times from deep time to fractions of a second, sources on every event, large timelines, self-hosting or a free licence:** OpenChronology.
+- **A small desktop program with Pharaonic or Coptic calendars, or iCalendar import:** Timeline does these; Circagraph doesn't.
+- **Exact times from deep time to fractions of a second, sources on every event, large timelines, self-hosting or a free licence:** Circagraph.
 
-## OpenChronology
+## Circagraph
 
 - **Before year 1:** the **Gregorian timestamp** display extends the Gregorian calendar backwards with years marked CE or BCE, and any whole number of years ([time presentation](time-presentation.md)). Other displays show plain numbers or units, for deep time. The **Geological ages** plugin keeps an approximate age in years before 2000 CE ([plugins](plugins.md#dating-and-historical-annotations)).
 - **Precision:** every time is stored exactly, as a whole number or fraction: a third of a second stays a third ([guide](guide.md)). Each time is written at its own precision, so the start of a year reads as the year. The **Dating context** plugin marks a date as approximate and states its precision; **Historical dates** keeps a source's own date, such as a Julian one. Time zones are one fixed offset from UTC per timeline; named zones and daylight saving are not supported ([FAQ](faq.md#does-it-handle-time-zones-and-dates-before-year-1)).

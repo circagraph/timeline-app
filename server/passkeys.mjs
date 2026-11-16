@@ -304,7 +304,7 @@ export class Passkeys {
       await this.security.notify(
         c,
         user,
-        `A passkey ("${name}") was added to your OpenChronology account. Other sessions and API keys were revoked.` +
+        `A passkey ("${name}") was added to your Circagraph account. Other sessions and API keys were revoked.` +
           (first ? ' Two-factor authentication is now on; keep your recovery codes offline.' : '') +
           ' Contact the operator if you did not do this.',
       );
@@ -362,7 +362,7 @@ export class Passkeys {
       await this.security.notify(
         c,
         user,
-        `A passkey ("${removed.name}") was removed from your OpenChronology account. Other sessions and API keys were revoked.` +
+        `A passkey ("${removed.name}") was removed from your Circagraph account. Other sessions and API keys were revoked.` +
           (off ? ' Two-factor authentication is now off.' : ''),
       );
     });

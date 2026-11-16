@@ -5,7 +5,7 @@
  * entry, routed like the syslog receiver, saved in batches with backpressure so that nothing
  * is dropped, and with IDs from each entry's text so that importing again overwrites.
  *
- *   OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_... \
+ *   OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... \
  *     och-import-logs --format nginx-combined --timeline <uuid> /var/log/nginx/access.log*
  */
 import { createReadStream, realpathSync } from 'node:fs';
@@ -38,7 +38,7 @@ const sleep = (ms) => new Promise((resume) => setTimeout(resume, ms));
 /** The --help text. */
 export const HELP = `Usage: och-import-logs [options] <file | file.gz | -> ...
 
-Imports log files into OpenChronology timelines, one moment per log entry. Files are read
+Imports log files into Circagraph timelines, one moment per log entry. Files are read
 in the order given; "-" reads standard input. Importing the same logs again overwrites the
 moments it added before instead of adding them twice.
 
@@ -62,8 +62,8 @@ Options:
   --help                This text
 
 Environment:
-  OCH_API_URL           The server, such as https://timescale.info
-  OCH_API_KEY           A read/write API key (och_key_...)
+  OCH_API_URL           The server, such as https://circagraph.org
+  OCH_API_KEY           A read/write API key (cg_key_...)
 
 Exit codes: 0 imported; 1 some entries were refused or could not be saved;
 2 usage or configuration error; 3 the import does not fit the account's storage quota.

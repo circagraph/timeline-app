@@ -69,7 +69,7 @@ const healthy = async () => {
 // Installed: PostgreSQL and the server as services, the database with pgmp, the configuration.
 const setup = await install();
 assert.match(setup, /OpenChronology is installed and running/, setup.slice(-4000));
-assert.match(setup, /OpenChronology schema installed\./);
+assert.match(setup, /Circagraph schema installed\./);
 assert.equal(await status('OpenChronologyPostgreSQL'), 'Running');
 assert.equal(await status('OpenChronology'), 'Running');
 assert.match(await ps('(Get-Service OpenChronology).StartType'), /Automatic/);
@@ -148,7 +148,7 @@ await writeFile(
     .replace(/^ADMIN_INITIAL_PASSWORD=.*$/m, `ADMIN_INITIAL_PASSWORD=${adminPassword}`),
 );
 const migrated = await ps(`& '${dir}\\openchronology-migrate.cmd'`);
-assert.match(migrated, /OpenChronology schema installed\./);
+assert.match(migrated, /Circagraph schema installed\./);
 assert.match(migrated, /OpenChronology restarted\./);
 // The mail worker is not enabled, so it stays stopped (#371); the syslog receiver, stopped but
 // set to start with Windows above, runs again (#374).

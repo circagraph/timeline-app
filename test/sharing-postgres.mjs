@@ -284,21 +284,21 @@ try {
 
   // The timeline's page: title, description, canonical address, link previews and oEmbed.
   const page = await guest.request(base);
-  assert.match(page, new RegExp(`<title>Voyages of ${suffix} · OpenChronology</title>`));
+  assert.match(page, new RegExp(`<title>Voyages of ${suffix} · Circagraph</title>`));
   assert.equal(meta(page, 'og:title'), 'Voyages of ' + suffix);
   assert.equal(
     unescape(meta(page, 'og:description')),
     'Ships & the sea, from departure to return.',
   );
   assert.equal(meta(page, 'og:url'), origin + base);
-  assert.equal(meta(page, 'og:site_name'), 'OpenChronology');
+  assert.equal(meta(page, 'og:site_name'), 'Circagraph');
   assert.equal(meta(page, 'twitter:card'), 'summary_large_image');
   assert.equal(meta(page, 'robots'), null);
   assert(page.includes(`<link rel="canonical" href="${origin + base}"/>`));
   // Public, it lets analytics name it, at its address and with its title.
   assert(
     page.includes(
-      `<main class="editor-page" data-analytics-path="${base}" data-analytics-title="Voyages of ${suffix} · OpenChronology">`,
+      `<main class="editor-page" data-analytics-path="${base}" data-analytics-title="Voyages of ${suffix} · Circagraph">`,
     ),
   );
   const image = meta(page, 'og:image');
@@ -405,7 +405,7 @@ try {
   assert.match(embed.headers.get('content-security-policy'), /frame-ancestors \*/);
   const embedHtml = await embed.text();
   assert(embedHtml.includes(`<link rel="canonical" href="${origin + base}"`));
-  assert(embedHtml.includes(`<title>Voyages of ${suffix} · OpenChronology</title>`));
+  assert(embedHtml.includes(`<title>Voyages of ${suffix} · Circagraph</title>`));
   const frame = await guest.request('/editor/frame', { raw: true });
   assert.match(frame.headers.get('content-security-policy'), /frame-ancestors 'self'/);
   // Its structured data (#428), and the frame its page shows, already headed by it: its title,

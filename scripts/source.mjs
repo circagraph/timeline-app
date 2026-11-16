@@ -118,7 +118,7 @@ try {
   });
   await writeFile(
     join(dirname(preferred), 'REBUILD.txt'),
-    'Preferred TypeScript sources recovered from the pinned package source maps.\nBuild support is included under the upstream MIT license.\nTo rebuild: npm install --ignore-scripts, then npm run build.\nTo update the application archive: npm pack --ignore-scripts and replace\nvendor/rational-ordered-map-0.1.0.tgz in the OpenChronology source tree.\nUpdate the file dependency lock with your package manager before rebuilding.\n',
+    'Preferred TypeScript sources recovered from the pinned package source maps.\nBuild support is included under the upstream MIT license.\nTo rebuild: npm install --ignore-scripts, then npm run build.\nTo update the application archive: npm pack --ignore-scripts and replace\nvendor/rational-ordered-map-0.1.0.tgz in the Circagraph source tree.\nUpdate the file dependency lock with your package manager before rebuilding.\n',
   );
   // fraction.js, a dependency of rational-ordered-map, resolved from there so it is the copy
   // that is actually bundled.
@@ -209,7 +209,7 @@ try {
     );
   }
   // What the archive is and how to build from it, at its top.
-  const description = `OpenChronology source snapshot\nCopyright (c) 2026 Athan Clark. GPL-3.0-only.\n\nThis archive contains first-party source, lockfiles, build and installation scripts,\nvendored SQLite sources, and preferred sources of bundled browser dependencies.\n${desktop ? 'Rust crate sources are included with a cargo vendor configuration.\n' : nativeVendor ? 'Rust crate sources for the native converter are included; desktop packages require their own archive.\n' : 'This web source archive does not include Rust crate sources; use the desktop source archive for compiled native distributions.\n'}Install npm dependencies using npm ci (or the documented pnpm/Yarn alternatives).\nUse npm run build to build web assets. See README.md and docs/licensing.md.\nThird-party sources retain their own copyrights and licenses.\n`;
+  const description = `Circagraph source snapshot\nCopyright (c) 2026 Athan Clark. GPL-3.0-only.\n\nThis archive contains first-party source, lockfiles, build and installation scripts,\nvendored SQLite sources, and preferred sources of bundled browser dependencies.\n${desktop ? 'Rust crate sources are included with a cargo vendor configuration.\n' : nativeVendor ? 'Rust crate sources for the native converter are included; desktop packages require their own archive.\n' : 'This web source archive does not include Rust crate sources; use the desktop source archive for compiled native distributions.\n'}Install npm dependencies using npm ci (or the documented pnpm/Yarn alternatives).\nUse npm run build to build web assets. See README.md and docs/licensing.md.\nThird-party sources retain their own copyrights and licenses.\n`;
   await writeFile(join(root, 'SOURCE-README.txt'), description);
   await mkdir('dist', { recursive: true });
   const output = resolve(`dist/openchronology-${desktop ? 'desktop' : 'web'}-source.tar.gz`);

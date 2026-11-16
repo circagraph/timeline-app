@@ -6,7 +6,7 @@ import { writeBuildInfo } from './build-info.mjs';
 import { dependencyLicenses } from './licenses.mjs';
 
 export const copyrightBanner =
-  '/*! OpenChronology — Copyright (c) 2026 Athan Clark. GPL-3.0-only; see LICENSE. No warranty. */';
+  '/*! Circagraph — Copyright (c) 2026 Athan Clark. GPL-3.0-only; see LICENSE. No warranty. */';
 const escape = (s) =>
   s
     .replaceAll('&', '&amp;')
@@ -30,7 +30,7 @@ export async function legalMarkup(source = false) {
     if (file === 'THIRD_PARTY.md') text += '\n\n' + (await dependencyLicenses()).join('\n\n');
     parts.push(`<details><summary>${title}</summary><pre>${escape(text)}</pre></details>`);
   }
-  return `<footer class="legal-notices"><details><summary>© 2026 Athan Clark · OpenChronology · GPLv3 · No warranty · Terms &amp; privacy</summary>${source ? '<p><a href="openchronology-web-source.tar.gz" download>Download matching web source</a></p>' : ''}${parts.join('\n')}</details></footer>`;
+  return `<footer class="legal-notices"><details><summary>© 2026 Athan Clark · Circagraph · GPLv3 · No warranty · Terms &amp; privacy</summary>${source ? '<p><a href="openchronology-web-source.tar.gz" download>Download matching web source</a></p>' : ''}${parts.join('\n')}</details></footer>`;
 }
 export async function withLegal(html, source = true) {
   if (!html.includes('<!-- OPENCHRONOLOGY_LEGAL -->'))
@@ -52,7 +52,7 @@ export async function buildLegal() {
   const content = await legalMarkup(true);
   await writeFile(
     'dist/legal.html',
-    `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OpenChronology / timescale.info legal notices</title><link rel="stylesheet" href="app.css"><body><main><h1>OpenChronology / timescale.info</h1><p>Copyright © 2026 Athan Clark, an individual. Software: GPLv3. The policies below apply to the hosted service at timescale.info.</p>${content}</main></body></html>`,
+    `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Circagraph legal notices</title><link rel="stylesheet" href="app.css"><body><main><h1>Circagraph</h1><p>Copyright © 2026 Athan Clark, an individual. Software: GPLv3. The policies below apply to the hosted service at circagraph.org.</p>${content}</main></body></html>`,
   );
   await writeFile('dist/LICENSE.txt', await readFile('LICENSE'));
   await writeFile('dist/NOTICE.txt', await readFile('NOTICE'));

@@ -48,5 +48,5 @@ copy. The editor keeps your timelines only in memory and sends them nowhere, whi
 such a page could do, but a file you downloaded and opened from your own computer has none of
 these neighbours. [Releases](https://github.com/circagraph/timeline-app/releases/latest)
 attach it as `openchronology-offline.html` (and `openchronology-offline-<edition>.html`), with
-their checksums in `SHA256SUMS.txt`, and the download page of any OpenChronology server links
+their checksums in `SHA256SUMS.txt`, and the download page of any Circagraph server links
 to them.

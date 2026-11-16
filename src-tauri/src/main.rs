@@ -61,7 +61,7 @@ async fn desktop_latest_release(ask: bool) -> Result<serde_json::Value, String> 
     }
     let read = async {
         let client = reqwest::Client::builder()
-            .user_agent("OpenChronology")
+            .user_agent("Circagraph")
             .timeout(std::time::Duration::from_secs(10))
             .build()
             .ok()?;
@@ -369,7 +369,7 @@ async fn desktop_open(app: tauri::AppHandle) -> Result<Option<Opened>, String> {
     let Some(file) = app
         .dialog()
         .file()
-        .add_filter("OpenChronology timeline", &["och", "circa", "sqlite"])
+        .add_filter("Circagraph timeline", &["och", "circa", "sqlite"])
         .blocking_pick_file()
     else {
         return Ok(None);
@@ -404,7 +404,7 @@ async fn desktop_import(app: tauri::AppHandle) -> Result<Option<Opened>, String>
     let Some(file) = app
         .dialog()
         .file()
-        .add_filter("OpenChronology JSON timeline", &["ochx", "circax", "json"])
+        .add_filter("Circagraph JSON timeline", &["ochx", "circax", "json"])
         .blocking_pick_file()
     else {
         return Ok(None);
@@ -926,7 +926,7 @@ async fn desktop_save(
         let Some(file) = app
             .dialog()
             .file()
-            .add_filter("OpenChronology timeline", &["och", "circa", "sqlite"])
+            .add_filter("Circagraph timeline", &["och", "circa", "sqlite"])
             .set_file_name("timeline.och")
             .blocking_save_file()
         else {
@@ -1066,5 +1066,5 @@ fn main() {
             desktop_auth_poll
         ])
         .run(tauri::generate_context!())
-        .expect("Could not start OpenChronology");
+        .expect("Could not start Circagraph");
 }

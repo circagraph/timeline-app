@@ -1,14 +1,14 @@
 # Copyright, GPLv3, and distributions
 
-<!-- description: OpenChronology's licence, the GNU GPL version 3: where the source and releases are, contributions, and how licence changes are handled. -->
+<!-- description: Circagraph's licence, the GNU GPL version 3: where the source and releases are, contributions, and how licence changes are handled. -->
 
-OpenChronology first-party software and documentation are copyright (c) 2026
+Circagraph first-party software and documentation are copyright (c) 2026
 Athan Clark, an individual, and licensed **GPL-3.0-only**. See [LICENSE](../LICENSE)
 for the unmodified GPLv3 text and [NOTICE](../NOTICE) for scope and attribution.
-The FSF copyright on the license text is not ownership of OpenChronology.
+The FSF copyright on the license text is not ownership of Circagraph.
 The official first-party plugins are included under this same software license.
 
-The application deployed at timescale.info uses this license. Domain registration,
+The application deployed at circagraph.org uses this license. Domain registration,
 names, and endorsement are distinct from licensing the code. Users retain their
 content copyright; a public timeline is not automatically GPL-licensed. Hosted
 policies are separate [terms](../legal/TERMS.md), [privacy](../legal/PRIVACY.md), and
@@ -69,7 +69,7 @@ through ad hoc whole-directory archives.
 The PostgreSQL Dockerfile already includes its precise `pgmp.tar.gz` source and
 LGPL/GPL notices under `/usr/share/doc/pgmp`. Preserve those when distributing the
 image and supply any other non-system component
-sources required by their licenses. The OpenChronology archive alone is not a
+sources required by their licenses. The Circagraph archive alone is not a
 complete source distribution for the separate PostgreSQL image. System-library
 exceptions and each dependency's own requirements must be checked for the actual
 artifact. A public repository URL alone must not substitute for missing preferred

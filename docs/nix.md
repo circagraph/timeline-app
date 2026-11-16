@@ -1,10 +1,10 @@
 # Nix and NixOS
 
-<!-- description: Install OpenChronology with Nix or NixOS: the flake's packages, nix-env without flakes, and the NixOS module that runs a server with PostgreSQL. -->
+<!-- description: Install Circagraph with Nix or NixOS: the flake's packages, nix-env without flakes, and the NixOS module that runs a server with PostgreSQL. -->
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-The repository is a Nix flake ([#461](https://github.com/circagraph/timeline-app/issues/461)). It builds OpenChronology from source and has a NixOS module that runs a server, with PostgreSQL and the `pgmp` extension, as the Debian package does.
+The repository is a Nix flake ([#461](https://github.com/circagraph/timeline-app/issues/461)). It builds Circagraph from source and has a NixOS module that runs a server, with PostgreSQL and the `pgmp` extension, as the Debian package does.
 
 ## Packages
 
@@ -93,7 +93,7 @@ What the module sets up:
 
 | Option                                             | Default                | What it does                                                                                             |
 | -------------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------- |
-| `enable`                                           | `false`                | Runs OpenChronology                                                                                      |
+| `enable`                                           | `false`                | Runs Circagraph                                                                                          |
 | `origin`                                           | (required)             | The public origin, exactly as people reach it (`APP_ORIGIN`)                                             |
 | `host`, `port`                                     | `127.0.0.1`, 5173      | Where the server listens                                                                                 |
 | `settings`                                         | `{ }`                  | Any other setting of `openchronology.env`, such as `PLATFORM_NAME` or `TIMELINE_LINK_LIMIT`              |

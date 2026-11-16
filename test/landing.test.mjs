@@ -147,7 +147,7 @@ test('the built-in copy has every page, with what the pages show', async () => {
   }
   const home = await landingContent('home', env);
   assert.equal(home.meta.heading, 'Any span of time, on one exact line');
-  assert.equal(home.meta.title, 'OpenChronology: free timeline editor for history and research');
+  assert.equal(home.meta.title, 'Circagraph: free timeline editor for history and research');
   const educators = await landingContent('educators', env);
   assert.match(educators.html, /Accounts are for people 13 and older/);
   assert.match(educators.html, /No account needed to read/);

@@ -3,7 +3,7 @@ label: Investigators
 heading: The sequence of events, with the evidence behind it
 title: Investigation timelines and causal factors charts
 promise: Lay out what happened and why, mark what is still unconfirmed, and keep every revision of the analysis.
-description: OpenChronology for investigations: events and causal factors charts, sources and date precision on each moment, and the saved history of every revision.
+description: Circagraph for investigations: events and causal factors charts, sources and date precision on each moment, and the saved history of every revision.
 card: Events and causal factors, with sources and a history of every change.
 ---
 

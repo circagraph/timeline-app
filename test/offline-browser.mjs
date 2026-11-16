@@ -236,7 +236,7 @@ try {
   await cfam.goto(pathToFileURL(cfamFile).href);
   assert.equal(await cfam.locator('#edition-chip').textContent(), 'Offline · CFAM');
   // The title names the open timeline (#210).
-  await cfam.waitForFunction(() => document.title === 'Untitled timeline · OpenChronology');
+  await cfam.waitForFunction(() => document.title === 'Untitled timeline · Circagraph');
   // On a phone or a narrow window the header wraps, and the download menu opens on the screen.
   for (const width of [390, 640, 1440]) {
     await cfam.setViewportSize({ width, height: 900 });

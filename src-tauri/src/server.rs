@@ -193,7 +193,7 @@ impl Server {
                 .redirect(reqwest::redirect::Policy::none())
                 .timeout(Duration::from_secs(30))
                 .connect_timeout(Duration::from_secs(10))
-                .user_agent("OpenChronology-Desktop/0.1")
+                .user_agent("Circagraph-Desktop/0.1")
                 .build()
                 .map_err(|e| e.to_string())?,
             state: Mutex::new(State {
@@ -206,7 +206,7 @@ impl Server {
     pub fn default_origin() -> &'static str {
         option_env!("OPENCHRONOLOGY_SERVER_ORIGIN")
             .filter(|s| !s.is_empty())
-            .unwrap_or("https://timescale.info")
+            .unwrap_or("https://circagraph.org")
     }
     /** The connected servers' origins, the one in use first. */
     pub fn servers(&self) -> Result<Vec<String>, String> {
@@ -359,7 +359,7 @@ impl Server {
         let mut response = request
             .send()
             .await
-            .map_err(|_| "Could not connect to the OpenChronology server")?;
+            .map_err(|_| "Could not connect to the Circagraph server")?;
         let status = response.status().as_u16();
         // Only the login cookie is kept, as name=value without its attributes.
         let login_cookie = response
@@ -576,7 +576,7 @@ mod tests {
     }
     #[test]
     fn desktop_sign_in_accepts_canonical_next_routes_and_legacy_links_only() {
-        let configured = Url::parse("https://timescale.info").unwrap();
+        let configured = Url::parse("https://circagraph.org").unwrap();
         let code = "ABCDEFGH23";
         for path in ["/connect/desktop/ABCDEFGH23", "/#desktop/ABCDEFGH23"] {
             assert!(device_destination(
@@ -587,11 +587,11 @@ mod tests {
         }
         for value in [
             "https://evil.example/connect/desktop/ABCDEFGH23",
-            "https://user@timescale.info/connect/desktop/ABCDEFGH23",
-            "https://timescale.info/connect/desktop/ABCDEFGH24",
-            "https://timescale.info/connect/desktop/ABCDEFGH23?next=evil",
-            "https://timescale.info/connect/desktop/ABCDEFGH23#fragment",
-            "https://timescale.info/account",
+            "https://user@circagraph.org/connect/desktop/ABCDEFGH23",
+            "https://circagraph.org/connect/desktop/ABCDEFGH24",
+            "https://circagraph.org/connect/desktop/ABCDEFGH23?next=evil",
+            "https://circagraph.org/connect/desktop/ABCDEFGH23#fragment",
+            "https://circagraph.org/account",
         ] {
             assert!(!device_destination(
                 &Url::parse(value).unwrap(),
@@ -669,13 +669,13 @@ mod tests {
     #[test]
     fn servers_keep_their_own_sign_ins_and_disconnecting_clears_them() {
         let server = Server::new().unwrap();
-        server.connect("https://timescale.info").unwrap();
+        server.connect("https://circagraph.org").unwrap();
         server.connect("https://another.example").unwrap();
         assert_eq!(
             server.servers().unwrap(),
-            ["https://another.example", "https://timescale.info"]
+            ["https://another.example", "https://circagraph.org"]
         );
-        let official = Url::parse("https://timescale.info").unwrap();
+        let official = Url::parse("https://circagraph.org").unwrap();
         {
             let mut state = server.state.lock().unwrap();
             let connection = state.connection(&official).unwrap();
@@ -684,17 +684,17 @@ mod tests {
         }
         assert!(server.connect("http://untrusted.example").is_err());
         // Using a server again keeps its sign-in, and puts it first.
-        server.connect("https://timescale.info/").unwrap();
-        assert_eq!(server.servers().unwrap()[0], "https://timescale.info");
+        server.connect("https://circagraph.org/").unwrap();
+        assert_eq!(server.servers().unwrap()[0], "https://circagraph.org");
         let generation = {
             let mut state = server.state.lock().unwrap();
             let connection = state.connection(&official).unwrap();
             assert_eq!(connection.credentials.token.as_deref(), Some("secret"));
             connection.generation
         };
-        server.disconnect("https://timescale.info").unwrap();
+        server.disconnect("https://circagraph.org").unwrap();
         assert_eq!(server.servers().unwrap(), ["https://another.example"]);
-        server.connect("https://timescale.info").unwrap();
+        server.connect("https://circagraph.org").unwrap();
         let mut state = server.state.lock().unwrap();
         let connection = state.connection(&official).unwrap();
         assert!(connection.credentials.token.is_none());
@@ -721,7 +721,7 @@ mod tests {
         );
         for path in ["auth/device/start", "auth/device/poll", "auth/google/start"] {
             let result = tauri::async_runtime::block_on(server.request(
-                "https://timescale.info",
+                "https://circagraph.org",
                 path,
                 "POST",
                 Some(json!({})),

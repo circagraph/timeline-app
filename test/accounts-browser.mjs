@@ -157,7 +157,7 @@ export async function checkAccounts(browser) {
   const desktop = await browser.newContext();
   await desktop.addInitScript((plugin) => {
     window.nativeCalls = [];
-    let servers = ['https://timescale.info'];
+    let servers = ['https://circagraph.org'];
     const users = {};
     let serverDocument;
     const second = 'https://second.example',
@@ -346,7 +346,7 @@ export async function checkAccounts(browser) {
     // site's own pages, so its timelines stay at their IDs.
     assert.equal(
       await nativePage.locator('#sharing-link').textContent(),
-      'https://timescale.info/timelines/00000000-0000-0000-0000-000000000001',
+      'https://circagraph.org/timelines/00000000-0000-0000-0000-000000000001',
     );
     await nativePage.locator('[data-close="sharing-dialog"]').click();
     await nativePage.locator('#sharing-dialog').waitFor({ state: 'hidden' });
@@ -362,7 +362,7 @@ export async function checkAccounts(browser) {
 
     // A second server, signed in to as well: the first keeps its sign-in.
     await nativePage.locator('#server-button').click();
-    const official = nativePage.locator('.server-row[data-server="https://timescale.info"]');
+    const official = nativePage.locator('.server-row[data-server="https://circagraph.org"]');
     assert.match(await official.textContent(), /In use · @account/);
     // The open timeline is the server in use's, so that one stays in use.
     await nativePage.locator('#server-origin').fill('https://second.example');
@@ -375,10 +375,10 @@ export async function checkAccounts(browser) {
     assert.match(await official.textContent(), /In use · @account/);
     assert.equal(
       await nativePage.locator('#account-button').textContent(),
-      '@account · timescale.info',
+      '@account · circagraph.org',
     );
     assert.equal(await nativePage.locator('#server-button').textContent(), 'Servers (2)');
-    assert.equal(await nativePage.locator('#timeline-server').textContent(), 'timescale.info');
+    assert.equal(await nativePage.locator('#timeline-server').textContent(), 'circagraph.org');
     await nativePage.locator('[data-close="connection-dialog"]').click();
     // The dashboard lists the timelines of every server signed in to, each with its server.
     // Replacing the edited timeline asks first.
@@ -389,7 +389,7 @@ export async function checkAccounts(browser) {
     const listed = mine.filter({ hasText: 'Second server notes' }),
       first = mine.filter({ hasText: 'First server notes' });
     assert.equal(await listed.locator('.server-chip').textContent(), 'second.example');
-    assert.equal(await first.locator('.server-chip').textContent(), 'timescale.info');
+    assert.equal(await first.locator('.server-chip').textContent(), 'circagraph.org');
     assert.equal(
       await nativePage.locator('#dashboard-mine-status').textContent(),
       '2 timelines · Page 1 of 1',
@@ -427,7 +427,7 @@ export async function checkAccounts(browser) {
     assert.deepEqual(
       sent.filter(
         ([server, path], i) =>
-          server === 'https://timescale.info' &&
+          server === 'https://circagraph.org' &&
           (i > switched || path !== 'timelines/00000000-0000-0000-0000-000000000001/revision'),
       ),
       [],
@@ -446,9 +446,9 @@ export async function checkAccounts(browser) {
     const chip = nativePage.locator('#plugin-library-results .server-chip');
     await chip.waitFor();
     assert.equal(await chip.textContent(), 'second.example');
-    await pluginServer.selectOption('https://timescale.info');
-    await poll(async () => (await chip.textContent()) === 'timescale.info');
-    assert((await requestsTo('https://timescale.info')).includes('plugins/search'));
+    await pluginServer.selectOption('https://circagraph.org');
+    await poll(async () => (await chip.textContent()) === 'circagraph.org');
+    assert((await requestsTo('https://circagraph.org')).includes('plugins/search'));
     await nativePage.locator('[data-close="plugin-library-dialog"]').click();
     await nativePage.locator('[data-close="plugins-dialog"]').click();
 

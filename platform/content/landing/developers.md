@@ -3,7 +3,7 @@ label: Developers
 heading: Timelines you can script, extend and host
 title: Open-source timeline API, plugins and self-hosted server
 promise: An HTTP API described in OpenAPI, scoped API keys, sandboxed plugins, and a server you can run yourself, all under the GPL.
-description: OpenChronology for developers: an HTTP API described in OpenAPI 3.1, scoped API keys, sandboxed plugins, log receivers and self-hosted server packages.
+description: Circagraph for developers: an HTTP API described in OpenAPI 3.1, scoped API keys, sandboxed plugins, log receivers and self-hosted server packages.
 card: The HTTP API, keys, plugins and self-hosting.
 ---
 

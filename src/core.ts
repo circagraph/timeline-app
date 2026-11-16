@@ -387,7 +387,7 @@ export function validateAssets(value: unknown): Record<string, string> {
   return assets;
 }
 export function validateDocument(value: unknown, partial = false): TimelineDocument {
-  if (!value || typeof value !== 'object') throw new Error('Expected an OpenChronology document.');
+  if (!value || typeof value !== 'object') throw new Error('Expected a Circagraph document.');
   const doc = value as Record<string, unknown>;
   if (doc.format !== 'openchronology' || doc.version !== 1)
     throw new Error('Unsupported timeline format or version.');

@@ -42,7 +42,7 @@ const healthy = async () => {
 // Setup: PostgreSQL started, the database with pgmp, the configuration and the service.
 const setup = await sh('openchronology-setup 2>&1');
 assert.match(setup, /OpenChronology is installed and running/, setup);
-assert.match(setup, /OpenChronology schema installed\./);
+assert.match(setup, /Circagraph schema installed\./);
 assert.equal(await psql("SELECT extname FROM pg_extension WHERE extname='pgmp'"), 'pgmp');
 assert.equal(await psql("SELECT '1/3'::mpq + '1/6'::mpq"), '1/2');
 assert.equal(await psql("SELECT to_regclass('oc_timelines') IS NOT NULL"), 't');
@@ -139,7 +139,7 @@ await sh(
   `sed -i '' -e 's/^ADMIN_USERNAME=.*/ADMIN_USERNAME=admin/' -e 's/^ADMIN_INITIAL_PASSWORD=.*/ADMIN_INITIAL_PASSWORD=${adminPassword}/' "${configFile}"`,
 );
 const migrated = await sh('openchronology-migrate 2>&1');
-assert.match(migrated, /OpenChronology schema installed\./);
+assert.match(migrated, /Circagraph schema installed\./);
 assert.match(migrated, /OpenChronology restarted\./);
 // The mail worker and the syslog and GitHub receivers are not enabled, so they stay stopped
 // (#371, #374).

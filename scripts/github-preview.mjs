@@ -77,13 +77,13 @@ const card = h(
               letterSpacing: -1,
             },
           },
-          'OpenChronology',
+          'Circagraph',
         ),
       ),
       h(
         'div',
         { style: { fontFamily: 'Sans', fontSize: 28, color: ACCENT, fontWeight: 700 } },
-        'timescale.info',
+        'circagraph.org',
       ),
     ),
     h(

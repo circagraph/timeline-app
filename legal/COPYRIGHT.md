@@ -1,14 +1,14 @@
 # Copyright, abuse, and security reporting
 
 Effective 25 October 2026. Operator: Athan Clark, an individual. Contact for
-copyright notices, abuse and security reports: **privacy@timescale.info**. No DMCA
+copyright notices, abuse and security reports: **privacy@circagraph.org**. No DMCA
 designated agent has been registered, and this page does not assert that a safe harbor
 automatically applies.
 
 Anyone can report a timeline, moment, duration, comment, published plugin or suite, or
 account with **Report**, choosing "Copyright infringement" and describing the work and
 why its use is unauthorized; no account is needed. A formal notice, such as a US DMCA
-notice, goes to privacy@timescale.info, as described below.
+notice, goes to privacy@circagraph.org, as described below.
 
 Images on timelines are links to where their owners host them, not copies stored by
 the service (docs/images.md). A complaint about a linked image can ask for the link to

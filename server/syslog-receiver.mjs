@@ -1,9 +1,9 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 /**
  * Receives syslog over UDP and TCP and appends each message as a moment to the timelines
- * its routes choose, through the OpenChronology API with an API key (docs/syslog.md).
+ * its routes choose, through the Circagraph API with an API key (docs/syslog.md).
  *
- *   OCH_API_URL=https://timescale.info OCH_API_KEY=och_key_... \
+ *   OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... \
  *   SYSLOG_ROUTES=./syslog-routes.json node server/syslog-receiver.mjs
  */
 import { createSocket } from 'node:dgram';

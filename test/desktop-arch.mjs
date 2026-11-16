@@ -44,7 +44,7 @@ try {
   await sh(`pacman -U --noconfirm /home/builder/desktop/${pkg} >/dev/null`);
   assert.match(await sh('ls -l /usr/bin/openchronology-desktop'), /^-rwxr-xr-x/);
   assert.match(
-    await sh('cat /usr/share/applications/OpenChronology.desktop'),
+    await sh('cat /usr/share/applications/Circagraph.desktop'),
     /^Exec=openchronology-desktop/m,
   );
   await sh('test -f /usr/share/icons/hicolor/256x256/apps/openchronology-desktop.png');

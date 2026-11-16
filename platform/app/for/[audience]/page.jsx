@@ -39,7 +39,7 @@ export default async function AudiencePage({ params }) {
       <StructuredData
         data={webPageData(path, meta.title, meta.description ?? meta.promise ?? '', {
           audience: { '@type': 'Audience', audienceType: meta.label ?? key },
-          about: { '@type': 'SoftwareApplication', name: 'OpenChronology' },
+          about: { '@type': 'SoftwareApplication', name: 'Circagraph' },
           // The trail the page shows above its heading (#474).
           breadcrumb: breadcrumbData(
             [

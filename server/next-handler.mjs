@@ -7,7 +7,7 @@ export async function servicesOrUnavailable() {
   try {
     return { services: await platformServices() };
   } catch (error) {
-    console.error('OpenChronology could not start:', error);
+    console.error('Circagraph could not start:', error);
     const message =
       error instanceof ConfigurationError
         ? `Server misconfigured: ${error.message}`

@@ -41,7 +41,7 @@ export function generateMetadata() {
   return {
     // Relative addresses in pages' metadata (link previews, canonical links) are on this site.
     metadataBase: new URL(siteOrigin()),
-    title: platformName() ? `${platformName()} · OpenChronology` : 'OpenChronology',
+    title: platformName() ? `${platformName()} · Circagraph` : 'Circagraph',
     description,
     openGraph: { type: 'website', siteName: siteName(), locale: 'en_US', description, images },
     twitter: { card: 'summary_large_image', images },
@@ -58,7 +58,7 @@ export default async function RootLayout({ children }) {
       'utf8',
     ),
   );
-  // A platform's own name replaces OpenChronology's in its header (PLATFORM_NAME).
+  // A platform's own name replaces Circagraph's in its header (PLATFORM_NAME).
   const name = platformName();
   // Where visitors can support the platform (SUPPORT_URL): a link in the header and footer.
   const support = supportUrl();
@@ -106,7 +106,7 @@ export default async function RootLayout({ children }) {
         <header className="platform-header">
           <a href="/" className="brand">
             <img src="/logo-mark.svg" alt="" width="28" height="28" />
-            {name ?? 'openchronology'}
+            {name ?? 'circagraph'}
           </a>
           <SiteMenu>
             {landing ? <a href="/explore">Explore</a> : null}

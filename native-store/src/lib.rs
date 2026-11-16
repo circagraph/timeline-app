@@ -211,7 +211,7 @@ pub struct Group {
     /// Tree nodes the index visited to answer the query (a cost diagnostic).
     pub visited_nodes: u32,
 }
-/// Refuses anything that is not a version-1 OpenChronology timeline, and any file whose
+/// Refuses anything that is not a version-1 Circagraph timeline, and any file whose
 /// data tables have been replaced by views or other schema objects: with `trusted_schema=OFF`
 /// a view still runs its own SQL when read, so a crafted file could otherwise substitute
 /// arbitrary queries for the tables the store reads. Generated (and other hidden) columns
@@ -221,7 +221,7 @@ fn check_file(db: &Connection) -> Result<(), String> {
     if db.scalar("PRAGMA application_id", &[])? != APPLICATION_ID
         || db.scalar("PRAGMA user_version", &[])? != "1"
     {
-        return Err("This is not a supported OpenChronology SQLite timeline".into());
+        return Err("This is not a supported Circagraph SQLite timeline".into());
     }
     // These names must be data tables, never attacker-supplied SQL views. The first count
     // requires both mandatory tables to exist as tables; the second allows the optional ones
@@ -555,7 +555,7 @@ fn validate_entities(
 /// Writes a whole document to the SQLite timeline file at `path`, creating the file if needed.
 ///
 /// The document is validated first (after converting version-1 legacy durations). An existing
-/// file must be an OpenChronology timeline or an empty SQLite database; anything else is
+/// file must be a Circagraph timeline or an empty SQLite database; anything else is
 /// refused so a mistaken path cannot overwrite an unrelated database. Every table is then
 /// replaced inside one `BEGIN IMMEDIATE` transaction, which takes the write lock up front so no
 /// other writer can interleave; on any error the transaction is rolled back and the file is
@@ -756,7 +756,7 @@ fn write<'a>(
         // A fresh token: no open desktop baseline matches this file any more, so their next
         // save writes the whole file rather than patching it in place (workspace.rs).
         intervals::set_layout(&db, &intervals::token())?;
-        // Mark the file as an OpenChronology timeline, format version 1 (see check_file).
+        // Mark the file as a Circagraph timeline, format version 1 (see check_file).
         db.execute("PRAGMA application_id=1329812556", &[])?;
         db.execute("PRAGMA user_version=1", &[])?;
         db.execute("COMMIT", &[])

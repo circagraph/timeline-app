@@ -43,7 +43,7 @@ export default function Editor({
   comparisonIds,
   comparisonSources = [],
   // The site's name, for the page's title as the editor names the open timeline (#210).
-  siteName = 'OpenChronology',
+  siteName = 'Circagraph',
   forkId,
   focus,
   // Starts the editor's tour (#172), from the help.

@@ -1,20 +1,24 @@
 # Frequently asked questions
 
-<!-- description: Short answers to common questions about OpenChronology: what it is, whether it is free, accounts, where data is kept, offline use, file formats and dates. -->
+<!-- description: Short answers to common questions about Circagraph: what it is, whether it is free, accounts, where data is kept, offline use, file formats and dates. -->
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-Short answers to common questions, from the basics to running your own server. For a walk through the whole app, read [using OpenChronology](guide.md).
+Short answers to common questions, from the basics to running your own server. For a walk through the whole app, read [using Circagraph](guide.md).
 
-## What is OpenChronology?
+## What is Circagraph?
 
-OpenChronology is a free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event. You place events (moments and durations) and the links between them on a line of time, then zoom, search, compare and share. Times are exact: a third of a second stays exactly a third, however far you zoom. It runs on the website, as a desktop app, and as a single offline HTML file. See [what a timeline is](guide.md#what-a-timeline-is).
+Circagraph is a free, open-source timeline editor for exact dates at any scale, from deep time to fractions of a second, with sources on every event. You place events (moments and durations) and the links between them on a line of time, then zoom, search, compare and share. Times are exact: a third of a second stays exactly a third, however far you zoom. It runs on the website, as a desktop app, and as a single offline HTML file. See [what a timeline is](guide.md#what-a-timeline-is).
+
+Circagraph was called OpenChronology until November 2026, and its website was timescale.info, which still leads here. Timelines, accounts, files and API keys from before the rename keep working.
+
+The desktop app is called Circagraph from the release after the rename. On Linux its packages replace OpenChronology's. On Windows and macOS it installs beside the app called OpenChronology, which you can then uninstall (on macOS, drag it from Applications to the Bin): both use the same settings and server connections, so nothing is lost.
 
 ## Is it free?
 
 The software is free software under the GNU GPL version 3: you may use it, study it, share it and change it ([licensing](licensing.md)). The app has no payments or paid features. On a server, each account has a storage limit, set by the site's operator and shown on the **Account** page.
 
-## How does OpenChronology compare with other timeline tools?
+## How does Circagraph compare with other timeline tools?
 
 It is free and open source, stores times exactly from deep time to fractions of a second, keeps sources on every event, and runs offline or on your own server. Other tools are better for some work, such as TimelineJS for a quick story timeline from a spreadsheet, or Aeon Timeline for planning a novel. See the [comparison of timeline tools](comparison-of-timeline-tools.md).
 

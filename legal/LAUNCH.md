@@ -1,7 +1,7 @@
 # Operator publication checklist
 
 The terms, privacy policy and copyright policy took effect on 25 October 2026, with
-privacy@timescale.info as the contact, DigitalOcean (United States) as the host, nginx
+privacy@circagraph.org as the contact, DigitalOcean (United States) as the host, nginx
 logs kept 14 days and database backups taken before upgrades. They do not assert that
 legal registrations have been completed. Copyright and GPL software licensing apply
 independently.
