@@ -44,7 +44,7 @@ try {
     `dnf install -y -q ${file} 2>&1; cat /var/log/dnf.rpm.log 2>/dev/null || true`,
   );
   assert.match(install, /OpenChronology is installed and ready/, install.slice(-3000));
-  assert.match(install, /OpenChronology schema installed\./);
+  assert.match(install, /Circagraph schema installed\./);
 
   // The database, its pgmp extension and the configuration.
   assert.equal(
@@ -168,7 +168,7 @@ try {
     new RegExp('^' + key + '$', 'm'),
   );
   assert.equal(await psql("SELECT count(*) FROM oc_users WHERE username='kept'"), '1');
-  assert.match(migrate, /OpenChronology schema installed\./);
+  assert.match(migrate, /Circagraph schema installed\./);
   // Setup is safe to run again by hand.
   assert.match(await sh('openchronology-setup 2>&1'), /OpenChronology is installed and ready/);
 

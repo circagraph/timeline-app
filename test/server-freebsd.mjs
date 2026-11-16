@@ -48,7 +48,7 @@ assert.doesNotMatch(
 );
 const install = await sh('openchronology-setup 2>&1');
 assert.match(install, /OpenChronology is installed and running/, install.slice(-4000));
-assert.match(install, /OpenChronology schema installed\./);
+assert.match(install, /Circagraph schema installed\./);
 
 // PostgreSQL, the database, its pgmp extension and the configuration.
 assert.match(await sh('sysrc -n postgresql_enable'), /YES/);
@@ -144,7 +144,7 @@ assert.match(upgrade, /diff -u \/usr\/local\/etc\/openchronology\/openchronology
 assert.match(await sh(`cat ${configFile}`), new RegExp('^' + key + '$', 'm'));
 assert.equal(await psql("SELECT count(*) FROM oc_users WHERE username='kept'"), '1');
 const migrated = await sh('openchronology-migrate 2>&1');
-assert.match(migrated, /OpenChronology schema installed\./);
+assert.match(migrated, /Circagraph schema installed\./);
 assert.match(migrated, /OpenChronology restarted\./);
 // The mail worker and the syslog and GitHub receivers are not enabled, so they stay stopped
 // (#371, #374).

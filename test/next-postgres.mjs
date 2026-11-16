@@ -115,7 +115,7 @@ try {
   // Unnamed and without analytics: Circagraph's name, and no Google hosts allowed.
   const home = await fetch(origin + '/'),
     homeHtml = await home.text();
-  assert.match(homeHtml, /src="\/logo-mark\.svg"[^>]*\/>(<!-- -->)?openchronology<\/a>/);
+  assert.match(homeHtml, /src="\/logo-mark\.svg"[^>]*\/>(<!-- -->)?circagraph<\/a>/);
   assert.match(homeHtml, /<title>Circagraph<\/title>/);
   assert.doesNotMatch(homeHtml, /Powered by |Analytics settings|Support this site/);
   assert.doesNotMatch(home.headers.get('content-security-policy'), /google/);

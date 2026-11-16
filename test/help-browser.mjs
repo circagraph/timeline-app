@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
  * back and forward by button or arrow key, ends on Escape, and ends at the guide.
  */
 export async function checkHelp(page) {
-  // Outside the website, help opens timescale.info's in a new tab: record where.
+  // Outside the website, help opens circagraph.org's in a new tab: record where.
   await page.evaluate(() => {
     window.openedHelp = [];
     window.realOpen = window.open;
@@ -33,7 +33,7 @@ export async function checkHelp(page) {
     'The tip is beside its button',
   );
   await grouping.click();
-  assert.deepEqual(await opened(), ['https://timescale.info/help/guide#what-markers-show']);
+  assert.deepEqual(await opened(), ['https://circagraph.org/help/guide#what-markers-show']);
   await page.mouse.move(1, 1);
   await tooltip.waitFor({ state: 'hidden' });
 
@@ -49,7 +49,7 @@ export async function checkHelp(page) {
   await dialog.locator('#help-tooltip').waitFor();
   assert.match(await dialog.locator('#help-tooltip').textContent(), /track above the rest/);
   await page.keyboard.press('Enter');
-  assert.deepEqual(await opened(), ['https://timescale.info/help/tags#separating-by-tags']);
+  assert.deepEqual(await opened(), ['https://circagraph.org/help/tags#separating-by-tags']);
   await page.keyboard.press('Escape');
   await dialog.waitFor({ state: 'hidden' });
 
@@ -98,7 +98,7 @@ export async function checkHelp(page) {
   await at('Help is here', '#timeline-help-button');
   await card.getByRole('button', { name: 'Open the guide' }).click();
   await card.waitFor({ state: 'detached' });
-  assert.deepEqual(await opened(), ['https://timescale.info/help/guide']);
+  assert.deepEqual(await opened(), ['https://circagraph.org/help/guide']);
   await page.evaluate(() => (window.open = window.realOpen));
   console.log(
     'PASS help: tips on hover and focus, in dialogs, opening help; the tour, to the guide.',

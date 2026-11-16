@@ -63,7 +63,7 @@ try {
   // A server without systemd, like a container: setup initializes and starts PostgreSQL itself.
   const setup = await sh('openchronology-setup 2>&1');
   assert.match(setup, /OpenChronology is installed and ready/, setup.slice(-3000));
-  assert.match(setup, /OpenChronology schema installed\./);
+  assert.match(setup, /Circagraph schema installed\./);
 
   // The database, its pgmp extension and the configuration.
   assert.equal(
@@ -153,7 +153,7 @@ try {
     new RegExp('^' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'm'),
   );
   assert.equal(await psql("SELECT count(*) FROM oc_users WHERE username='kept'"), '1');
-  assert.match(migrate, /OpenChronology schema installed\./);
+  assert.match(migrate, /Circagraph schema installed\./);
   assert.match(await sh('openchronology-setup 2>&1'), /OpenChronology is installed and ready/);
 
   // Removing it keeps the configuration and the database, and says how to delete them.
