@@ -5,7 +5,7 @@ https://circagraph.org (called timescale.info until 14 November 2026, an address
 still leads to it), and the desktop app when connected to it, collects, uses,
 shares and keeps information. The service is operated by Athan Clark, an individual
 (the "operator"). For any privacy question or request, write to
-**privacy@timescale.info**.
+**privacy@circagraph.org**.
 
 The service runs on a server rented from DigitalOcean in the United States, which
 holds its database, files and logs; information you give it is stored and processed
@@ -199,7 +199,7 @@ sign-in methods, sessions and security records. Kept: changes already merged int
 people's timelines, which are part of their history (it names an account that no longer
 exists), others' forks of your timelines, and moderation records, which no longer name
 you. The last administrator of an installation cannot delete their account. Other
-requests, such as about content of yours elsewhere, go to privacy@timescale.info. Expired login flows and sessions are cleaned by authentication
+requests, such as about content of yours elsewhere, go to privacy@circagraph.org. Expired login flows and sessions are cleaned by authentication
 operations, rather than guaranteed immediate physical erasure at expiry.
 
 The operator takes copies of the database (backups) before upgrades, kept on the
@@ -217,7 +217,7 @@ information and respond within applicable deadlines. Service delivery, security,
 and legal obligations are the purposes; where GDPR applies, the intended bases are
 contract necessity, legitimate interests in secure operation subject to balancing,
 and legal obligations, with consent for optional processing where required. Send
-requests to privacy@timescale.info. Information is processed in the United States;
+requests to privacy@circagraph.org. Information is processed in the United States;
 using the service from elsewhere transfers your information there.
 
 Accounts are for people aged 13 or older; the service does not knowingly offer
@@ -240,5 +240,5 @@ online-safety laws.
 Material changes to this policy are announced on the service before they take effect,
 with the new effective date; existing data is not repurposed incompatibly without the
 necessary legal basis. Questions, requests and complaints about privacy:
-**privacy@timescale.info**. Security reports and copyright or abuse reports: see the
+**privacy@circagraph.org**. Security reports and copyright or abuse reports: see the
 [copyright, abuse and security page](/legal#copyright).

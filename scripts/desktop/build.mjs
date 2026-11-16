@@ -57,7 +57,7 @@ for (let attempt = 1; ; attempt++) {
     console.warn(`${error.message}; retrying packaging (attempt ${attempt + 1} of ${attempts}).`);
     // A failed attempt can leave its disk image mounted, which would fail the next one.
     const { stdout } = await exec('hdiutil', ['info']).catch(() => ({ stdout: '' }));
-    for (const volume of stdout.match(/\/Volumes\/OpenChronology[^\n]*/g) ?? [])
+    for (const volume of stdout.match(/\/Volumes\/Circagraph[^\n]*/g) ?? [])
       await exec('hdiutil', ['detach', '-force', volume.trim()]).catch(() => {});
     await new Promise((resume) => setTimeout(resume, 5000));
   }

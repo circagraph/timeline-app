@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OpenChronology",
+  "productName": "Circagraph",
   "version": "0.1.0",
   "identifier": "com.openchronology.desktop",
   "build": {
@@ -31,10 +31,15 @@
     "icon": ["icons/icon.png"],
     "linux": {
       "deb": {
-        "depends": ["libgmp10", "libsqlite3-0", "libwebkit2gtk-4.1-0", "libgtk-3-0"]
+        "depends": ["libgmp10", "libsqlite3-0", "libwebkit2gtk-4.1-0", "libgtk-3-0"],
+        "conflicts": ["open-chronology", "openchronology"],
+        "replaces": ["open-chronology", "openchronology"],
+        "provides": ["open-chronology", "openchronology"]
       },
       "rpm": {
-        "depends": ["webkit2gtk4.1", "gtk3", "gmp", "sqlite-libs"]
+        "depends": ["webkit2gtk4.1", "gtk3", "gmp", "sqlite-libs"],
+        "obsoletes": ["open-chronology", "openchronology"],
+        "provides": ["open-chronology", "openchronology"]
       }
     },
     "resources": [

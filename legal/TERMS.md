@@ -1,7 +1,7 @@
 # Circagraph — terms of service
 
 Effective 7 November 2026. Operator: Athan Clark, an individual (the "operator").
-Contact: **privacy@timescale.info**. The [privacy policy](/privacy) describes how
+Contact: **contact@circagraph.org**. The [privacy policy](/privacy) describes how
 information is handled.
 These terms cover the hosted service at circagraph.org (called timescale.info until
 14 November 2026) and desktop connections to that service. Independent installations have their own operators and policies.
@@ -173,7 +173,7 @@ change or be interrupted and does not promise perpetual hosting, particular
 storage capacity, recovery of every version, or a service-level guarantee.
 You can delete, through the interface, the timelines you own, your comments, and
 your account (Account → Delete your account), which deletes what it owns and wrote,
-as the [privacy policy](/privacy) describes. Other data requests go to privacy@timescale.info.
+as the [privacy policy](/privacy) describes. Other data requests go to privacy@circagraph.org.
 
 To the extent permitted by applicable law, the service is provided as available,
 without promises of uninterrupted availability or fitness for a particular purpose.

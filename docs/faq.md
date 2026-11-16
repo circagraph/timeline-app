@@ -12,6 +12,8 @@ Circagraph is a free, open-source timeline editor for exact dates at any scale, 
 
 Circagraph was called OpenChronology until November 2026, and its website was timescale.info, which still leads here. Timelines, accounts, files and API keys from before the rename keep working.
 
+The desktop app is called Circagraph from the release after the rename. On Linux its packages replace OpenChronology's. On Windows and macOS it installs beside the app called OpenChronology, which you can then uninstall (on macOS, drag it from Applications to the Bin): both use the same settings and server connections, so nothing is lost.
+
 ## Is it free?
 
 The software is free software under the GNU GPL version 3: you may use it, study it, share it and change it ([licensing](licensing.md)). The app has no payments or paid features. On a server, each account has a storage limit, set by the site's operator and shown on the **Account** page.
