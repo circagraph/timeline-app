@@ -34,7 +34,7 @@ test('the download page offers every file the release workflow attaches', () => 
   for (const server of SERVERS) assert.equal(server.asset, serverPackage(server.key));
   // Each edition's file, as scripts/offline.mjs names it and Pages publishes it (#197).
   assert.deepEqual(editionFile({ id: 'cfam', name: 'CFAM' }), {
-    asset: 'openchronology-offline-cfam.html',
+    asset: 'circagraph-offline-cfam.html',
     page: 'https://circagraph.github.io/cfam/',
     detail: 'CFAM offline file (.html)',
   });
@@ -67,9 +67,25 @@ test('links come from the latest release, or by name before there is one', () =>
   const server = SERVERS.find((s) => s.key === 'debian13');
   assert.equal(
     assetLink(null, OFFLINE.asset),
-    'https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-offline.html',
+    'https://github.com/circagraph/timeline-app/releases/latest/download/circagraph-offline.html',
   );
   assert.equal(assetSize(null, OFFLINE.asset), null);
+  // A release from before the rename has the offline files under their old names.
+  const before = releaseFrom({
+    tag_name: 'v0.30.0',
+    assets: [
+      {
+        name: 'openchronology-offline.html',
+        browser_download_url: 'https://example.test/openchronology-offline.html',
+        size: 2097152,
+      },
+    ],
+  });
+  assert.equal(
+    assetLink(before, OFFLINE.asset),
+    'https://example.test/openchronology-offline.html',
+  );
+  assert.equal(assetSize(before, OFFLINE.asset), '2.0 MB');
   assert.equal(
     installCommand(null, server),
     'curl -fLO https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-server-debian13-amd64.deb && sudo apt install ./openchronology-server-debian13-amd64.deb',

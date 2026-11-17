@@ -140,7 +140,7 @@ try {
     windows,
     /data-edition="cfam".{0,600}href="https:\/\/circagraph\.github\.io\/cfam\/"/s,
   );
-  assert.doesNotMatch(windows, /openchronology-offline-cfam\.html/);
+  assert.doesNotMatch(windows, /circagraph-offline-cfam\.html/);
   const phone = await download('Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X)');
   assert.match(phone, /Use Circagraph in your browser/);
   assert.match(html, /id="explore"/);

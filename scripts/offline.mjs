@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-// Builds the standalone offline editor, dist/openchronology-offline.html: one file with its
+// Builds the standalone offline editor, dist/circagraph-offline.html: one file with its
 // script and styles inlined, no network transport, a hash-pinned content security policy, and
 // the legal notices, licenses included. Each edition (src/editions.ts, #197) is built the same
-// way beside it, as dist/openchronology-offline-<id>.html.
+// way beside it, as dist/circagraph-offline-<id>.html.
 import { build } from 'esbuild';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -100,5 +100,5 @@ async function buildEdition(edition) {
   await mkdir('dist', { recursive: true });
   if (/<script\b[^>]*\bsrc=|<link\b[^>]*rel="stylesheet"/i.test(html))
     throw new Error('Offline HTML contains an external asset.');
-  await writeFile(`dist/openchronology-offline${edition ? '-' + edition : ''}.html`, html);
+  await writeFile(`dist/circagraph-offline${edition ? '-' + edition : ''}.html`, html);
 }

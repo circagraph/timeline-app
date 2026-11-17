@@ -11,7 +11,7 @@ import { createApplication } from '../server/http.mjs';
 
 test('legal notices survive all web builds and offline notices have no source download request', async () => {
   const web = await readFile('dist/index.html', 'utf8');
-  const offline = await readFile('dist/openchronology-offline.html', 'utf8');
+  const offline = await readFile('dist/circagraph-offline.html', 'utf8');
   const legal = await readFile('dist/legal.html', 'utf8');
   for (const html of [legal, offline]) {
     for (const title of [

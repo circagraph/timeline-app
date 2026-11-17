@@ -19,8 +19,11 @@ const required = [
   'LICENSE.txt',
   'NOTICE.txt',
 ];
-const html = await readFile(`${dir}/openchronology-offline.html`, 'utf8');
+// The offline file, and the same file under its name before the rename (release.yml).
+const html = await readFile(`${dir}/circagraph-offline.html`, 'utf8');
 if (!html.includes('Build: ' + tag)) throw new Error('Missing offline release identity');
+if ((await readFile(`${dir}/openchronology-offline.html`, 'utf8')) !== html)
+  throw new Error('openchronology-offline.html must be a copy of circagraph-offline.html');
 for (const [target, spec] of Object.entries(targets)) {
   required.push(spec.asset);
   const desktop = JSON.parse(await readFile(`${dir}/${target}-build-info.json`, 'utf8'));

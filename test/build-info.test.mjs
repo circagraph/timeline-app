@@ -64,12 +64,12 @@ test('release overrides and matching source archives retain immutable identity',
 });
 test('both HTML builds include identity and download URLs match runner release assets', async () => {
   const info = JSON.parse(await readFile('dist/build-info.json', 'utf8'));
-  for (const file of ['dist/index.html', 'dist/openchronology-offline.html']) {
+  for (const file of ['dist/index.html', 'dist/circagraph-offline.html']) {
     const html = await readFile(file, 'utf8');
     assert(html.includes('Build: ' + info.label));
     assert(
       html.includes(
-        'https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-offline.html',
+        'https://github.com/circagraph/timeline-app/releases/latest/download/circagraph-offline.html',
       ),
     );
     assert(

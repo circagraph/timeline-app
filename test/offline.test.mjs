@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { Script } from 'node:vm';
 
 test('offline HTML has embedded assets, a valid script hash, and denies external resources', async () => {
-  const html = await readFile('dist/openchronology-offline.html', 'utf8');
+  const html = await readFile('dist/circagraph-offline.html', 'utf8');
   assert(html.slice(0, 1024).includes('<meta charset="utf-8" />'));
   const scripts = [...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)];
   // The color scheme's inline script (#382) in the head, then the app's.

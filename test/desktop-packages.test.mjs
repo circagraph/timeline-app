@@ -18,6 +18,7 @@ test('release assembly refuses missing targets and mixed desktop commits', async
     exec(process.execPath, [resolve('scripts/release-assets.mjs'), 'v1.2.3', root]);
   try {
     await writeFile(join(root, 'build-info.json'), JSON.stringify(info));
+    await writeFile(join(root, 'circagraph-offline.html'), 'Build: v1.2.3');
     await writeFile(join(root, 'openchronology-offline.html'), 'Build: v1.2.3');
     for (const name of [
       'openchronology-web-source.tar.gz',

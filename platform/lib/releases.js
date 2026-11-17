@@ -54,7 +54,7 @@ export const DESKTOP = [
   },
 ];
 /** The editor in one HTML file, for any browser and without a network. */
-export const OFFLINE = { asset: 'openchronology-offline.html' };
+export const OFFLINE = { asset: 'circagraph-offline.html' };
 /** Where each offline edition is published: circagraph.github.io/<edition>/. */
 export const EDITION_SITE = 'https://circagraph.github.io';
 /**
@@ -64,7 +64,7 @@ export const EDITION_SITE = 'https://circagraph.github.io';
  */
 export function editionFile(edition) {
   return {
-    asset: `openchronology-offline-${edition.id}.html`,
+    asset: `circagraph-offline-${edition.id}.html`,
     page: `${EDITION_SITE}/${edition.id}/`,
     detail: `${edition.name} offline file (.html)`,
   };
@@ -181,12 +181,22 @@ export function releaseFrom(json) {
     assets,
   };
 }
+/**
+ * A release's asset by name, or by its name before the rename for releases made before then
+ * (v0.30.0 and earlier name the offline files openchronology-offline*.html).
+ */
+function releaseAsset(release, asset) {
+  return (
+    release?.assets[asset] ??
+    release?.assets[asset.replace(/^circagraph-offline/, 'openchronology-offline')]
+  );
+}
 /** Where an asset downloads from: the release's own address, or the latest release's. */
 export function assetLink(release, asset) {
-  return release?.assets[asset]?.url ?? `${RELEASES}/latest/download/${asset}`;
+  return releaseAsset(release, asset)?.url ?? `${RELEASES}/latest/download/${asset}`;
 }
 export function assetSize(release, asset) {
-  const bytes = release?.assets[asset]?.size;
+  const bytes = releaseAsset(release, asset)?.size;
   if (!bytes) return null;
   return bytes >= 1048576
     ? `${(bytes / 1048576).toFixed(bytes >= 104857600 ? 0 : 1)} MB`

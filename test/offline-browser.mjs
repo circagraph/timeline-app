@@ -33,7 +33,7 @@ const browser = await { chromium, firefox, webkit }[engine].launch({
 });
 const directory = await mkdtemp(join(tmpdir(), 'openchronology-file-'));
 const filename = join(directory, 'timeline.html');
-await copyFile(resolve('dist/openchronology-offline.html'), filename);
+await copyFile(resolve('dist/circagraph-offline.html'), filename);
 const url = pathToFileURL(filename).href;
 const context = await browser.newContext({
   viewport: { width: 1440, height: 960 },
@@ -227,7 +227,7 @@ try {
   // The CFAM edition (#197): a new timeline has the causal factor analysis plugins, enabled,
   // shows Gregorian dates, and opens on the fortnight around today.
   const cfamFile = join(directory, 'cfam.html');
-  await copyFile(resolve('dist/openchronology-offline-cfam.html'), cfamFile);
+  await copyFile(resolve('dist/circagraph-offline-cfam.html'), cfamFile);
   const cfam = await context.newPage(),
     cfamRequests = [];
   cfam.on('pageerror', (error) => errors.push(error.message));

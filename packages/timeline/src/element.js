@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-// <och-timeline>: the offline editor (dist/openchronology-offline.html) in a sandboxed frame of
+// <och-timeline>: the offline editor (dist/circagraph-offline.html) in a sandboxed frame of
 // any page, opened at a timeline given inline, by address or by script. scripts/timeline-package.mjs
 // builds it into packages/timeline/dist/timeline.js with the offline file in place of OFFLINE_HTML.
 (() => {
