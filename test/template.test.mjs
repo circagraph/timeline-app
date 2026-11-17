@@ -29,7 +29,7 @@ test('editor and community controllers find their required elements in every shi
     }
     visit(source);
   }
-  for (const path of ['src/index.html', 'dist/index.html', 'dist/openchronology-offline.html']) {
+  for (const path of ['src/index.html', 'dist/index.html', 'dist/circagraph-offline.html']) {
     const html = await readFile(path, 'utf8');
     const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]);
     const available = new Set(ids);

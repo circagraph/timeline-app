@@ -231,7 +231,7 @@ export default async function Download() {
                 <a className="download-file" href={file.page}>
                   Open at {file.page.replace(/^https:\/\//, '')}
                 </a>
-                {release?.assets[file.asset] ? <File release={release} file={file} /> : null}
+                {assetSize(release, file.asset) ? <File release={release} file={file} /> : null}
               </article>
             );
           })}

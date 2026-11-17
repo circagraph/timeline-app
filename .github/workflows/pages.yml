@@ -73,10 +73,10 @@ jobs:
         env:
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
-          cp dist/openchronology-offline.html site/index.html
+          cp dist/circagraph-offline.html site/index.html
           published=index.html
-          for file in dist/openchronology-offline-*.html; do
-            edition=${file#dist/openchronology-offline-}
+          for file in dist/circagraph-offline-*.html; do
+            edition=${file#dist/circagraph-offline-}
             edition=${edition%.html}
             mkdir -p "site/$edition"
             cp "$file" "site/$edition/index.html"

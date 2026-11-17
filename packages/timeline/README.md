@@ -9,7 +9,7 @@ links between events and saved views. Readers can edit it there and **Export** t
 `.ochx` file, which opens at [circagraph.org](https://circagraph.org), in the desktop app or in the
 [offline editor](https://circagraph.github.io/).
 
-It is the offline editor, the same file as `openchronology-offline.html`, in a sandboxed frame of
+It is the offline editor, the same file as `circagraph-offline.html`, in a sandboxed frame of
 its own. It makes no network requests, and the page around it is out of its reach.
 
 ## Use

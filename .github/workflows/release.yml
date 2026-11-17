@@ -69,7 +69,12 @@ jobs:
       - name: Stage web release files
         run: |
           mkdir release-assets
-          cp dist/openchronology-offline.html dist/openchronology-offline-*.html dist/openchronology-web-source.tar.gz dist/openchronology-desktop-source.tar.gz dist/build-info.json release-assets/
+          cp dist/circagraph-offline.html dist/circagraph-offline-*.html dist/openchronology-web-source.tar.gz dist/openchronology-desktop-source.tar.gz dist/build-info.json release-assets/
+          # The offline files' names before the rename, for links to the latest release's
+          # openchronology-offline.html, such as those in offline files already downloaded.
+          for file in dist/circagraph-offline*.html; do
+            cp "$file" "release-assets/openchronology-offline${file#dist/circagraph-offline}"
+          done
           cp LICENSE release-assets/LICENSE.txt
           cp NOTICE release-assets/NOTICE.txt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

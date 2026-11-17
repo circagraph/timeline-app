@@ -134,7 +134,7 @@ test('the editor page carries the script, and the desktop app and offline file i
   );
   assert(tauri.app.security.csp.includes(`'sha256-${hash}'`), 'the desktop app allows it');
   const offline = await readFile(
-    new URL('../dist/openchronology-offline.html', import.meta.url),
+    new URL('../dist/circagraph-offline.html', import.meta.url),
     'utf8',
   );
   assert(offline.includes(`'sha256-${hash}'`), 'the offline file allows it');

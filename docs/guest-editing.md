@@ -47,6 +47,7 @@ including reading a timeline imported there. GitHub Pages also lets any site fra
 copy. The editor keeps your timelines only in memory and sends them nowhere, which limits what
 such a page could do, but a file you downloaded and opened from your own computer has none of
 these neighbours. [Releases](https://github.com/circagraph/timeline-app/releases/latest)
-attach it as `openchronology-offline.html` (and `openchronology-offline-<edition>.html`), with
+attach it as `circagraph-offline.html` (and `circagraph-offline-<edition>.html`), with
 their checksums in `SHA256SUMS.txt`, and the download page of any Circagraph server links
-to them.
+to them. Releases also attach each under its name before the rename, `openchronology-offline.html`
+(and `openchronology-offline-<edition>.html`), the same file, so older links keep working.

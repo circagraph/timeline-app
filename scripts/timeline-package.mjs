@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 // Builds the @openchronology/timeline package (packages/timeline): its element script with the
-// offline editor inside, dist/openchronology-offline.html (scripts/offline.mjs, built first), and
+// offline editor inside, dist/circagraph-offline.html (scripts/offline.mjs, built first), and
 // its license and notices. `--version <v>` sets the package's version, as the release does.
 import { build } from 'esbuild';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -9,7 +9,7 @@ import { copyrightBanner } from './legal.mjs';
 
 const { values } = parseArgs({ options: { version: { type: 'string' } } });
 const root = 'packages/timeline';
-const html = await readFile('dist/openchronology-offline.html', 'utf8');
+const html = await readFile('dist/circagraph-offline.html', 'utf8');
 const element = await readFile(`${root}/src/element.js`, 'utf8');
 if (!element.includes("'__OFFLINE_HTML__'")) throw new Error('element.js lost its placeholder.');
 const result = await build({
