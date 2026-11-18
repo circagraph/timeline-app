@@ -138,6 +138,8 @@ const VIEW_BUILDS = 2,
   VIEW_QUEUE = 16;
 /** How many separations' plans (PostgresStore.#viewPlan) the store keeps. */
 const VIEW_PLANS = 1000;
+/** The most relationships one 'links' read answers (a printed document's notes). */
+const LINKS_LIMIT = 5000;
 /** How many timelines' templated-notes verdicts the store keeps (#467). */
 const LISTING_CACHE = 1000;
 /** Why a past revision of a timeline that keeps no saved history cannot be read. */
@@ -2837,6 +2839,61 @@ export class PostgresStore {
         return {
           duration: rows[0]?.definition ?? null,
           band,
+          revision: t.revision,
+        };
+      }
+      // The relationships touching up to 200 entities, each end with its title and first
+      // time from the search rows (a printed document's margin notes name them). At most
+      // LINKS_LIMIT; `truncated` says there were more.
+      if (query.kind === 'links') {
+        const { rows } = await c.query(
+          `WITH refs(kind,id) AS (SELECT * FROM unnest($2::text[],$3::text[])),
+          links AS (
+            SELECT r.a_kind,r.a_id,r.b_kind,r.b_id FROM ${index('oc_relationships')} r
+              JOIN refs ON r.a_kind=refs.kind AND r.a_id=refs.id
+            UNION SELECT r.a_kind,r.a_id,r.b_kind,r.b_id FROM ${index('oc_relationships')} r
+              JOIN refs ON r.b_kind=refs.kind AND r.b_id=refs.id)
+          SELECT l.a_kind,l.a_id,l.b_kind,l.b_id,
+            sa.title AS a_title,oc_qtext(sa.first_time) AS a_first,
+            sb.title AS b_title,oc_qtext(sb.first_time) AS b_first
+          FROM links l
+          LEFT JOIN ${index('oc_entity_search')} sa ON sa.kind=l.a_kind AND sa.entity_id=l.a_id
+          LEFT JOIN ${index('oc_entity_search')} sb ON sb.kind=l.b_kind AND sb.entity_id=l.b_id
+          ORDER BY l.a_kind,l.a_id COLLATE "C",l.b_kind,l.b_id COLLATE "C" LIMIT $4`,
+          [id, query.entities.map((e) => e.kind), query.entities.map((e) => e.id), LINKS_LIMIT + 1],
+        );
+        const ends = new Map();
+        const end = (kind, entityId, title, first) => {
+          ends.set(`${kind}:${entityId}`, { kind, id: entityId, title: title ?? null, first });
+          return kind === 'moment' ? { moment: entityId } : { duration: entityId };
+        };
+        const links = rows.slice(0, LINKS_LIMIT).map((r) => ({
+          a: end(r.a_kind, r.a_id, r.a_title, r.a_first),
+          b: end(r.b_kind, r.b_id, r.b_title, r.b_first),
+        }));
+        return {
+          links,
+          entities: [...ends.values()],
+          ...(rows.length > LINKS_LIMIT ? { truncated: true } : {}),
+          revision: t.revision,
+        };
+      }
+      // Up to 100 durations' definitions and resolved bands by ID, as 'duration' reads one.
+      if (query.kind === 'definitions') {
+        const { rows } = await c.query(
+          `SELECT DISTINCT ON (band->>'id') definition,band FROM ${index('oc_duration_nodes')} x
+          WHERE band->>'id'=ANY($2::text[]) AND definition IS NOT NULL`,
+          [id, query.ids],
+        );
+        return {
+          durations: rows.map((r) => {
+            let band = r.band;
+            if (band?.end?.ongoing === true && now) {
+              const last = now.compare(Q.parse(band.first)) > 0 ? now.toString() : band.first;
+              band = { ...band, last, endTime: last };
+            }
+            return { duration: r.definition, band };
+          }),
           revision: t.revision,
         };
       }

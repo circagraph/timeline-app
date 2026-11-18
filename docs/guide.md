@@ -243,6 +243,10 @@ The status under the title says where your work stands: **Unsaved changes**, **S
 
 **Export** downloads the timeline as an `.ochx` file: everything in it, including its display settings, plugins and copies of its images. **Import** opens one again, in any edition. Signed in on the website, **Export .och ↗** and **Import .och** convert to and from the desktop app's file format. In the desktop app, **Save** and **Save As…** write `.och` files.
 
+### Printing
+
+Right-click the timeline, or a track of a separated one, and choose **Print as a document…** to print what lies between the view's edges as Letter or A4 pages, in time order, or save it as a PDF. See [Printing a track](printing.md).
+
 ### To the server
 
 Signed in, **Save to server** saves a timeline from your browser to your account. It starts private. Once a timeline is on the server, the same button saves your changes to it as a new revision, for its owner and writers. Each account has a storage limit, shown on the **Account** page.

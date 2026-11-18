@@ -118,6 +118,42 @@ try {
     assert.deepEqual(listed.sort(), direct);
     checked++;
   }
+  // A printed document's reads: every relationship touching a set of entities, from either
+  // end, with each end's title and time; and durations' whole definitions.
+  {
+    const refs = [{ moment: 'm0' }, { moment: 'm7' }, { duration: 'd3' }, { moment: 'm99' }];
+    const read = await store.query(timeline.id, user, {
+      kind: 'links',
+      entities: refs.map((r) =>
+        'moment' in r ? { kind: 'moment', id: r.moment } : { kind: 'duration', id: r.duration },
+      ),
+    });
+    const key = (ref) => ('moment' in ref ? 'm:' + ref.moment : 'd:' + ref.duration);
+    const expected = new Set();
+    for (const ref of refs)
+      for (const other of index.relatedTo(ref)) expected.add([key(ref), other].sort().join(' '));
+    assert.deepEqual(
+      new Set(read.links.map((l) => [key(l.a), key(l.b)].sort().join(' '))),
+      expected,
+    );
+    for (const link of read.links)
+      for (const end of [link.a, link.b]) {
+        const info = read.entities.find(
+          (e) =>
+            e.kind === ('moment' in end ? 'moment' : 'duration') &&
+            e.id === (end.moment ?? end.duration),
+        );
+        assert.ok(info, 'each end is described');
+        if ('moment' in end) assert.equal(info.first, index.momentTime(end.moment));
+      }
+    const definitions = await store.query(timeline.id, user, {
+      kind: 'definitions',
+      ids: ['d3', 'd0', 'missing'],
+    });
+    assert.deepEqual(definitions.durations.map((d) => d.duration.id).sort(), ['d0', 'd3']);
+    for (const { duration } of definitions.durations)
+      assert.deepEqual(duration, index.durations.get(duration.id));
+  }
   // Separations by relationship read derived views.
   for (const depth of ['direct', 'all'])
     for (const mode of ['any', 'none']) {

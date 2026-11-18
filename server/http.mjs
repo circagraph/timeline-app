@@ -2137,6 +2137,48 @@ export function createRequestHandler({
               }),
             );
           }
+          // A printed document's reads (docs/printing.md): the relationships of up to 200
+          // entities, with each end's title and time, and up to 100 durations' definitions.
+          if (input.kind === 'links') {
+            const valid =
+              Array.isArray(input.entities) &&
+              input.entities.length >= 1 &&
+              input.entities.length <= 200 &&
+              input.entities.every(
+                (e) =>
+                  e &&
+                  ['moment', 'duration'].includes(e.kind) &&
+                  typeof e.id === 'string' &&
+                  /^[A-Za-z0-9_.:-]{1,128}$/.test(e.id),
+              );
+            if (!valid) throw new HttpError(400, 'Links are read for 1 to 200 entities.');
+            return response(
+              res,
+              200,
+              await store.query(id, userId, {
+                kind: 'links',
+                entities: input.entities.map((e) => ({ kind: e.kind, id: e.id })),
+                ...(input.revision ? { revision: input.revision } : {}),
+              }),
+            );
+          }
+          if (input.kind === 'definitions') {
+            const valid =
+              Array.isArray(input.ids) &&
+              input.ids.length >= 1 &&
+              input.ids.length <= 100 &&
+              input.ids.every((i) => typeof i === 'string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(i));
+            if (!valid) throw new HttpError(400, 'Definitions are read for 1 to 100 durations.');
+            return response(
+              res,
+              200,
+              await store.query(id, userId, {
+                kind: 'definitions',
+                ids: input.ids,
+                ...(input.revision ? { revision: input.revision } : {}),
+              }),
+            );
+          }
           if (input.kind !== 'events') throw new HttpError(400, 'Unknown query kind.');
           if (
             input.id !== undefined &&

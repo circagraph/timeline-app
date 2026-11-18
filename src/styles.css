@@ -4788,3 +4788,297 @@ body[data-warnings]:not([data-images-shown])
   margin-left: auto;
   font-size: 12px;
 }
+
+/* A track printed as a vertical document (print-document.ts, docs/printing.md): a preview of
+   its pages, which print alone, at their own paper size, without the app around them. */
+.print-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: #5c5c5a;
+}
+.print-preview[hidden] {
+  display: none;
+}
+.print-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 10px 16px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 30%);
+}
+.print-toolbar h2 {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 17px;
+}
+.print-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.print-status {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 60ch;
+}
+.print-scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 24px 16px;
+}
+/* Pages are printed light, whatever the app's scheme; a timeline's theme still applies. */
+.print-document {
+  --stage-ground: #fff;
+  --stage-marker: #547d5b;
+  --stage-marker-edge: #cedcc7;
+  --ink: #1d1d1b;
+  --muted: #5f5f5a;
+  --hover: #ececea;
+  --tint: #f4f4f2;
+  color-scheme: light;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  color: var(--timeline-text, var(--ink));
+  font-family: var(--timeline-text-font, system-ui, sans-serif);
+}
+.print-measure {
+  position: absolute;
+  top: 0;
+  left: -100000px;
+  visibility: hidden;
+}
+.print-page {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background: var(--timeline-background, #fff);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 35%);
+}
+.print-column,
+.print-notes,
+.print-slot,
+.print-notes .print-notes-row {
+  position: absolute;
+}
+.print-slot,
+.print-notes .print-notes-row {
+  left: 0;
+  right: 0;
+}
+.print-clipped {
+  overflow: hidden;
+}
+.print-fragment {
+  display: flow-root;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.print-body {
+  padding: 4px 0 0 30px;
+}
+.print-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 22px;
+}
+.print-head-heading {
+  flex-direction: column;
+  gap: 0;
+}
+.print-heading {
+  margin: 2px 0 0;
+}
+/* Markers keep their shape and relative size, smaller than on the stage. */
+.print-document .event-marker.print-marker {
+  position: static;
+  flex: none;
+  align-self: flex-start;
+  width: 18px;
+  height: 18px;
+  min-width: 0;
+  min-height: 0;
+  margin-top: 2px;
+  padding: 0;
+  border-width: 3px;
+  transform: none;
+  cursor: default;
+}
+.print-document .event-marker.print-marker[data-size='small'] {
+  width: 13px;
+  height: 13px;
+  margin: 4px 2px 0;
+}
+.print-document .event-marker.print-marker[data-size='large'] {
+  width: 24px;
+  height: 24px;
+  margin-top: 0;
+}
+.print-swatch {
+  flex: none;
+  align-self: center;
+  width: 18px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--timeline-duration, #b98b4a);
+}
+.print-swatch[data-outline='dashed'] {
+  outline: 1.5px dashed var(--ink);
+}
+.print-swatch-end {
+  height: 4px;
+}
+.print-time {
+  flex: none;
+  max-width: 45%;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11.5px;
+}
+.print-title {
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.print-end-title {
+  color: var(--muted);
+  font-weight: 400;
+  font-style: italic;
+}
+.print-document .reader-notes {
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.print-document .reader-notes > * {
+  margin: 0 0 6px;
+}
+.print-document .reader-image img {
+  max-height: 320px;
+  border-radius: 6px;
+}
+.print-document figure {
+  margin: 0;
+}
+.print-document figcaption {
+  color: var(--muted);
+  font-size: 10px;
+}
+.print-cover {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #c8c8c4;
+}
+.print-cover-title {
+  margin: 0 0 4px;
+  font-size: 26px;
+}
+.print-cover p {
+  margin: 0 0 4px;
+}
+.print-cover-track {
+  font-size: 17px;
+  font-weight: 600;
+}
+.print-cover-scope,
+.print-cover-count {
+  color: var(--muted);
+}
+.print-running-head,
+.print-running-foot {
+  position: absolute;
+  left: 40px;
+  right: 32px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.print-running-head {
+  top: 30px;
+}
+.print-running-foot {
+  bottom: 30px;
+  text-align: right;
+}
+.print-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.print-bar {
+  stroke: var(--timeline-duration, #b98b4a);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.print-bar.print-dashed {
+  stroke-dasharray: 6 4;
+}
+.print-bar.print-continued-top,
+.print-bar.print-continued-bottom {
+  stroke-linecap: butt;
+}
+.print-bar-tick {
+  stroke: var(--timeline-duration, #b98b4a);
+  stroke-width: 1.5;
+}
+.print-connector {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.2;
+}
+.print-arrowhead {
+  fill: var(--muted);
+}
+.print-note {
+  margin: 0 0 2px;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+@media print {
+  html.printing,
+  html.printing body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  html.printing body > :not(.print-preview) {
+    display: none !important;
+  }
+  html.printing .print-preview {
+    position: static;
+    display: block;
+    background: none;
+  }
+  html.printing .print-toolbar {
+    display: none;
+  }
+  html.printing .print-scroll {
+    overflow: visible;
+    padding: 0;
+  }
+  html.printing .print-document {
+    display: block;
+  }
+  html.printing .print-page {
+    break-after: page;
+    box-shadow: none;
+  }
+  html.printing .print-page:last-child {
+    break-after: auto;
+  }
+  .print-page,
+  .print-page * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

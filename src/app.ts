@@ -54,6 +54,9 @@ import type { WindowBalance } from './measure-balance.js';
 import type { Advice, Measurements, Platform } from './capacity.js';
 import { createHoverPreview } from './hover-preview.js';
 import { renderReader } from './event-reader.js';
+import { printDocument } from './print-document.js';
+import type { PrintEntity, PrintInput } from './print-document.js';
+import { DOCUMENT_LIMIT } from './vertical-document.js';
 import {
   Q,
   entryLimit,
@@ -1710,6 +1713,7 @@ function renderAxis() {
       const owns = track === owner;
       const title = document.createElement('div');
       title.className = 'comparison-axis-title';
+      title.dataset.trackKey = track.source.key;
       title.textContent = track.source.title;
       title.style.top = `${rowPlan.rows.get(track.source.key)?.title ?? 22}px`;
       axis.append(title);
@@ -5485,6 +5489,17 @@ function showTimelineMenu(
             : null,
       ),
     );
+  // A track of a separation, or the timeline, printed as a document (docs/printing.md).
+  if (fittable() && (!comparison || !comparison.combined)) {
+    const track = trackAt(y);
+    const name = track
+      ? comparison?.tracks.find((t) => t.source.key === track)?.source.title
+      : null;
+    add(name ? `Print “${name}” as a document…` : 'Print as a document…', () => {
+      details.close();
+      void openPrint(track).catch(fail);
+    });
+  }
   if (shareable())
     add('Share this view', () =>
       requestShare({ kind: 'view', left: viewport.left, right: viewport.right }, remote!.title),
@@ -5497,6 +5512,362 @@ function showTimelineMenu(
   menu.style.top = `${Math.max(4, Math.min(y, window.innerHeight - bounds.height - 4))}px`;
   menu.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true });
 }
+// Printing one track as a vertical document (print-document.ts, docs/printing.md): its moments,
+// durations and relationships between the view's left and right edges, in time order.
+const PRINT_PAGE = 100;
+class TooMany extends Error {}
+/** The track drawn at a height on the screen: its key, or null for the timeline itself. */
+function trackAt(clientY: number): string | null {
+  if (!comparison || comparison.combined) return null;
+  let found: string | null = null;
+  for (const title of document.querySelectorAll<HTMLElement>('.comparison-axis-title'))
+    if (title.dataset.trackKey && title.getBoundingClientRect().top - 30 <= clientY)
+      found = title.dataset.trackKey;
+  return (
+    found ??
+    document.querySelector<HTMLElement>('.comparison-axis-title')?.dataset.trackKey ??
+    comparison.tracks[0]?.source.key ??
+    null
+  );
+}
+/** Reads a query, or each entity with a slower one where the reader doesn't know it. */
+type PrintQuery = (query: Record<string, unknown>) => Promise<unknown>;
+/** Durations touching [lower, upper] with their whole metadata, from a query reader. */
+async function queriedDurations(query: PrintQuery, lower: string, upper: string) {
+  const bands: DurationBand[] = [];
+  for (let offset: number | null = 0; offset !== null;) {
+    const page = (await query({
+      kind: 'durations',
+      overlapping: true,
+      lower,
+      upper,
+      threshold: '0',
+      sort: 'start',
+      limit: 100,
+      offset,
+    })) as { durations: DurationBand[]; next: number | null };
+    bands.push(...page.durations);
+    if (bands.length > DOCUMENT_LIMIT) throw new TooMany();
+    offset = page.next;
+  }
+  // Windows leave out notes (#565): read each whole, a hundred at a time where the reader can.
+  const whole = new Map<string, Duration>();
+  for (let i = 0; i < bands.length; i += 100) {
+    const ids = bands.slice(i, i + 100).map((b) => b.id);
+    try {
+      const read = (await query({ kind: 'definitions', ids })) as {
+        durations: { duration: Duration }[];
+      };
+      for (const { duration } of read.durations) whole.set(duration.id, duration);
+    } catch {
+      for (const id of ids) {
+        const read = (await query({ kind: 'duration', id }).catch(() => null)) as {
+          duration: Duration | null;
+        } | null;
+        if (read?.duration) whole.set(id, read.duration);
+      }
+    }
+  }
+  return bands.map((b) => ({ ...b, metadata: whole.get(b.id)?.metadata ?? b.metadata }));
+}
+function indexedDurations(index: TimelineIndex, lower: Q, upper: Q) {
+  const bands = [...index.durations.values()]
+    .map((d) => resolveDuration(d, (id) => index.momentTime(id), index.now() ?? undefined))
+    .filter(
+      (b): b is DurationBand =>
+        !!b && Q.parse(b.first).compare(upper) <= 0 && Q.parse(b.last).compare(lower) >= 0,
+    );
+  if (bands.length > DOCUMENT_LIMIT) throw new TooMany();
+  return bands;
+}
+type PrintLinks = Pick<PrintInput, 'links' | 'others' | 'linksTruncated'>;
+/** Relationships touching `keys` ("m:<id>", "d:<id>") and their other ends, from an index. */
+function indexedLinks(index: TimelineIndex, keys: string[]): PrintLinks {
+  const links: { a: string; b: string }[] = [],
+    seen = new Set<string>(),
+    others = new Map<string, { title: string | null; first: string | null }>();
+  for (const key of keys)
+    for (const other of index.relatedTo(refFromKey(key))) {
+      const pair = [key, other].sort().join(' ');
+      if (seen.has(pair)) continue;
+      seen.add(pair);
+      links.push({ a: key, b: other });
+      if (!others.has(other)) {
+        const id = other.slice(2);
+        if (other.startsWith('m:')) {
+          const point = index.byId.get(id);
+          others.set(other, { title: point?.metadata.title ?? null, first: point?.time ?? null });
+        } else {
+          const d = index.durations.get(id);
+          const band =
+            d && resolveDuration(d, (m) => index.momentTime(m), index.now() ?? undefined);
+          others.set(other, {
+            title: (d?.metadata.title as string | undefined) ?? null,
+            first: band ? band.first : null,
+          });
+        }
+      }
+    }
+  return { links, others };
+}
+/** The same from a query reader: 'links' for 200 at a time, else each entity's related page. */
+async function queriedLinks(query: PrintQuery, keys: string[]): Promise<PrintLinks> {
+  const links: { a: string; b: string }[] = [],
+    seen = new Set<string>(),
+    others = new Map<string, { title: string | null; first: string | null }>();
+  let linksTruncated = false;
+  const add = (a: string, b: string) => {
+    const pair = [a, b].sort().join(' ');
+    if (seen.has(pair)) return;
+    seen.add(pair);
+    links.push({ a, b });
+  };
+  const kindOf = (key: string) => (key.startsWith('m:') ? 'moment' : 'duration');
+  const keyOf = (kind: string, id: string) => (kind === 'moment' ? 'm:' : 'd:') + id;
+  for (let i = 0; i < keys.length; i += 200) {
+    const batch = keys.slice(i, i + 200);
+    try {
+      const read = (await query({
+        kind: 'links',
+        entities: batch.map((key) => ({ kind: kindOf(key), id: key.slice(2) })),
+      })) as {
+        links: { a: EntityRef; b: EntityRef }[];
+        entities: { kind: string; id: string; title: string | null; first: string | null }[];
+        truncated?: boolean;
+      };
+      for (const link of read.links) add(refKey(link.a), refKey(link.b));
+      for (const e of read.entities)
+        others.set(keyOf(e.kind, e.id), { title: e.title, first: e.first });
+      if (read.truncated) linksTruncated = true;
+    } catch {
+      // A reader without 'links' (the desktop store, an older server): each entity's page.
+      for (const key of batch)
+        for (let after: unknown = null, first = true; first || after; first = false) {
+          const page = (await query({
+            kind: 'related',
+            entity: { kind: kindOf(key), id: key.slice(2) },
+            after,
+            limit: 100,
+          })) as {
+            related: { kind: string; id: string; first: string; title: string | null }[];
+            next: unknown;
+          };
+          for (const r of page.related) {
+            const other = keyOf(r.kind, r.id);
+            add(key, other);
+            others.set(other, { title: r.title, first: r.first });
+          }
+          after = page.next;
+        }
+    }
+  }
+  return { links, others, linksTruncated };
+}
+/** Everything a track's document holds between `lower` and `upper` (view coordinates). */
+async function printContents(trackKey: string | null, lower: Q, upper: Q) {
+  const track = trackKey ? comparison?.tracks.find((t) => t.source.key === trackKey) : undefined;
+  const prefix = track ? track.source.key + ':' : '';
+  const own = (id: string) => (prefix && id.startsWith(prefix) ? id.slice(prefix.length) : id);
+  // Moments, as the group details page through them.
+  const entities: PrintEntity[] = [];
+  const group = {
+    first: lower.toString(),
+    last: upper.toString(),
+    count: '2',
+    distinct: 2,
+    ...(trackKey ? { sourceKey: trackKey } : {}),
+  } as ComparisonGroup;
+  const moments = new Map<string, string>();
+  for (let after: { time: string; id: string } | null = null, first = true; first || after;) {
+    first = false;
+    const page: EventPage = await groupPage(group, after, PRINT_PAGE);
+    for (const event of page.events) {
+      const id = own(event.id);
+      moments.set(id, event.time);
+      // What the Show dialog hides isn't printed either.
+      if (!hiddenLayers.has('moments'))
+        entities.push({
+          key: 'm:' + id,
+          kind: 'moment',
+          metadata: event.metadata,
+          first: event.time,
+        });
+    }
+    if (entities.length > DOCUMENT_LIMIT) throw new TooMany();
+    after = page.next;
+  }
+  // Durations touching the range, in the track's own coordinates where it has them.
+  const toSource = (q: Q) => (track ? q.sub(track.offset).div(track.scale) : q).toString();
+  const toView = (t: string) =>
+    track ? Q.parse(t).mul(track.scale).add(track.offset).toString() : t;
+  const workspace = sparseWorkspace();
+  let bands: DurationBand[];
+  if (hiddenLayers.has('durations')) bands = [];
+  else if (track?.source.index)
+    bands = indexedDurations(
+      track.source.index,
+      Q.parse(toSource(lower)),
+      Q.parse(toSource(upper)),
+    );
+  else if (track?.source.query) {
+    const query = track.source.query;
+    bands = await queriedDurations((q) => query(q), toSource(lower), toSource(upper));
+  } else if (model && !workspace) bands = indexedDurations(model, lower, upper);
+  else {
+    bands = (
+      await queriedDurations((q) => timelineQuery(q), lower.toString(), upper.toString())
+    ).filter((b) => !workspace?.durationChanges.has(b.id));
+    // Unsaved durations, at their times now.
+    for (const { after } of workspace?.durationChanges.values() ?? []) {
+      const band =
+        after &&
+        resolveDuration(
+          after,
+          (id) => workspace!.changes.get(id)?.after?.time ?? moments.get(id),
+          workspace!.now() ?? undefined,
+        );
+      if (band && Q.parse(band.first).compare(upper) <= 0 && Q.parse(band.last).compare(lower) >= 0)
+        bands.push(band);
+    }
+  }
+  for (const band of bands) {
+    const ongoing = typeof band.end === 'object' && 'ongoing' in band.end;
+    entities.push({
+      key: 'd:' + own(band.id),
+      kind: 'duration',
+      metadata: band.metadata,
+      first: toView(band.first),
+      last: toView(band.last),
+      start: toView(band.startTime),
+      end: toView(band.endTime),
+      ongoing,
+    });
+  }
+  if (entities.length > DOCUMENT_LIMIT) throw new TooMany();
+  // Relationships: a separation's are its timeline's; compared timelines each have their own.
+  const keys = entities.map((e) => e.key);
+  const ownTimeline = !track || !!separation;
+  let linked: PrintLinks;
+  if (!keys.length || hiddenLayers.has('relationships')) linked = { links: [], others: new Map() };
+  else if (!ownTimeline && track!.source.index) linked = indexedLinks(track!.source.index, keys);
+  else if (!ownTimeline) {
+    const query = track!.source.query!;
+    linked = await queriedLinks((q) => query(q), keys);
+  } else if (model && !workspace) linked = indexedLinks(model, keys);
+  else {
+    linked = await queriedLinks((q) => timelineQuery(q), keys);
+    // Unsaved links: added or removed.
+    for (const { relationship, related } of workspace?.relationshipChanges.values() ?? []) {
+      const a = refKey(relationship.a),
+        b = refKey(relationship.b);
+      const pair = [a, b].sort().join(' ');
+      linked.links = linked.links.filter((l) => [l.a, l.b].sort().join(' ') !== pair);
+      if (related && (keys.includes(a) || keys.includes(b))) linked.links.push({ a, b });
+    }
+  }
+  return { entities, ...linked };
+}
+/** What a track's document is called: the timeline, and the track's name in a separation. */
+function printTitles(trackKey: string | null) {
+  const track = trackKey ? comparison?.tracks.find((t) => t.source.key === trackKey) : undefined;
+  const timeline = model?.title ?? remote?.title ?? '';
+  if (!track) return { title: timeline, track: null, plugins: installedPlugins() };
+  if (separation)
+    return { title: timeline, track: track.source.title, plugins: installedPlugins() };
+  return { title: track.source.title, track: null, plugins: track.source.plugins ?? [] };
+}
+const PRINT_PAPER_KEY = 'circagraph:print-paper';
+let printRun = 0;
+function closePrint() {
+  printRun++;
+  el('print-preview').hidden = true;
+  el('print-pages').replaceChildren();
+  document.documentElement.classList.remove('printing');
+}
+/** Opens the print preview of a track (null: the timeline) between the view's edges. */
+async function openPrint(trackKey: string | null) {
+  const run = ++printRun;
+  const lower = viewport.left,
+    upper = viewport.right;
+  const preview = el('print-preview');
+  const paper = el<HTMLSelectElement>('print-paper');
+  let stored: string | null = null;
+  try {
+    stored = localStorage.getItem(PRINT_PAPER_KEY);
+  } catch {
+    // Storage may be unavailable; Letter it is.
+  }
+  paper.value = stored === 'a4' ? 'a4' : 'letter';
+  const status = (message: string) => text('print-status', message);
+  const titles = printTitles(trackKey);
+  text('print-heading', titles.track ? `Print ${titles.track}` : 'Print as a document');
+  el<HTMLButtonElement>('print-go').disabled = true;
+  el('print-pages').replaceChildren();
+  preview.hidden = false;
+  el('print-close').focus();
+  status('Reading what this view holds…');
+  let contents: Awaited<ReturnType<typeof printContents>>;
+  try {
+    contents = await printContents(trackKey, lower, upper);
+  } catch (error) {
+    if (run !== printRun) return;
+    status(
+      error instanceof TooMany
+        ? `This view holds more than ${DOCUMENT_LIMIT.toLocaleString()} moments and durations, more than one document can. Zoom in, separate by tags or filter, and print again.`
+        : `Couldn’t read this view: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    return;
+  }
+  if (run !== printRun) return;
+  if (!contents.entities.length) {
+    status('Nothing in this view to print. Move or zoom out to show some events.');
+    return;
+  }
+  const build = async () => {
+    const chosen = paper.value === 'a4' ? 'a4' : 'letter';
+    status('Laying out the pages…');
+    el<HTMLButtonElement>('print-go').disabled = true;
+    const plugins = titles.plugins;
+    const result = await printDocument(el('print-pages'), {
+      title: titles.title,
+      track: titles.track,
+      scope: `From ${presentedAlone(lower)} to ${presentedAlone(upper)}`,
+      ...contents,
+      plugins,
+      momentPlugins: momentPlugins(plugins),
+      durationPlugins: durationPlugins(plugins),
+      markdown: pluginRichText(plugins),
+      measures: titles.track !== null || !trackKey ? timelineMeasures() : undefined,
+      when: (t) => presentedAlone(Q.parse(t)),
+      compare: (a, b) => Q.parse(a).compare(Q.parse(b)),
+      paper: chosen,
+    });
+    if (run !== printRun) return;
+    status(`${result.pages.toLocaleString()} ${result.pages === 1 ? 'page' : 'pages'}`);
+    el<HTMLButtonElement>('print-go').disabled = false;
+  };
+  paper.onchange = () => {
+    try {
+      localStorage.setItem(PRINT_PAPER_KEY, paper.value);
+    } catch {
+      // Not remembered, then.
+    }
+    void build().catch(fail);
+  };
+  await build();
+}
+el('print-close').onclick = closePrint;
+el('print-preview').addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closePrint();
+  }
+});
+el('print-go').onclick = () => {
+  document.documentElement.classList.add('printing');
+  window.print();
+};
+window.addEventListener('afterprint', () => document.documentElement.classList.remove('printing'));
 function openStageMenu(target: HTMLElement, x: number, y: number) {
   const branch = target.closest<HTMLElement>('.stack-marker');
   if (branch?.dataset.parentEvent) {
