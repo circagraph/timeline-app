@@ -1885,6 +1885,28 @@ Every point has a place. Explore the spaces between them.</textarea>
         </div>
       </form>
     </dialog>
+    <section
+      id="print-preview"
+      class="print-preview"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="print-heading"
+      hidden
+    >
+      <div class="print-toolbar">
+        <h2 id="print-heading">Print as a document</h2>
+        <label
+          >Paper<select id="print-paper">
+            <option value="letter">Letter (8.5 × 11 in)</option>
+            <option value="a4">A4 (210 × 297 mm)</option>
+          </select></label
+        >
+        <span id="print-status" class="print-status" role="status" aria-live="polite"></span>
+        <button id="print-go" class="button-primary" type="button">Print or save as PDF</button>
+        <button id="print-close" type="button">Close</button>
+      </div>
+      <div class="print-scroll"><div id="print-pages"></div></div>
+    </section>
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
     <!-- OPENCHRONOLOGY_LEGAL -->
   </body>

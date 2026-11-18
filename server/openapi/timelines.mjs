@@ -1028,6 +1028,38 @@ export const schemas = {
         required: ['kind', 'id'],
         properties: { kind: { const: 'duration' }, revision: ref('Revision'), id: ENTITY_ID },
       },
+      {
+        type: 'object',
+        title: 'Relationships of several entities',
+        description:
+          'Every relationship touching any of the entities (at most 5,000), each end with its title and first time: what a printed document needs for its margin notes.',
+        required: ['kind', 'entities'],
+        properties: {
+          kind: { const: 'links' },
+          revision: ref('Revision'),
+          entities: {
+            type: 'array',
+            minItems: 1,
+            maxItems: 200,
+            items: {
+              type: 'object',
+              required: ['kind', 'id'],
+              properties: { kind: { enum: ['moment', 'duration'] }, id: ENTITY_ID },
+            },
+          },
+        },
+      },
+      {
+        type: 'object',
+        title: 'Several durations',
+        description: 'Durations’ whole definitions and bands, by ID; those not found are left out.',
+        required: ['kind', 'ids'],
+        properties: {
+          kind: { const: 'definitions' },
+          revision: ref('Revision'),
+          ids: { type: 'array', minItems: 1, maxItems: 100, items: ENTITY_ID },
+        },
+      },
     ],
   },
   TimelineQueryResult: {
@@ -1122,6 +1154,48 @@ export const schemas = {
           edgesTruncated: { type: 'boolean' },
           threshold: { ...ref('Rational'), description: 'The threshold used.' },
           visitedNodes: { description: 'How many index nodes were read.' },
+          revision: ref('Revision'),
+        },
+      },
+      {
+        type: 'object',
+        title: 'Relationships of several entities',
+        properties: {
+          links: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { a: ref('EntityRef'), b: ref('EntityRef') },
+            },
+          },
+          entities: {
+            type: 'array',
+            description: 'Each end named in `links`: its title and first time.',
+            items: {
+              type: 'object',
+              properties: {
+                kind: { enum: ['moment', 'duration'] },
+                id: { type: 'string' },
+                title: { type: ['string', 'null'] },
+                first: ref('Rational'),
+              },
+            },
+          },
+          truncated: { type: 'boolean', description: 'More than 5,000 relationships touch them.' },
+          revision: ref('Revision'),
+        },
+      },
+      {
+        type: 'object',
+        title: 'Several durations',
+        properties: {
+          durations: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { duration: ref('Duration'), band: ref('DurationBand') },
+            },
+          },
           revision: ref('Revision'),
         },
       },

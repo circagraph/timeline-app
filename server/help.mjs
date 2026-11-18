@@ -272,6 +272,7 @@ export const HELP_SECTIONS = [
       'plugins',
       'capacity',
       'guest-editing',
+      'printing',
     ],
   },
   {

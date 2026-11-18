@@ -29,6 +29,7 @@ import { checkRelationshipArrows } from './relationship-arrows-browser.mjs';
 import { checkDenseDurations } from './dense-durations-browser.mjs';
 import { checkPresumptive } from './presumptive-browser.mjs';
 import { checkTheme } from './theme-browser.mjs';
+import { checkPrint } from './print-browser.mjs';
 import assert from 'node:assert/strict';
 import { closeMomentDetails, checkMomentDialog } from './moment-dialog-browser.mjs';
 import { checkZoomHelp } from './zoom-help-browser.mjs';
@@ -367,6 +368,7 @@ try {
   await checkDenseDurations(page, document);
   await checkPresumptive(page, document);
   await checkTheme(page);
+  await checkPrint(page, engine);
   await checkAccounts(browser);
   await checkChallenges(browser);
   await checkCommunity(browser);
