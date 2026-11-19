@@ -351,7 +351,7 @@ export const schemas = {
   ViewSeparation: {
     type: 'object',
     description:
-      'A separation: by tags, by several separations (which may disjoin and unite), or by an entity and what is related to it (`direct`) or connected to it (`all`). An entity that no longer exists opens the whole timeline.',
+      'A separation: by tags, by several separations (which may disjoin and unite), or by an entity and what is related to it (`direct`) or connected to it (`all`). An entity that no longer exists opens the whole timeline. No separations (`{"separations": []}`) is a view of the whole timeline.',
     oneOf: [
       {
         type: 'object',
@@ -373,6 +373,13 @@ export const schemas = {
         required: ['separations'],
         additionalProperties: false,
         properties: { separations: ref('SeparationTracks') },
+      },
+      {
+        type: 'object',
+        required: ['separations'],
+        additionalProperties: false,
+        description: 'The whole timeline, with nothing separated: a view of it.',
+        properties: { separations: { type: 'array', maxItems: 0 } },
       },
       {
         type: 'object',

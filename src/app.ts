@@ -102,6 +102,8 @@ import {
   sameSeparation,
   separationGroups,
   viewSeparations,
+  WHOLE_TIMELINE,
+  isWholeTimeline,
   resolveSeparations,
   tagSeparation,
   SEPARATION_LIMIT,
@@ -10639,6 +10641,13 @@ function shownSeparation(): ViewSeparation | null {
   return separation ? tagSeparation(separation.tracks) : null;
 }
 /**
+ * What is shown, as a view saves it: the separation, or no separations for the whole timeline;
+ * null while timelines are compared, which no view keeps.
+ */
+function shownAsView(): ViewSeparation | null {
+  return shownSeparation() ?? (comparison ? null : WHOLE_TIMELINE);
+}
+/**
  * The titles of the entities `tracks` separate by relationships, by reference key; null for
  * one no longer on the timeline (or that cannot be read).
  */
@@ -10745,6 +10754,8 @@ async function openDefaultView(view: TimelineView | undefined) {
   const chosen = view?.separation;
   if (!chosen || comparison) return;
   const tracks = viewSeparations(chosen);
+  // A view of the whole timeline opens it whole, named as the view.
+  if (!tracks.length) return nameDefaultView(view);
   if (tracks.every((t) => 'tags' in t)) startSeparation(tracks);
   else if (!(await separateWithTitles(tracks))) return;
   nameDefaultView(view);
@@ -10755,7 +10766,7 @@ async function openDefaultView(view: TimelineView | undefined) {
  */
 function nameDefaultView(view: TimelineView | undefined) {
   const id = view?.id;
-  if (!id || !separation) return;
+  if (!id || (!separation && !isWholeTimeline(view?.separation))) return;
   const shown = separation;
   const name = (title: string, server: boolean) => {
     if (separation !== shown) return;
@@ -11648,6 +11659,16 @@ async function openView(view: {
 }) {
   if (comparison && !separation) return void toast('Exit the comparison to open a view.');
   if (separation) stopComparison();
+  if (isWholeTimeline(view.separation)) {
+    // The whole timeline: nothing separated, and the view named until something is.
+    heading();
+    requestRender();
+    shownView = { id: view.id, title: view.title, server: view.server };
+    text('separation-heading', `View: ${view.title}`);
+    toast(`Showing “${view.title}”: the whole timeline.`);
+    updateDefaultViewControls();
+    return;
+  }
   await openDefaultView({ separation: view.separation });
   if (!separation) return void toast('This view separates by an event this timeline lacks.');
   shownView = { id: view.id, title: view.title, server: view.server };
@@ -11697,19 +11718,21 @@ function viewSaving(): string | null {
   return null;
 }
 function renderViewsDialog() {
-  const shown = shownSeparation();
+  const shown = shownAsView();
   text(
     'views-showing',
     shownView
       ? `Showing the view “${shownView.title}”.`
-      : shown
-        ? 'Showing a separation that is not saved as a view.'
-        : 'Showing the whole timeline. Separate it to save a view.',
+      : !shown
+        ? 'Showing a comparison of timelines, which views do not keep.'
+        : isWholeTimeline(shown)
+          ? 'Showing the whole timeline, with nothing separated.'
+          : 'Showing a separation that is not saved as a view.',
   );
   const refusal = viewSaving();
   const save = el<HTMLButtonElement>('views-save');
   save.disabled = !shown || !!refusal;
-  save.title = refusal ?? (shown ? '' : 'Separate the timeline first.');
+  save.title = refusal ?? (shown ? '' : 'Exit the comparison first.');
   // The shown view, changed since it was opened: saved into it.
   const current = shownView && viewCards.find((v) => v.id === shownView!.id);
   const update = el<HTMLButtonElement>('views-update');
@@ -11772,6 +11795,12 @@ function viewCardElement(card: ViewCard, template: boolean): HTMLElement {
     line.textContent = about.join(' · ');
     item.append(line);
   }
+  if (isWholeTimeline(card.separation)) {
+    const whole = document.createElement('p');
+    whole.className = 'view-card-about';
+    whole.textContent = 'The whole timeline, with nothing separated.';
+    item.append(whole);
+  }
   if (card.description) {
     const description = document.createElement('p');
     description.className = 'view-card-description';
@@ -11809,8 +11838,9 @@ function viewCardElement(card: ViewCard, template: boolean): HTMLElement {
       },
       true,
     );
-    if (!isDefault && !viewMode && mayEditTimeline() && model)
-      button('Make default', () => makeViewDefault(card));
+    if (!viewMode && mayEditTimeline() && model)
+      if (isDefault) button('Remove default', () => removeViewDefault(card));
+      else button('Make default', () => makeViewDefault(card));
     if (card.canEdit) button('Edit…', () => openViewEditor(card));
     if (card.server && card.canShare) button('Share…', () => openViewSharing(card));
     if (card.server && card.canFork) button('Fork', () => copyView(card, 'fork'));
@@ -11827,6 +11857,16 @@ function makeViewDefault(card: ViewCard) {
     remote || local
       ? `“${card.title}” is now the default view. Save the timeline to keep it.`
       : `“${card.title}” is now the timeline’s default view.`,
+  );
+  renderViewsDialog();
+}
+/** The timeline opens whole again, in no view (as Clear default view does). */
+function removeViewDefault(card: ViewCard) {
+  setTimelineView(undefined);
+  toast(
+    remote || local
+      ? `“${card.title}” is no longer the default view. Save the timeline to keep it.`
+      : `“${card.title}” is no longer the default view: the timeline opens whole.`,
   );
   renderViewsDialog();
 }
@@ -11884,7 +11924,7 @@ async function deleteView(card: ViewCard) {
 }
 el('views-update').onclick = () => {
   const card = shownView && viewCards.find((v) => v.id === shownView!.id);
-  const shown = shownSeparation();
+  const shown = shownAsView();
   if (!card || !shown) return;
   void saveViewChanges(card, { separation: shown }).catch((error) =>
     text('views-error', error instanceof Error ? error.message : String(error)),
@@ -11941,7 +11981,7 @@ async function openViewEditor(card: ViewCard | null) {
   for (const radio of document.querySelectorAll<HTMLInputElement>('input[name="view-visibility"]'))
     radio.checked = radio.value === (card?.visibility ?? 'private');
   // Replacing an existing view's separations with the one shown.
-  const shown = shownSeparation();
+  const shown = shownAsView();
   el('view-replace-label').hidden = !card || !shown || sameSeparation(shown, card.separation);
   input('view-replace').checked = !!card && shownView?.id === card.id;
   // Reassigning a server's view: to a timeline the account can read.
@@ -11975,7 +12015,7 @@ el<HTMLFormElement>('view-edit-form').onsubmit = (event) => {
       'input[name="view-visibility"]:checked',
     )?.value ?? 'private') as 'private' | 'public';
     const card = viewEditing;
-    const shown = shownSeparation();
+    const shown = shownAsView();
     if (card) {
       const timeline = el<HTMLSelectElement>('view-timeline').value;
       await saveViewChanges(card, {
@@ -11988,7 +12028,7 @@ el<HTMLFormElement>('view-edit-form').onsubmit = (event) => {
           : {}),
       });
     } else {
-      if (!shown) throw new Error('Separate the timeline first.');
+      if (!shown) throw new Error('Exit the comparison first.');
       if (serverViews()) {
         const saved = await api<ServerView>('views', 'POST', {
           timeline: remote!.id,
@@ -12175,17 +12215,19 @@ function updateDefaultViewControls() {
     'separate-default-text',
     !saved
       ? ''
-      : !('related' in saved)
-        ? separationGroups(saved).length > 1
-          ? `This timeline opens with ${separationGroups(saved).length} separations: ${separationGroups(
-              saved,
-            )
-              .map((g) => g.join(', '))
-              .join(' · ')}.`
-          : `This timeline opens separated by tags: ${separationGroups(saved)[0].join(', ')}.`
-        : saved.depth === 'direct'
-          ? 'This timeline opens with an event and the events related to it separated above.'
-          : 'This timeline opens with an event and everything connected to it separated above.',
+      : isWholeTimeline(saved)
+        ? 'This timeline opens whole, in a saved view of it.'
+        : !('related' in saved)
+          ? separationGroups(saved).length > 1
+            ? `This timeline opens with ${separationGroups(saved).length} separations: ${separationGroups(
+                saved,
+              )
+                .map((g) => g.join(', '))
+                .join(' · ')}.`
+            : `This timeline opens separated by tags: ${separationGroups(saved)[0].join(', ')}.`
+          : saved.depth === 'direct'
+            ? 'This timeline opens with an event and the events related to it separated above.'
+            : 'This timeline opens with an event and everything connected to it separated above.',
   );
 }
 /** Sets or clears the timeline's default view (#416): a setting, saved with the timeline. */

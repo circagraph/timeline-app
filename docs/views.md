@@ -2,16 +2,18 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-A **view** is a saved way of showing a timeline: a set of [separations](tags.md#separating-by-tags), with their disjoins and unions, or an event's [relationships](relationships.md), under a title. One timeline can have many views, each telling a different story from the same events. A timeline's authors can make one its **default view**, which is how it opens for everyone.
+A **view** is a saved way of showing a timeline: a set of [separations](tags.md#separating-by-tags), with their disjoins and unions, an event's [relationships](relationships.md), or the whole timeline with nothing separated, under a title. One timeline can have many views, each telling a different story from the same events. A timeline's authors can make one its **default view**, which is how it opens for everyone.
 
 ## Saving and opening views
 
 Separate the timeline the way you want it, then select **Views** in the toolbar and **Save what is shown as a view…**. Give it a title and, if you like, a description. On a server timeline, also choose who can see it.
 
+With nothing separated, the view is of the whole timeline. Its card says so, and opening it rejoins any separations. Made the default view, it opens the timeline whole, under the view's title, and can be shared and described like any other view.
+
 The **Views** dialog lists the timeline's views as cards:
 
 - **Open** shows the timeline in that view. The bar above the tracks names it, such as `View: Wars and sieges`.
-- **Make default** makes it the timeline's default view. This is a setting like the title: save the timeline to keep it.
+- **Make default** makes it the timeline's default view. This is a setting like the title: save the timeline to keep it. On the default view's card, **Remove default** clears it, and the timeline opens whole, in no view.
 - **Edit…** changes its title and description. If you changed the separations after opening it, **Replace its separations with what is shown now** saves them into the view.
 - **Update "…" with what is shown** saves the separations you have changed since opening a view straight back into it.
 - **Duplicate** makes a copy, and **Delete** removes it.
@@ -91,8 +93,9 @@ A view's `separation` is one of:
 
 - `{"tags": [...]}`: the events carrying any of the tags, in a track above the rest.
 - `{"groups": [[...], [...]]}`: two to seven groups of tags, a track each.
-- `{"separations": [...]}`: one to seven separations, each of which may disjoin and unite, as below.
+- `{"separations": [...]}`: up to seven separations, each of which may disjoin and unite, as below.
 - `{"related": {"moment": "<id>"}, "depth": "direct"}`: an event and the events related to it. Use `{"duration": "<id>"}` for a duration, and `"depth": "all"` for everything connected to it.
+- `{"separations": []}`: no separations, the whole timeline.
 
 Tags are lowercased and trimmed, at most 128 characters, one to forty per separation.
 
