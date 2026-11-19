@@ -33,14 +33,14 @@ permissions.
 
 An administrator who cannot sign in can have their password set back to `ADMIN_INITIAL_PASSWORD` from the configuration. To choose a new password, write it there first. The command needs access to the server and its configuration:
 
-| Installation                                    | Command                                                                               |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Debian, Ubuntu, Rocky, RHEL and Fedora packages | `sudo openchronology-reset-admin-password`                                            |
-| FreeBSD package                                 | `openchronology-reset-admin-password`, as root                                        |
-| macOS (Homebrew)                                | `openchronology-reset-admin-password`                                                 |
-| Windows                                         | `openchronology-reset-admin-password` in the installation folder, as an administrator |
-| Docker Compose                                  | `docker compose run --rm migrate node server/reset-admin-password.mjs`                |
-| From the source                                 | `npm run reset-admin-password` (reads `.env`)                                         |
+| Installation                                    | Command                                                                           |
+| ----------------------------------------------- | --------------------------------------------------------------------------------- |
+| Debian, Ubuntu, Rocky, RHEL and Fedora packages | `sudo circagraph-reset-admin-password`                                            |
+| FreeBSD package                                 | `circagraph-reset-admin-password`, as root                                        |
+| macOS (Homebrew)                                | `circagraph-reset-admin-password`                                                 |
+| Windows                                         | `circagraph-reset-admin-password` in the installation folder, as an administrator |
+| Docker Compose                                  | `docker compose run --rm migrate node server/reset-admin-password.mjs`            |
+| From the source                                 | `npm run reset-admin-password` (reads `.env`)                                     |
 
 It resets the `ADMIN_USERNAME` account, or the administrator the installation created first if `ADMIN_USERNAME` is empty:
 
@@ -49,7 +49,7 @@ It resets the `ADMIN_USERNAME` account, or the administrator the installation cr
 
 Changing the configuration alone, or restarting, does not change an existing password.
 
-The configuration is read the way systemd and Docker Compose read it: `#` starts a comment only at the beginning of a line, so a password may contain `#` (#118). Releases before this one read it in `openchronology-migrate` with Node's `--env-file`, which ends a value at an unquoted `#`. An administrator created that way has a password cut off at the `#`. Sign in with the part before it, or run the reset command after upgrading.
+The configuration is read the way systemd and Docker Compose read it: `#` starts a comment only at the beginning of a line, so a password may contain `#` (#118). Releases before this one read it in `circagraph-migrate` with Node's `--env-file`, which ends a value at an unquoted `#`. An administrator created that way has a password cut off at the `#`. Sign in with the part before it, or run the reset command after upgrading.
 
 Open `/account`, sign in, and follow **Site administration** to `/admin`.
 Administrators can search and paginate users and timelines, grant/revoke admin
@@ -74,7 +74,7 @@ state instead of trusting a browser-supplied role.
 
 ### Upgrading
 
-An upgrade of the Linux and FreeBSD packages stops the server, the mail worker, the log importers ([syslog](syslog.md) and, on Linux, [journald](journald.md)) and the [GitHub receiver](github.md) until the database is migrated. `openchronology-migrate` then starts the server, and each of the mail worker, the log importers and the GitHub receiver that is enabled (on macOS, whose launchd agent was started; on Windows, whose service starts with Windows, as the installer also does). One left disabled, because it is not configured, stays stopped. `openchronology-migrate --no-restart` migrates only and starts nothing. Releases up to 0.12.1 started only the server, so account email (confirmations, password resets, security notices) waited in `oc_mail_outbox` until someone started the worker (#371), and logs went unimported until someone started the importers (#374); after upgrading such an installation, check them with `systemctl is-active openchronology-mail openchronology-syslog openchronology-journald`. With Docker Compose, see [upgrades](docker.md#upgrades-and-backups).
+An upgrade of the Linux and FreeBSD packages stops the server, the mail worker, the log importers ([syslog](syslog.md) and, on Linux, [journald](journald.md)) and the [GitHub receiver](github.md) until the database is migrated. `circagraph-migrate` then starts the server, and each of the mail worker, the log importers and the GitHub receiver that is enabled (on macOS, whose launchd agent was started; on Windows, whose service starts with Windows, as the installer also does). One left disabled, because it is not configured, stays stopped. `circagraph-migrate --no-restart` migrates only and starts nothing. Releases up to 0.12.1 started only the server, so account email (confirmations, password resets, security notices) waited in `oc_mail_outbox` until someone started the worker (#371), and logs went unimported until someone started the importers (#374); after upgrading such an installation, check them with `systemctl is-active circagraph-mail circagraph-syslog circagraph-journald`. With Docker Compose, see [upgrades](docker.md#upgrades-and-backups).
 
 **The rename to Circagraph.** The project was called OpenChronology until 2026-11-14. Configurations written for OpenChronology keep working beside the new names:
 
@@ -82,6 +82,7 @@ An upgrade of the Linux and FreeBSD packages stops the server, the mail worker, 
 - **API keys:** new keys begin `cg_key_`. Keys beginning `och_key_`, made before the rename, keep working until they expire or are revoked.
 - **Files:** the editor and the desktop app open `.circa` (desktop) and `.circax` (exchange) files as they open `.och` and `.ochx`, and the server accepts `application/vnd.circagraph.sqlite` beside `application/vnd.openchronology.sqlite`.
 - **NixOS:** the module's options are `services.circagraph`; `services.openchronology` still works, with a warning to rename it ([Nix](nix.md)).
+- **Server packages:** since 0.31 the packages are `circagraph-server` (Debian, Ubuntu, Rocky, RHEL, Fedora, Arch, FreeBSD, Homebrew, Windows and Nix), with the configuration in `circagraph.env` under `/etc/circagraph` (or the system's equivalent) and the services and commands named `circagraph`, `circagraph-migrate` and so on; `och-import-logs` and `och-import-github` are `cg-import-logs` and `cg-import-github`. Installing the new package over `openchronology-server` replaces it: the configuration moves, with links left under the old names, and the installation keeps its database, system users and state, which stay named `openchronology`. The old commands still work. Each package's guide (`README.Debian`, `README.RPM`, `README.Arch`, `README.FreeBSD`, `README.Homebrew`, `README.Windows.txt`, [Nix](nix.md)) has a section on moving from OpenChronology.
 
 **Newer releases** ([#601](https://github.com/circagraph/timeline-app/issues/601)): when an administrator is signed in and a newer release than the server's is out, a banner under the header says so. It links the release notes and these instructions. Only administrators see it, and **Dismiss until the next release** hides it for that release, for that administrator, on any device. The server asks GitHub for the latest release at most every ten minutes, as the download page does. A server built from an untagged commit never shows it. Set `UPDATE_NOTICES=off` to turn it off, for a server that keeps its version on purpose. The desktop app tells its users the same way, asking at most once a day; its banner can be dismissed per release, or turned off with **Don't check for updates**.
 
@@ -181,7 +182,7 @@ save at most 5,000 entries at a time (the importer 4,999), and halve their saves
 stopped, so they keep working as timelines grow.
 
 Upgrading copies each timeline's current state into its saved history once, during
-`openchronology-migrate`: about 14 s for 200,000 moments and 45 s for a million. Earlier
+`circagraph-migrate`: about 14 s for 200,000 moments and 45 s for a million. Earlier
 revisions keep the form they were saved in.
 
 Upgrading to a release that keeps background addresses of up to 1,024 characters
@@ -193,7 +194,7 @@ duration's definition once; `oc_migrations` records that it ran, so later upgrad
 **The large tables are maintained more often than PostgreSQL's defaults.** By default,
 autovacuum waits until a fifth of a table has changed, or grown by a fifth, and refreshes
 the planner's statistics after a tenth. With hundreds of millions of rows, that's far too
-late. `openchronology-migrate` sets the timelines' index tables, their retired versions and
+late. `circagraph-migrate` sets the timelines' index tables, their retired versions and
 their saved history to be vacuumed after about 2% of their rows change or are added, and
 analysed after 1%. Vacuum skips pages nothing changed, so small installations barely notice.
 A value you've set yourself on one of these tables, with `ALTER TABLE ... SET`, stays across
@@ -320,7 +321,7 @@ Settings in the environment file:
 
 - `EXPORT_CACHE`: `disk`, `s3` or `off`. Unset, the cache is on (`disk`) when it has a
   directory, and off otherwise. The Debian and RPM packages' service gives it one
-  (systemd's `CacheDirectory`, `/var/cache/openchronology/exports`), so it is on there by
+  (systemd's `CacheDirectory`, `/var/cache/circagraph/exports`), so it is on there by
   default. Set `off` to turn it off.
 - `EXPORT_CACHE_DIR`: the directory for `disk`. With `s3`, where files are written before
   they are uploaded (the system's temporary directory when unset).
@@ -459,10 +460,10 @@ A page carries a fresh nonce for its content security policy, written into its s
 # Leave nginx's version out of its Server header and error pages.
 server_tokens off;
 # Where kept pages go: 10 MB of keys, at most 1 GB, dropped when unread for 10 minutes.
-proxy_cache_path /var/cache/nginx/openchronology levels=1:2 keys_zone=openchronology:10m
+proxy_cache_path /var/cache/nginx/circagraph levels=1:2 keys_zone=circagraph:10m
                  max_size=1g inactive=10m use_temp_path=off;
 # A request with a session cookie, in either form, is a signed-in visitor's.
-map $http_cookie $openchronology_session {
+map $http_cookie $circagraph_session {
     default 0;
     "~(^|;)\s*(__Host-)?oc_session=" 1;
 }
@@ -492,10 +493,10 @@ server {
 
         # Keep what the server marks public for as long as it says, never a session's, a
         # token's or the router's payload, and refresh a stale page in the background.
-        proxy_cache openchronology;
+        proxy_cache circagraph;
         proxy_cache_key $scheme$host$request_uri;
-        proxy_cache_bypass $openchronology_session $http_authorization $http_rsc;
-        proxy_no_cache $openchronology_session $http_authorization $http_rsc;
+        proxy_cache_bypass $circagraph_session $http_authorization $http_rsc;
+        proxy_no_cache $circagraph_session $http_authorization $http_rsc;
         proxy_cache_use_stale updating error timeout http_502 http_503 http_504;
         proxy_cache_background_update on;
         proxy_cache_lock on;
@@ -506,7 +507,7 @@ server {
 
 nginx follows each response's `Cache-Control`, so it keeps only the pages above, for a minute; with no `proxy_cache_valid`, it keeps nothing the server didn't mark. It also follows `Vary`: a visitor who carries other cookies, such as Google Analytics' after allowing it, gets a copy of their own. The session cookie bypasses the cache outright, so a signed-in visitor never gets a signed-out copy. Live updates (`/api/live`) send `X-Accel-Buffering: no`, so they stream with buffering on, which a cache needs. `X-Cache-Status` shows `MISS`, `HIT`, `STALE`, `UPDATING` or `BYPASS`: `curl -sI https://timelines.example.org/help | grep -i -e cache-control -e x-cache-status` twice should show a `MISS`, then a `HIT`. To empty the cache, delete what is in its folder, `/var/cache/nginx/openchronology/`; nginx carries on without a reload.
 
-The NixOS module's virtual host (`services.openchronology.nginx.enable`) sets `server_tokens off` but keeps no cache, and turns `proxy_buffering` off, which a cache can't work with. To cache there, leave `nginx.enable` off and write the virtual host from the sample above, putting the `http` block's lines in `services.nginx.appendHttpConfig`. Caddy, which the packages' READMEs show, has no cache of its own and doesn't announce its version.
+The NixOS module's virtual host (`services.circagraph.nginx.enable`) sets `server_tokens off` but keeps no cache, and turns `proxy_buffering` off, which a cache can't work with. To cache there, leave `nginx.enable` off and write the virtual host from the sample above, putting the `http` block's lines in `services.nginx.appendHttpConfig`. Caddy, which the packages' READMEs show, has no cache of its own and doesn't announce its version.
 
 **Measuring page speed.** Google ranks pages partly by their [Core Web Vitals](https://web.dev/articles/vitals): how soon the largest thing on the page shows (LCP, good under 2.5 s), how soon it responds to a click or key (INP, good under 200 ms) and how much it shifts as it loads (CLS, good under 0.1). They need a site on the public internet and a browser, so CI doesn't measure them; measure your own site:
 

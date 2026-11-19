@@ -42,7 +42,7 @@ test('release assembly refuses missing targets and mixed desktop commits', async
     await assert.rejects(assemble(), /Mismatched desktop identity/);
     await writeFile(windowsInfo, JSON.stringify(info));
     // A release also needs the server package for each distribution.
-    await assert.rejects(assemble(), /openchronology-server-debian13-amd64\.deb/);
+    await assert.rejects(assemble(), /circagraph-server-debian13-amd64\.deb/);
     for (const target of Object.keys(serverTargets))
       await writeFile(join(root, serverPackage(target)), 'test server package fixture');
     await assemble();

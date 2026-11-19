@@ -1,48 +1,48 @@
-OpenChronology server for macOS (Homebrew)
-==========================================
+Circagraph server for macOS (Homebrew)
+======================================
 
 Install
 -------
 
-    brew install circagraph/tap/openchronology-server
-    openchronology-setup
+    brew install circagraph/tap/circagraph-server
+    circagraph-setup
 
 Homebrew installs what the server needs: Node.js 24 (node@24), PostgreSQL 17, GMP and SQLite,
 and builds the SQLite converter and the pgmp extension for this Mac (Rust and CMake are needed
-only while building). Homebrew's PostgreSQL and the server run as you. openchronology-setup:
+only while building). Homebrew's PostgreSQL and the server run as you. circagraph-setup:
 
   - starts PostgreSQL 17 with `brew services` if it is not running;
-  - writes $(brew --prefix)/etc/openchronology/openchronology.env (readable only by you), with
-    a new AUTH_ENCRYPTION_KEY and the database at postgresql://openchronology@/openchronology;
-  - creates the openchronology role, which owns the database but is not a superuser (as you
-    are in Homebrew's PostgreSQL), and the openchronology database, with the bundled pgmp
+  - writes $(brew --prefix)/etc/circagraph/circagraph.env (readable only by you), with
+    a new AUTH_ENCRYPTION_KEY and the database at postgresql://circagraph@/circagraph;
+  - creates the circagraph role, which owns the database but is not a superuser (as you
+    are in Homebrew's PostgreSQL), and the circagraph database, with the bundled pgmp
     extension. (Installations set up by earlier versions keep connecting as you, as their
     configuration says; setup leaves them so.) Homebrew's PostgreSQL lets anyone on this
     Mac connect as any role (trust authentication); on a shared Mac, set a password for
     yourself and the role (and the role's in DATABASE_URL), and change "trust" to
     "scram-sha-256" in its pg_hba.conf;
-  - migrates it (openchronology-migrate) and starts the `openchronology-server` service,
+  - migrates it (circagraph-migrate) and starts the `circagraph-server` service,
     which listens on 127.0.0.1:5173 and starts again when you log in.
 
-openchronology-setup is safe to run again.
+circagraph-setup is safe to run again.
 
 Configure
 ---------
 
-Edit $(brew --prefix)/etc/openchronology/openchronology.env, then
-`brew services restart openchronology-server`:
+Edit $(brew --prefix)/etc/circagraph/circagraph.env, then
+`brew services restart circagraph-server`:
 
   - APP_ORIGIN: the public HTTPS origin users reach, without a trailing slash. The server
     refuses a plain http:// origin other than localhost; on a trusted private network
     without a proxy, set ALLOW_INSECURE_ORIGIN=1 and HOST=0.0.0.0 to serve
-    http://<name>:5173 directly. The server logs to $(brew --prefix)/var/log/openchronology.log;
+    http://<name>:5173 directly. The server logs to $(brew --prefix)/var/log/circagraph.log;
     if the website reports "Server misconfigured", the reason is there.
   - RESEND_API_KEY and AUTH_EMAIL_FROM for account email, delivered by
-    `openchronology-mail`; run it as your launchd agent with `openchronology-agent start mail`
+    `circagraph-mail`; run it as your launchd agent with `circagraph-agent start mail`
     (below).
   - ADMIN_USERNAME, ADMIN_EMAIL and ADMIN_INITIAL_PASSWORD for the first administrator,
-    created by `openchronology-migrate`. The password is used once; to sign in with it again
-    (or with a new one written there), run `openchronology-reset-admin-password`.
+    created by `circagraph-migrate`. The password is used once; to sign in with it again
+    (or with a new one written there), run `circagraph-reset-admin-password`.
     Once you have signed in and changed it, empty ADMIN_INITIAL_PASSWORD again, so the file
     holds no working password.
   - Sign-in providers, human verification, quotas: see the comments in the file and
@@ -60,45 +60,63 @@ Serve it publicly through an HTTPS reverse proxy (brew install caddy). With Cadd
 Caddy 2.5 and later replace an incoming X-Forwarded-For with the client address, so set
 TRUST_PROXY=1 (with another proxy, only if it does the same; see README.md).
 
-The syslog receiver (syslog.md), `openchronology-syslog`, receives syslog over UDP and TCP on
+The syslog receiver (syslog.md), `circagraph-syslog`, receives syslog over UDP and TCP on
 127.0.0.1:5514 and adds each message to the timelines its routes choose. Set OCH_API_KEY (a
-read/write API key from Account -> API keys) in $(brew --prefix)/etc/openchronology/syslog.env
-and write the routes to $(brew --prefix)/etc/openchronology/syslog-routes.json, then
-`openchronology-agent start syslog`. `och-import-logs` imports historic log files
-(log-import.md): `och-import-logs --help`.
+read/write API key from Account -> API keys) in $(brew --prefix)/etc/circagraph/syslog.env
+and write the routes to $(brew --prefix)/etc/circagraph/syslog-routes.json, then
+`circagraph-agent start syslog`. `cg-import-logs` imports historic log files
+(log-import.md): `cg-import-logs --help`.
 
-The GitHub receiver (github.md), `openchronology-github`, receives GitHub's webhooks on
+The GitHub receiver (github.md), `circagraph-github`, receives GitHub's webhooks on
 127.0.0.1:5580, behind your HTTPS reverse proxy, and mirrors issues and pull requests into the
 timelines its routes choose. Set OCH_API_KEY and GITHUB_WEBHOOK_SECRET in
-$(brew --prefix)/etc/openchronology/github.env and write the routes to
-$(brew --prefix)/etc/openchronology/github-routes.json, then
-`openchronology-agent start github`. `och-import-github` imports what a repository has
-already (github.md): `och-import-github --help`.
+$(brew --prefix)/etc/circagraph/github.env and write the routes to
+$(brew --prefix)/etc/circagraph/github-routes.json, then
+`circagraph-agent start github`. `cg-import-github` imports what a repository has
+already (github.md): `cg-import-github --help`.
 
 Email delivery and the syslog and GitHub receivers run as your launchd agents, as `brew services` runs the
 server: started now and whenever you log in, and started again if they stop.
 
-    openchronology-agent start syslog      (or github, or mail)
-    openchronology-agent status syslog     running or not, its process and last exit code
-    openchronology-agent restart syslog    after editing its configuration
-    openchronology-agent stop syslog       stops it, and it no longer starts at login
+    circagraph-agent start syslog      (or github, or mail)
+    circagraph-agent status syslog     running or not, its process and last exit code
+    circagraph-agent restart syslog    after editing its configuration
+    circagraph-agent stop syslog       stops it, and it no longer starts at login
 
-They log to $(brew --prefix)/var/log/openchronology-syslog.log, openchronology-github.log
-and openchronology-mail.log. Their definitions are
-~/Library/LaunchAgents/org.openchronology.syslog.plist, .github.plist and .mail.plist.
+They log to $(brew --prefix)/var/log/circagraph-syslog.log, circagraph-github.log
+and circagraph-mail.log. Their definitions are
+~/Library/LaunchAgents/org.circagraph.syslog.plist, .github.plist and .mail.plist.
 
 Upgrade
 -------
 
-`brew upgrade openchronology-server` keeps the configuration and the database. Then:
+`brew upgrade circagraph-server` keeps the configuration and the database. Then:
 
   1. Compare the configuration with this version's template:
-         diff -u $(brew --prefix)/etc/openchronology/openchronology.env \
-                 $(brew --prefix)/share/openchronology/openchronology.env.example
-  2. Back up:  $(brew --prefix postgresql@17)/bin/pg_dump -h /tmp openchronology > openchronology.sql
-  3. openchronology-migrate, which migrates the database and restarts the server, and the
+         diff -u $(brew --prefix)/etc/circagraph/circagraph.env \
+                 $(brew --prefix)/share/circagraph/circagraph.env.example
+  2. Back up:  $(brew --prefix postgresql@17)/bin/pg_dump -h /tmp circagraph > circagraph.sql
+  3. circagraph-migrate, which migrates the database and restarts the server, and the
      launchd agents of the mail worker and the syslog and GitHub receivers that you started
-     (openchronology-agent start mail|syslog|github), so that they run the new version too.
+     (circagraph-agent start mail|syslog|github), so that they run the new version too.
+
+From openchronology-server
+--------------------------
+
+Until 0.30 the formula was openchronology-server. `brew update` and `brew upgrade` move such
+an installation to circagraph-server (the tap's formula_renames.json), and the formula moves
+its configuration from $(brew --prefix)/etc/openchronology to etc/circagraph, and
+openchronology.env to circagraph.env, leaving links from the old names. The database and its
+role keep their names (openchronology, as DATABASE_URL says), and so does the GitHub
+receiver's state in $(brew --prefix)/var/openchronology; use those names in place of
+circagraph in the commands above. The old command names (openchronology-setup,
+openchronology-migrate, openchronology-agent, och-import-logs, ...) still work.
+
+After the upgrade, run circagraph-migrate once: besides migrating the database, it stops the
+openchronology-server service (which brew services no longer lists) and starts
+circagraph-server, and moves each launchd agent you started (org.openchronology.mail, .syslog,
+.github) to its new name, org.circagraph.*. The logs are now circagraph.log and
+circagraph-<worker>.log in $(brew --prefix)/var/log.
 
 Remove
 ------
@@ -108,22 +126,24 @@ unless you ask Homebrew to keep it (its databases, in $(brew --prefix)/var/postg
 remain either way). To keep PostgreSQL and the database running:
 
     brew install postgresql@17
-    openchronology-agent stop syslog; openchronology-agent stop github
-    openchronology-agent stop mail
-    brew services stop openchronology-server
-    brew uninstall openchronology-server
+    circagraph-agent stop syslog; circagraph-agent stop github
+    circagraph-agent stop mail
+    brew services stop circagraph-server
+    brew uninstall circagraph-server
 
-The configuration (including AUTH_ENCRYPTION_KEY) and the database remain; delete them with:
+The configuration (including AUTH_ENCRYPTION_KEY) and the database remain; delete them with
+(an installation from openchronology-server: also etc/openchronology and var/openchronology,
+and its database and role are openchronology):
 
-    rm -rf $(brew --prefix)/etc/openchronology $(brew --prefix)/var/openchronology
-    $(brew --prefix postgresql@17)/bin/dropdb -h /tmp openchronology
-    $(brew --prefix postgresql@17)/bin/dropuser -h /tmp openchronology
+    rm -rf $(brew --prefix)/etc/circagraph $(brew --prefix)/var/circagraph
+    $(brew --prefix postgresql@17)/bin/dropdb -h /tmp circagraph
+    $(brew --prefix postgresql@17)/bin/dropuser -h /tmp circagraph
 
 Layout
 ------
 
-  $(brew --prefix)/opt/openchronology-server/libexec   the application and och-convert
-  $(brew --prefix)/etc/openchronology                  configuration (created by setup)
-  $(brew --prefix)/share/openchronology                configuration templates of this version
-  ~/Library/LaunchAgents/org.openchronology.*.plist    the agents openchronology-agent started
+  $(brew --prefix)/opt/circagraph-server/libexec   the application and och-convert
+  $(brew --prefix)/etc/circagraph                  configuration (created by setup)
+  $(brew --prefix)/share/circagraph                configuration templates of this version
+  ~/Library/LaunchAgents/org.circagraph.*.plist    the agents circagraph-agent started
   $(brew --prefix)/lib/postgresql@17, share/postgresql@17   pgmp

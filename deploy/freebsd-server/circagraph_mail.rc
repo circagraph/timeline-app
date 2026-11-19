@@ -1,0 +1,39 @@
+#!/bin/sh
+# Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
+#
+# PROVIDE: circagraph_mail
+# REQUIRE: LOGIN postgresql circagraph
+# KEYWORD: shutdown
+#
+# Circagraph account email delivery (Resend). Enable it in /etc/rc.conf with sysrc circagraph_mail_enable=YES.
+# Its configuration is /usr/local/etc/circagraph/circagraph.env (or circagraph_mail_config). It
+# runs as the server's user, circagraph or circagraph_account (see the circagraph service).
+
+. /etc/rc.subr
+
+name=circagraph_mail
+rcvar=circagraph_mail_enable
+load_rc_config $name
+
+: ${circagraph_mail_enable:="NO"}
+: ${circagraph_mail_config:="/usr/local/etc/circagraph/circagraph.env"}
+: ${circagraph_account:="circagraph"}
+
+# daemon(8) runs it as the server's user, restarts it if it fails and sends its
+# output to syslog, holding nothing open of the terminal or script that started it (-f).
+# Its configuration is read as systemd reads it (OCH_CONFIG, #118).
+pidfile="/var/run/circagraph/circagraph_mail.pid"
+procname="daemon"
+command="/usr/sbin/daemon"
+command_args="-f -r -S -T circagraph_mail -P ${pidfile} -u ${circagraph_account} /usr/bin/env NODE_ENV=production OCH_CONFIG=${circagraph_mail_config} /usr/local/bin/node --import=/usr/local/lib/circagraph/server/load-configuration.mjs /usr/local/lib/circagraph/server/mail-worker.mjs"
+circagraph_mail_chdir="/usr/local/lib/circagraph"
+start_precmd="circagraph_mail_prestart"
+
+circagraph_mail_prestart()
+{
+	# Root's: in a folder of the service's user, it could replace daemon(8)'s pidfile and have
+	# stop signal another process.
+	install -d -o root -g wheel -m 0755 /var/run/circagraph
+}
+
+run_rc_command "$1"

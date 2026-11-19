@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 /**
  * Reading a board or plan by its reference (board-source.mjs parseBoard) with the credentials
- * in the environment, and what it writes to a timeline: shared by `och-import-github --board`
+ * in the environment, and what it writes to a timeline: shared by `cg-import-github --board`
  * and the receiver's polling of Planner (docs/boards.md).
  */
 import { BOARD_PLATFORMS, boardReference, cardChanges, parseBoard } from './board-source.mjs';

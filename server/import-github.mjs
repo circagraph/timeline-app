@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 /**
- * The och-import-github command (#538): imports repositories' issues and pull requests into
+ * The cg-import-github command (#538): imports repositories' issues and pull requests into
  * timelines as durations (ongoing while open), their assignments as moments, and "closes #n"
  * as links, through the Circagraph API (docs/github.md). Running it again updates what it
  * imported before, by the same IDs the webhook receiver writes.
  *
  *   OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... GITHUB_TOKEN=github_pat_... \
- *   och-import-github --repo owner/name --timeline <uuid>
+ *   cg-import-github --repo owner/name --timeline <uuid>
  */
 import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -350,11 +350,11 @@ export async function readRepository(reader, repository, { since, kinds = eventK
   };
 }
 
-const USAGE = `Usage: och-import-github --repo <repository> --timeline <uuid>
+const USAGE = `Usage: cg-import-github --repo <repository> --timeline <uuid>
   [--only <kinds>] [--except <kinds>] [--since <ISO time>] [--no-branch-view] [--dry-run]
-       och-import-github --board <board> --timeline <uuid>
+       cg-import-github --board <board> --timeline <uuid>
   [--only <kinds>] [--except <kinds>] [--since <ISO time>] [--done <lists>] [--dry-run]
-       och-import-github --plan <file.xml> --timeline <uuid> [--time-zone <zone>] [--dry-run]
+       cg-import-github --plan <file.xml> --timeline <uuid> [--time-zone <zone>] [--dry-run]
 
 A board is trello:<board ID or short link>, jira:<host>/<project key>, planner:<plan ID> or
 openproject:<host>/<project identifier> (docs/boards.md). --done names the Trello lists whose
@@ -665,7 +665,7 @@ if (invoked) {
   main().then(
     (code) => process.exit(code),
     (error) => {
-      console.error('och-import-github:', error.message);
+      console.error('cg-import-github:', error.message);
       process.exit(1);
     },
   );

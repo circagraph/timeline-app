@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-# Builds openchronology-server_<version>_amd64.deb for one distribution. Use
+# Builds circagraph-server_<version>_amd64.deb for one distribution. Use
 # scripts/server-package.mjs, which passes these arguments and collects the package:
 #   BASE      debian:trixie or ubuntu:24.04   PG_MAJOR  17 or 16 (that distribution's server)
 #   DEB_VERSION, OCH_BUILD_COMMIT, OCH_BUILD_VERSION
@@ -108,7 +108,7 @@ ARG NODE_VERSION=24.21.0
 ARG NODE_SHA256=fd8e59d5a511510f6a298afb548f18c7d2b1be404d8b4a27d94fbe49f56cb2d6
 ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /root
-ENV ROOT=/root/package APP=/root/package/usr/lib/openchronology
+ENV ROOT=/root/package APP=/root/package/usr/lib/circagraph
 # The given tarball, else nodejs.org's; either is checked against the pinned SHA-256.
 RUN --mount=type=bind,from=node-tarball,target=/node-tarball \
     set -eu; \
@@ -132,31 +132,36 @@ COPY --from=app /app/dist ${APP}/dist
 COPY --from=app /app/package.json ${APP}/
 COPY --from=app /app/server ${APP}/server
 COPY --from=app /app/legal ${APP}/legal
-COPY deploy/debian-server/openchronology-server.mjs ${APP}/openchronology-server.mjs
+COPY deploy/debian-server/circagraph-server.mjs ${APP}/circagraph-server.mjs
 COPY --from=native /build/native-store/target/release/och-convert ${APP}/bin/och-convert
 COPY --from=native /stage/usr/ ${ROOT}/usr/
-COPY --from=native /build/pgmp/COPYING ${ROOT}/usr/share/doc/openchronology-server/pgmp/COPYING
+COPY --from=native /build/pgmp/COPYING ${ROOT}/usr/share/doc/circagraph-server/pgmp/COPYING
 # The docs first, so the project's README, not docs/README.md, is the one installed.
-COPY docs ${ROOT}/usr/share/doc/openchronology-server/
-COPY LICENSE NOTICE THIRD_PARTY.md README.md ${ROOT}/usr/share/doc/openchronology-server/
+COPY docs ${ROOT}/usr/share/doc/circagraph-server/
+COPY LICENSE NOTICE THIRD_PARTY.md README.md ${ROOT}/usr/share/doc/circagraph-server/
 COPY deploy/debian-server/ /root/debian/
 RUN set -eu; \
-    doc="$ROOT/usr/share/doc/openchronology-server"; \
+    doc="$ROOT/usr/share/doc/circagraph-server"; \
     install -D -m 0644 "$APP/node/LICENSE" "$doc/node/LICENSE"; rm "$APP/node/LICENSE"; \
     sed "s/@PG_MAJOR@/$PG_MAJOR/g" /root/debian/README.Debian > "$doc/README.Debian"; \
-    install -D -m 0644 /root/debian/openchronology.env "$ROOT/usr/share/openchronology/openchronology.env.example"; \
-    install -D -m 0644 /root/debian/syslog.env "$ROOT/usr/share/openchronology/syslog.env.example"; \
-    install -D -m 0644 /root/debian/github.env "$ROOT/usr/share/openchronology/github.env.example"; \
-    install -D -m 0644 /root/debian/journald.env "$ROOT/usr/share/openchronology/journald.env.example"; \
-    for unit in openchronology openchronology-mail openchronology-syslog openchronology-github \
-      openchronology-journald; do \
+    install -D -m 0644 /root/debian/circagraph.env "$ROOT/usr/share/circagraph/circagraph.env.example"; \
+    install -D -m 0644 /root/debian/syslog.env "$ROOT/usr/share/circagraph/syslog.env.example"; \
+    install -D -m 0644 /root/debian/github.env "$ROOT/usr/share/circagraph/github.env.example"; \
+    install -D -m 0644 /root/debian/journald.env "$ROOT/usr/share/circagraph/journald.env.example"; \
+    for unit in circagraph circagraph-mail circagraph-syslog circagraph-github \
+      circagraph-journald; do \
       install -D -m 0644 "/root/debian/$unit.service" "$ROOT/usr/lib/systemd/system/$unit.service"; \
     done; \
-    install -D -m 0755 /root/debian/openchronology-migrate "$ROOT/usr/sbin/openchronology-migrate"; \
-    install -D -m 0755 /root/debian/openchronology-reset-admin-password "$ROOT/usr/sbin/openchronology-reset-admin-password"; \
-    install -D -m 0755 /root/debian/och-import-logs "$ROOT/usr/bin/och-import-logs"; \
-    install -D -m 0755 /root/debian/och-import-github "$ROOT/usr/bin/och-import-github"; \
-    install -D -m 0755 /root/debian/openchronology-log-files "$APP/bin/openchronology-log-files"; \
+    install -D -m 0755 /root/debian/circagraph-migrate "$ROOT/usr/sbin/circagraph-migrate"; \
+    install -D -m 0755 /root/debian/circagraph-reset-admin-password "$ROOT/usr/sbin/circagraph-reset-admin-password"; \
+    install -D -m 0755 /root/debian/cg-import-logs "$ROOT/usr/bin/cg-import-logs"; \
+    install -D -m 0755 /root/debian/cg-import-github "$ROOT/usr/bin/cg-import-github"; \
+    install -D -m 0755 /root/debian/circagraph-log-files "$APP/bin/circagraph-log-files"; \
+    install -D -m 0755 /root/debian/circagraph-units "$APP/bin/circagraph-units"; \
+    ln -s circagraph-migrate "$ROOT/usr/sbin/openchronology-migrate"; \
+    ln -s circagraph-reset-admin-password "$ROOT/usr/sbin/openchronology-reset-admin-password"; \
+    ln -s cg-import-logs "$ROOT/usr/bin/och-import-logs"; \
+    ln -s cg-import-github "$ROOT/usr/bin/och-import-github"; \
     mkdir -p "$ROOT/DEBIAN"; \
     for script in postinst prerm postrm; do \
       sed "s/@PG_MAJOR@/$PG_MAJOR/g" "/root/debian/$script" > "$ROOT/DEBIAN/$script"; \
@@ -168,7 +173,7 @@ RUN set -eu; \
         -e "s/@INSTALLED_SIZE@/$(du -sk --exclude=DEBIAN "$ROOT" | cut -f1)/" \
         /root/debian/control.in > "$ROOT/DEBIAN/control"; \
     mkdir /out; \
-    dpkg-deb --root-owner-group -Zxz --build "$ROOT" "/out/openchronology-server_${DEB_VERSION}_amd64.deb"
+    dpkg-deb --root-owner-group -Zxz --build "$ROOT" "/out/circagraph-server_${DEB_VERSION}_amd64.deb"
 
 FROM scratch AS export
 COPY --from=package /out/ /

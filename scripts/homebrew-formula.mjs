@@ -1,10 +1,12 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-// Renders the Homebrew formula (deploy/homebrew/openchronology-server.rb.in) for a platform
+// Renders the Homebrew formula (deploy/homebrew/circagraph-server.rb.in) for a platform
 // archive (#116): releases publish it to circagraph/homebrew-tap; CI installs it from a
 // local tap.
 // Usage: node scripts/homebrew-formula.mjs --tarball <file> --url <url> [--version <version>]
-//          [--out <formula.rb>]
+//          [--out <formula.rb>] [--template <formula.rb.in>]
 // Without --version: the release tag's (RELEASE_TAG), or this checkout's development version.
+// --template renders another template, such as an earlier release's (CI installs the
+// openchronology-server formula of 0.30 to upgrade it to this one).
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import { parseArgs, promisify } from 'node:util';
@@ -19,6 +21,7 @@ const { values } = parseArgs({
     url: { type: 'string' },
     version: { type: 'string' },
     out: { type: 'string' },
+    template: { type: 'string', default: 'deploy/homebrew/circagraph-server.rb.in' },
   },
 });
 if (!values.tarball || !values.url) throw new Error('Supply --tarball and --url.');
@@ -38,7 +41,7 @@ if (!/^[0-9][0-9A-Za-z.]*$/.test(values.version))
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const pgmp = await fetch(PGMP);
 if (!pgmp.ok) throw new Error(`Downloading pgmp failed: ${pgmp.status}`);
-const formula = (await readFile('deploy/homebrew/openchronology-server.rb.in', 'utf8'))
+const formula = (await readFile(values.template, 'utf8'))
   .replace('@URL@', values.url)
   .replace('@VERSION@', values.version)
   .replace('@SHA256@', sha256(await readFile(values.tarball)))

@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 # services.circagraph (#461; docs/nix.md), formerly services.openchronology (still accepted, with
-# a warning): the OpenChronology server on NixOS, doing what
+# a warning): the Circagraph server on NixOS, doing what
 # the Debian package's scripts do (deploy/debian-server): system users (the log importers their
 # own, #501), a local PostgreSQL database with pgmp, a generated AUTH_ENCRYPTION_KEY, the migration before each start, the
 # server as a hardened systemd service, and optionally the mail worker, the log importers and
@@ -22,7 +22,11 @@ let
     mkPackageOption
     types
     ;
-  state = "/var/lib/openchronology";
+  # The system users, database, role and state folders: circagraph, or openchronology for an
+  # installation from before the rename to Circagraph, which keeps them (legacyNames).
+  name = if cfg.legacyNames then "openchronology" else "circagraph";
+  logs = "${name}-logs";
+  state = "/var/lib/${name}";
   # The settings as the server reads them: strings, with booleans as 1 and 0.
   environment = lib.mapAttrs (
     _: value: if lib.isBool value then (if value then "1" else "0") else toString value
@@ -55,58 +59,63 @@ let
     SystemCallErrorNumber = "EPERM";
     UMask = "0077";
   };
-  # A service running one of the package's commands as the openchronology user, with the
+  # A service running one of the package's commands as the server's user, with the
   # settings, the generated key and the administrator's environment file (which wins).
   service =
     {
       description,
       command,
+      alias,
       extra ? { },
     }:
     {
       inherit description;
+      # Its name before the rename to Circagraph starts and stops it too.
+      aliases = [ "${alias}.service" ];
       after = [
         "network.target"
-        "openchronology-setup.service"
+        "circagraph-setup.service"
       ]
       ++ lib.optional cfg.database.createLocally "postgresql.service"
-      ++ lib.optional (command != "openchronology-server") "openchronology.service";
-      requires = [ "openchronology-setup.service" ];
+      ++ lib.optional (command != "circagraph-server") "circagraph.service";
+      requires = [ "circagraph-setup.service" ];
       # The workers after the server, which migrates the database as it starts.
-      wants = lib.optional (command != "openchronology-server") "openchronology.service";
+      wants = lib.optional (command != "circagraph-server") "circagraph.service";
       wantedBy = [ "multi-user.target" ];
       inherit environment;
       serviceConfig = hardening // {
         Type = "simple";
-        User = "openchronology";
-        Group = "openchronology";
+        User = name;
+        Group = name;
         EnvironmentFile = [ "${state}/generated.env" ] ++ lib.optional (cfg.environmentFile != null) cfg.environmentFile;
         ExecStart = "${cfg.package}/bin/${command}";
         Restart = "on-failure";
         RestartSec = 5;
         # Node exits with 128 + SIGTERM when stopped; that is a clean stop, not a failure.
         SuccessExitStatus = 143;
-        WorkingDirectory = "${cfg.package}/lib/openchronology";
+        WorkingDirectory = "${cfg.package}/lib/circagraph";
       } // extra;
     };
-  # A log importer (#501): as the openchronology-logs user, with only its own settings and
+  # A log importer (#501): as the log receivers' user, with only its own settings and
   # environment file, not the server's settings, generated key or environment file. It cannot
   # log in to the local database, which has no role for it.
   logService =
     {
       description,
       command,
+      alias,
       settings,
       environmentFile,
       extra ? { },
     }:
     {
       inherit description;
+      aliases = [ "${alias}.service" ];
       after = [
         "network.target"
-        "openchronology.service"
+        "circagraph.service"
       ];
-      wants = [ "openchronology.service" ];
+      wants = [ "circagraph.service" ];
       wantedBy = [ "multi-user.target" ];
       environment = {
         OCH_API_URL = "http://${cfg.host}:${toString cfg.port}";
@@ -114,15 +123,15 @@ let
       // settings;
       serviceConfig = hardening // {
         Type = "simple";
-        User = "openchronology-logs";
-        Group = "openchronology-logs";
+        User = logs;
+        Group = logs;
         EnvironmentFile = lib.optional (environmentFile != null) environmentFile;
         ExecStart = "${cfg.package}/bin/${command}";
         Restart = "on-failure";
         RestartSec = 10;
         # Node exits with 128 + SIGTERM when stopped; that is a clean stop, not a failure.
         SuccessExitStatus = 143;
-        WorkingDirectory = "${cfg.package}/lib/openchronology";
+        WorkingDirectory = "${cfg.package}/lib/circagraph";
         # Other users' processes are hidden from it.
         ProtectProc = "invisible";
       } // extra;
@@ -138,7 +147,7 @@ let
         A file of KEY=value lines with the ${name} importer's secrets, such as OCH_API_KEY,
         overriding its `settings`. Only it reads this file, and it does not read the server's
         `environmentFile`. Files its settings name (routes, keys) must be readable by the
-        openchronology-logs user.
+        log receivers' user (circagraph-logs, or openchronology-logs with `legacyNames`).
       '';
     };
 in
@@ -149,13 +158,28 @@ in
     (lib.mkRenamedOptionModule [ "services" "openchronology" ] [ "services" "circagraph" ])
   ];
   options.services.circagraph = {
-    enable = mkEnableOption "OpenChronology, the exact timeline platform";
+    enable = mkEnableOption "Circagraph, the exact timeline platform";
 
     package = mkOption {
       type = types.package;
-      default = self.packages.${pkgs.stdenv.hostPlatform.system}.openchronology-server;
-      defaultText = lib.literalExpression "openchronology.packages.\${system}.openchronology-server";
-      description = "The OpenChronology server package.";
+      default = self.packages.${pkgs.stdenv.hostPlatform.system}.circagraph-server;
+      defaultText = lib.literalExpression "circagraph.packages.\${system}.circagraph-server";
+      description = "The Circagraph server package.";
+    };
+
+    legacyNames = mkOption {
+      type = types.bool;
+      default = lib.versionOlder config.system.stateVersion "26.11";
+      defaultText = lib.literalExpression ''lib.versionOlder config.system.stateVersion "26.11"'';
+      description = ''
+        Keep the names an installation had before the project was renamed Circagraph: the
+        system users openchronology and openchronology-logs, the PostgreSQL database and role
+        openchronology, and the state folders /var/lib/openchronology,
+        /var/lib/openchronology-github and /var/lib/openchronology-journald. Systems whose
+        stateVersion is older than 26.11 keep them by default; new ones use circagraph. Only
+        set it to false on a system that never ran the server, or after moving the database,
+        users and folders yourself.
+      '';
     };
 
     origin = mkOption {
@@ -196,7 +220,7 @@ in
       };
       description = ''
         Further configuration, as environment variables: any setting in
-        deploy/debian-server/openchronology.env. Booleans become 1 and 0. Keep secrets
+        deploy/debian-server/circagraph.env. Booleans become 1 and 0. Keep secrets
         (RESEND_API_KEY, ADMIN_INITIAL_PASSWORD, OAuth secrets) in `environmentFile`
         instead: these are written to the world-readable Nix store.
       '';
@@ -205,9 +229,9 @@ in
     environmentFile = mkOption {
       type = types.nullOr types.path;
       default = null;
-      example = "/run/secrets/openchronology.env";
+      example = "/run/secrets/circagraph.env";
       description = ''
-        A file of KEY=value lines with secrets, read by every OpenChronology service and
+        A file of KEY=value lines with secrets, read by every Circagraph service and
         overriding `settings`. AUTH_ENCRYPTION_KEY may be given here; otherwise one is generated
         on first start in ${state}/generated.env (back it up apart from the database).
       '';
@@ -219,8 +243,8 @@ in
         default = true;
         description = ''
           Run PostgreSQL on this machine with the pgmp extension, and create the database and
-          its role (both named openchronology, reached by peer authentication over the Unix
-          socket). Otherwise set DATABASE_URL in `settings` or `environmentFile`, to a database
+          its role (both named circagraph, or openchronology with `legacyNames`), reached by
+          peer authentication over the Unix socket. Otherwise set DATABASE_URL in `settings` or `environmentFile`, to a database
           where a superuser has run CREATE EXTENSION pgmp.
         '';
       };
@@ -240,7 +264,7 @@ in
         example = {
           SYSLOG_HOST = "0.0.0.0";
           SYSLOG_PORT = "5514";
-          SYSLOG_ROUTES = "/etc/openchronology/syslog-routes.json";
+          SYSLOG_ROUTES = "/etc/circagraph/syslog-routes.json";
         };
         description = ''
           Its configuration (deploy/debian-server/syslog.env). OCH_API_URL defaults to this
@@ -257,7 +281,7 @@ in
         default = { };
         example = {
           GITHUB_PORT = "5580";
-          GITHUB_ROUTES = "/etc/openchronology/github-routes.json";
+          GITHUB_ROUTES = "/etc/circagraph/github-routes.json";
         };
         description = ''
           Its configuration (deploy/debian-server/github.env). OCH_API_URL defaults to this
@@ -305,23 +329,24 @@ in
         HOST = lib.mkDefault cfg.host;
         PORT = lib.mkDefault cfg.port;
         # Downloads are cached in the service's cache directory (EXPORT_CACHE).
-        EXPORT_CACHE_DIR = lib.mkDefault "/var/cache/openchronology";
+        EXPORT_CACHE_DIR = lib.mkDefault "/var/cache/${name}";
       };
 
-      users.users.openchronology = {
+      users.users.${name} = {
         isSystemUser = true;
-        group = "openchronology";
+        group = name;
         home = state;
-        description = "OpenChronology server";
+        description = "Circagraph server";
       };
-      users.groups.openchronology = { };
+      users.groups.${name} = { };
 
       environment.systemPackages = [ cfg.package ];
 
       # Before the services: the encryption key, generated once, and pgmp in the database, which
       # only a superuser may create. The server migrates the database each time it starts.
-      systemd.services.openchronology-setup = {
-        description = "OpenChronology setup: its key and pgmp";
+      systemd.services.circagraph-setup = {
+        description = "Circagraph setup: its key and pgmp";
+        aliases = [ "openchronology-setup.service" ];
         after = [ "network.target" ] ++ lib.optionals cfg.database.createLocally [
           "postgresql.service"
           "postgresql-setup.service"
@@ -330,7 +355,7 @@ in
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          StateDirectory = "openchronology";
+          StateDirectory = name;
           StateDirectoryMode = "0750";
         };
         path = [
@@ -344,24 +369,25 @@ in
             echo "AUTH_ENCRYPTION_KEY=$(od -An -tx1 -N32 /dev/urandom | tr -d ' \n')" > ${state}/generated.env.new
             mv ${state}/generated.env.new ${state}/generated.env
           fi
-          chown root:openchronology ${state}/generated.env
+          chown root:${name} ${state}/generated.env
           chmod 0640 ${state}/generated.env
           ${lib.optionalString cfg.database.createLocally ''
             runuser -u postgres -- ${config.services.postgresql.package}/bin/psql -X -q \
-              -v ON_ERROR_STOP=1 -d openchronology -c 'CREATE EXTENSION IF NOT EXISTS pgmp'
+              -v ON_ERROR_STOP=1 -d ${name} -c 'CREATE EXTENSION IF NOT EXISTS pgmp'
           ''}
         '';
       };
 
-      systemd.services.openchronology = service {
-        description = "OpenChronology platform";
-        command = "openchronology-server";
+      systemd.services.circagraph = service {
+        description = "Circagraph platform";
+        command = "circagraph-server";
+        alias = "openchronology";
         extra = {
-          # The database brought up to this version's schema first (openchronology-migrate).
-          ExecStartPre = "${cfg.package}/bin/openchronology-migrate";
+          # The database brought up to this version's schema first (circagraph-migrate).
+          ExecStartPre = "${cfg.package}/bin/circagraph-migrate";
           # Open live views keep the server from exiting promptly; do not wait long for them.
           TimeoutStopSec = 10;
-          CacheDirectory = "openchronology";
+          CacheDirectory = name;
         };
       };
     }
@@ -370,32 +396,33 @@ in
       services.postgresql = {
         enable = true;
         extensions = ps: [ (ps.callPackage ./pgmp.nix { }) ];
-        ensureDatabases = [ "openchronology" ];
+        ensureDatabases = [ name ];
         ensureUsers = [
           {
-            name = "openchronology";
+            inherit name;
             ensureDBOwnership = true;
           }
         ];
       };
-      services.circagraph.settings.DATABASE_URL = lib.mkDefault "postgresql:///openchronology?host=/run/postgresql";
+      services.circagraph.settings.DATABASE_URL = lib.mkDefault "postgresql:///${name}?host=/run/postgresql";
     })
 
     (mkIf cfg.mail.enable {
-      systemd.services.openchronology-mail = service {
-        description = "OpenChronology account email delivery (Resend)";
-        command = "openchronology-mail";
+      systemd.services.circagraph-mail = service {
+        description = "Circagraph account email delivery (Resend)";
+        command = "circagraph-mail";
+        alias = "openchronology-mail";
       };
     })
 
     (mkIf (cfg.syslog.enable || cfg.github.enable || cfg.journald.enable) {
       # The log importers' own user (#501).
-      users.users.openchronology-logs = {
+      users.users.${logs} = {
         isSystemUser = true;
-        group = "openchronology-logs";
-        description = "OpenChronology log receivers";
+        group = logs;
+        description = "Circagraph log receivers";
       };
-      users.groups.openchronology-logs = { };
+      users.groups.${logs} = { };
     })
 
     (mkIf cfg.syslog.enable {
@@ -403,9 +430,10 @@ in
         services.circagraph.syslog.environmentFile is not set: the syslog receiver does not
         read services.circagraph.environmentFile (#501), so give its OCH_API_KEY there.
       '';
-      systemd.services.openchronology-syslog = logService {
-        description = "OpenChronology syslog receiver";
-        command = "openchronology-syslog";
+      systemd.services.circagraph-syslog = logService {
+        description = "Circagraph syslog receiver";
+        command = "circagraph-syslog";
+        alias = "openchronology-syslog";
         inherit (cfg.syslog) settings environmentFile;
       };
     })
@@ -416,17 +444,18 @@ in
         read services.circagraph.environmentFile (#501), so give its OCH_API_KEY and
         GITHUB_WEBHOOK_SECRET there.
       '';
-      systemd.services.openchronology-github = logService {
-        description = "OpenChronology GitHub receiver";
-        command = "openchronology-github";
+      systemd.services.circagraph-github = logService {
+        description = "Circagraph GitHub receiver";
+        command = "circagraph-github";
+        alias = "openchronology-github";
         settings = {
-          GITHUB_STATE = "/var/lib/openchronology-github/github-state.json";
+          GITHUB_STATE = "/var/lib/${name}-github/github-state.json";
         }
         // cfg.github.settings;
         inherit (cfg.github) environmentFile;
         extra = {
           # Each item's board column, kept across restarts (GITHUB_STATE).
-          StateDirectory = "openchronology-github";
+          StateDirectory = "${name}-github";
         };
       };
     })
@@ -436,18 +465,19 @@ in
         services.circagraph.journald.environmentFile is not set: the journald follower does
         not read services.circagraph.environmentFile (#501), so give its OCH_API_KEY there.
       '';
-      systemd.services.openchronology-journald = logService {
-        description = "OpenChronology journald follower";
-        command = "openchronology-journald";
+      systemd.services.circagraph-journald = logService {
+        description = "Circagraph journald follower";
+        command = "circagraph-journald";
+        alias = "openchronology-journald";
         inherit (cfg.journald) settings environmentFile;
         extra = {
           # Reading the journal needs systemd-journal, which the syslog receiver (also
-          # openchronology-logs) does not have. As the main group, it also keeps the receiver
+          # the log receivers' user) does not have. As the main group, it also keeps the receiver
           # from tracing this process or reading its memory (that needs the same groups).
           Group = "systemd-journal";
-          SupplementaryGroups = [ "openchronology-logs" ];
+          SupplementaryGroups = [ logs ];
           # The cursor of the last entry sent (and, over SSH, the hosts seen).
-          StateDirectory = "openchronology-journald";
+          StateDirectory = "${name}-journald";
         };
       };
     })

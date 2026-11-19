@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 /**
- * The Branches view (#557): what och-import-github sets up as a mirrored repository's default
+ * The Branches view (#557): what cg-import-github sets up as a mirrored repository's default
  * view. Each of the most recently active branches is a separation by its tag, which disjoins
  * from the main timeline when the branch began and unites back into it when it was merged
  * (docs/github.md, docs/views.md).
@@ -18,7 +18,7 @@ import { entityId, itemId, itemKey, parseRepository, seconds, tag } from './gith
 /** The view's title, by which a later import finds it again among its owner's views. */
 export const BRANCH_VIEW_TITLE = 'Branches';
 const DESCRIPTION =
-  'Each recently active branch in its own track, from when it began until it was merged. Set up by och-import-github.';
+  'Each recently active branch in its own track, from when it began until it was merged. Set up by cg-import-github.';
 
 /**
  * The repository's own pull requests (merge requests on GitLab), as `{branch, number,

@@ -17,32 +17,32 @@ The whole server also installs as one package. It contains the platform, its Nod
 
 | Distribution            | Package                                                      | PostgreSQL  |
 | ----------------------- | ------------------------------------------------------------ | ----------- |
-| Debian 13               | `openchronology-server-debian13-amd64.deb`                   | 17          |
-| Ubuntu 24.04            | `openchronology-server-ubuntu24.04-amd64.deb`                | 16          |
-| Rocky Linux and RHEL 10 | `openchronology-server-rocky10-amd64.rpm`                    | 16          |
-| Fedora 44               | `openchronology-server-fedora44-amd64.rpm`                   | 18          |
-| Arch Linux (AUR)        | `openchronology-server`                                      | Arch's      |
-| FreeBSD 14 and 15       | `openchronology-server-freebsd15-amd64.pkg` (or `freebsd14`) | 17          |
-| macOS (Homebrew)        | `brew install circagraph/tap/openchronology-server`      | 17          |
-| Windows                 | `openchronology-server-windows-amd64-setup.exe`              | 17, bundled |
+| Debian 13               | `circagraph-server-debian13-amd64.deb`                   | 17          |
+| Ubuntu 24.04            | `circagraph-server-ubuntu24.04-amd64.deb`                | 16          |
+| Rocky Linux and RHEL 10 | `circagraph-server-rocky10-amd64.rpm`                    | 16          |
+| Fedora 44               | `circagraph-server-fedora44-amd64.rpm`                   | 18          |
+| Arch Linux (AUR)        | `circagraph-server`                                          | Arch's      |
+| FreeBSD 14 and 15       | `circagraph-server-freebsd15-amd64.pkg` (or `freebsd14`) | 17          |
+| macOS (Homebrew)        | `brew install circagraph/tap/circagraph-server`              | 17          |
+| Windows                 | `circagraph-server-windows-amd64-setup.exe`              | 17, bundled |
 
 ```sh
-sudo apt install ./openchronology-server-debian13-amd64.deb      # Debian and Ubuntu
-sudo dnf install ./openchronology-server-fedora44-amd64.rpm      # Rocky, RHEL and Fedora
-pkg install -y ./openchronology-server-freebsd15-amd64.pkg && openchronology-setup   # FreeBSD, as root
-yay -S openchronology-server && sudo openchronology-setup   # Arch Linux, with any AUR helper
-brew install circagraph/tap/openchronology-server && openchronology-setup     # macOS
+sudo apt install ./circagraph-server-debian13-amd64.deb      # Debian and Ubuntu
+sudo dnf install ./circagraph-server-fedora44-amd64.rpm      # Rocky, RHEL and Fedora
+pkg install -y ./circagraph-server-freebsd15-amd64.pkg && circagraph-setup   # FreeBSD, as root
+yay -S circagraph-server && sudo circagraph-setup   # Arch Linux, with any AUR helper
+brew install circagraph/tap/circagraph-server && circagraph-setup             # macOS
 ```
 
 (`dpkg -i` doesn't install dependencies; after it, run `sudo apt -f install`.) The first installation:
 
 - creates the PostgreSQL role and database with `pgmp`;
-- writes `/etc/openchronology/openchronology.env` with a new `AUTH_ENCRYPTION_KEY`;
-- migrates and starts the `openchronology` service on `127.0.0.1:5173`.
+- writes `/etc/circagraph/circagraph.env` with a new `AUTH_ENCRYPTION_KEY`;
+- migrates and starts the `circagraph` service on `127.0.0.1:5173`.
 
-RPM distributions and FreeBSD don't initialize PostgreSQL themselves, so those packages do it when it hasn't been done (`openchronology-setup`, which can also be run again by hand). Like FreeBSD's ports, the FreeBSD package starts nothing itself: run `openchronology-setup` after installing it. On macOS, Homebrew builds the converter and `pgmp` for the Mac from the release's `openchronology-server-platform.tar.gz`; there, `openchronology-setup` runs as you (Homebrew's PostgreSQL does too), and the server is the `openchronology-server` service of `brew services`. Stable releases publish the formula to [circagraph/homebrew-tap](https://github.com/circagraph/homebrew-tap). On Arch Linux, the AUR's `openchronology-server` builds the converter and `pgmp` from the same archive for Arch's PostgreSQL, runs on Arch's Node.js, and, as Arch packages do, leaves PostgreSQL and the database to `sudo openchronology-setup`; the AUR's `openchronology-desktop-bin` installs the desktop app from the release's `.deb`. Stable releases publish both ([deploy/arch](../deploy/arch/README.md)). On Windows, the installer is self-contained: it brings its own PostgreSQL 17 (EDB's binaries, with `pgmp` built for it), Node.js and WinSW, runs PostgreSQL and the server as Windows services, keeps the configuration and database in `C:\ProgramData\OpenChronology`, and migrates the database on upgrades ([README.Windows.txt](../deploy/windows-server/README.Windows.txt)). The FreeBSD package uses FreeBSD's own Node.js (`node24`) and runs as rc.d services (`openchronology`, `openchronology_mail`, `openchronology_syslog`, `openchronology_github`), with its configuration in `/usr/local/etc/openchronology`. Edit the configuration and restart, and put an HTTPS reverse proxy in front; on SELinux systems, let the proxy connect with `setsebool -P httpd_can_network_connect 1`.
+RPM distributions and FreeBSD don't initialize PostgreSQL themselves, so those packages do it when it hasn't been done (`circagraph-setup`, which can also be run again by hand). Like FreeBSD's ports, the FreeBSD package starts nothing itself: run `circagraph-setup` after installing it. On macOS, Homebrew builds the converter and `pgmp` for the Mac from the release's `circagraph-server-platform.tar.gz`; there, `circagraph-setup` runs as you (Homebrew's PostgreSQL does too), and the server is the `circagraph-server` service of `brew services`. Stable releases publish the formula to [circagraph/homebrew-tap](https://github.com/circagraph/homebrew-tap). On Arch Linux, the AUR's `circagraph-server` builds the converter and `pgmp` from the same archive for Arch's PostgreSQL, runs on Arch's Node.js, and, as Arch packages do, leaves PostgreSQL and the database to `sudo circagraph-setup`; the AUR's `openchronology-desktop-bin` installs the desktop app from the release's `.deb`. Stable releases publish both ([deploy/arch](../deploy/arch/README.md)). On Windows, the installer is self-contained: it brings its own PostgreSQL 17 (EDB's binaries, with `pgmp` built for it), Node.js and WinSW, runs PostgreSQL and the server as Windows services, keeps the configuration and database in `C:\ProgramData\Circagraph`, and migrates the database on upgrades ([README.Windows.txt](../deploy/windows-server/README.Windows.txt)). The FreeBSD package uses FreeBSD's own Node.js (`node24`) and runs as rc.d services (`circagraph`, `circagraph_mail`, `circagraph_syslog`, `circagraph_github`), with its configuration in `/usr/local/etc/circagraph`. Edit the configuration and restart, and put an HTTPS reverse proxy in front; on SELinux systems, let the proxy connect with `setsebool -P httpd_can_network_connect 1`.
 
-Upgrades keep the configuration and database, stop the server, and list the settings that are new in this version's template. Review them, back up, then run `sudo openchronology-migrate`, which migrates and starts the server again. `/usr/share/doc/openchronology-server/README.Debian` (or `README.RPM`, `README.Arch`, `README.FreeBSD`, `README.Homebrew`, `README.Windows.txt`) covers configuration, email, the syslog and [GitHub](github.md) receivers, upgrades and removal.
+Upgrades keep the configuration and database, stop the server, and list the settings that are new in this version's template. Review them, back up, then run `sudo circagraph-migrate`, which migrates and starts the server again. `/usr/share/doc/circagraph-server/README.Debian` (or `README.RPM`, `README.Arch`, `README.FreeBSD`, `README.Homebrew`, `README.Windows.txt`) covers configuration, email, the syslog and [GitHub](github.md) receivers, upgrades and removal.
 
 Releases attach every package, and every push to `main` builds them as artifacts of the CI run. Build them yourself with Docker (`node scripts/server-package.mjs [debian13|ubuntu24.04|rocky10|fedora44]`, into `server-artifacts/`). They download the Node.js they bundle from nodejs.org unless `OCH_NODE_TARBALL` names one already downloaded (`node scripts/node-tarball.mjs <folder>` downloads and checks it); either way it must match the Dockerfile's checksum. The builds start from the project's published images of their tools stages (the compilers, PostgreSQL's development files and Rust, in `ghcr.io/circagraph/server-build`) when those match the Dockerfile, and install the tools themselves otherwise or with `OCH_TOOL_IMAGES=off`; the packages are the same either way. For FreeBSD, `node scripts/server-package.mjs freebsd15` builds the platform, and `sh deploy/freebsd-server/build.sh` on FreeBSD (as root) makes the package. CI does both in a FreeBSD virtual machine, then installs the package on a fresh one (`test/server-freebsd.mjs`). Check one with `node test/server-deb.mjs` or `node test/server-rpm.mjs` and the package's path. Those tests install, run, upgrade and remove it in a fresh container.
 
@@ -64,11 +64,11 @@ The database has a persistent volume and no published database port. A migration
 The repository is a Nix flake (see [Nix and NixOS](nix.md)): it builds the server, the desktop app, `och-convert` and `pgmp` from source, and its NixOS module runs a server with PostgreSQL:
 
 ```nix
-services.openchronology = {
+services.circagraph = {
   enable = true;
   origin = "https://timelines.example.org";
   nginx.enable = true;
-  environmentFile = "/run/secrets/openchronology.env";
+  environmentFile = "/run/secrets/circagraph.env";
 };
 ```
 
@@ -81,7 +81,7 @@ Compose also builds and installs the isolated SQLite file converter. For an exis
 ```sh
 npm ci
 npm run build
-export DATABASE_URL='postgresql://user:password@localhost/openchronology'
+export DATABASE_URL='postgresql://user:password@localhost/circagraph'
 export APP_ORIGIN='http://localhost:5173'
 npm run migrate
 # Optional web .och exchange (install Rust, CMake, SQLite/GMP development packages):

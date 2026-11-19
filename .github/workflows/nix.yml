@@ -37,15 +37,15 @@ jobs:
       - name: Build the packages
         run: |
           nix build -L --no-link \
-            .#packages.${{ matrix.system }}.openchronology-server \
+            .#packages.${{ matrix.system }}.circagraph-server \
             .#packages.${{ matrix.system }}.och-convert \
             .#packages.${{ matrix.system }}.pgmp \
             .#packages.${{ matrix.system }}.openchronology-desktop
       - name: The server's commands run
         run: |
-          server=$(nix build --no-link --print-out-paths .#packages.${{ matrix.system }}.openchronology-server)
-          test -x "$server/bin/openchronology-server"
-          "$server/lib/openchronology/bin/och-convert" 2>&1 | grep -q 'Usage: och-convert'
+          server=$(nix build --no-link --print-out-paths .#packages.${{ matrix.system }}.circagraph-server)
+          test -x "$server/bin/circagraph-server" && test -x "$server/bin/openchronology-migrate"
+          "$server/lib/circagraph/bin/och-convert" 2>&1 | grep -q 'Usage: och-convert'
           test -s "$server/lib/openchronology/platform/public/openchronology-web-source.tar.gz"
       - name: Say when no binary cache was written
         if: inputs.push && vars.CACHIX_CACHE == ''

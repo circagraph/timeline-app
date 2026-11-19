@@ -2,33 +2,62 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 # First install: create the system users, the configuration, the PostgreSQL role and database
 # (with pgmp), run the migration and start the server. Upgrades: leave the configuration and
-# database alone, and advise on both; the server stays stopped until openchronology-migrate.
+# database alone, and advise on both; the server stays stopped until circagraph-migrate.
+# Installed in place of openchronology-server (the package's name until 0.30), it takes the
+# upgrade path: the configuration moves from /etc/openchronology to /etc/circagraph (a link
+# stays behind), and the installation keeps its system users, database and state folders under
+# their first names, which the services' drop-ins (circagraph-units) give them.
 set -e
 PG_MAJOR=@PG_MAJOR@
-APP=/usr/lib/openchronology
-CONFIG_DIR=/etc/openchronology
-CONFIG=$CONFIG_DIR/openchronology.env
-EXAMPLES=/usr/share/openchronology
-DOCS=/usr/share/doc/openchronology-server/README.Debian
+APP=/usr/lib/circagraph
+CONFIG_DIR=/etc/circagraph
+CONFIG=$CONFIG_DIR/circagraph.env
+EXAMPLES=/usr/share/circagraph
+DOCS=/usr/share/doc/circagraph-server/README.Debian
 
 [ "$1" = configure ] || exit 0
 previous=${2:-}
 systemd=
 [ -d /run/systemd/system ] && systemd=1
 
-if ! getent passwd openchronology >/dev/null; then
-  adduser --system --group --home /var/lib/openchronology --no-create-home \
-    --comment "OpenChronology server" openchronology >/dev/null
+# From openchronology-server: its configuration, under the new names.
+renamed=
+if [ -d /etc/openchronology ] && [ ! -L /etc/openchronology ] && [ ! -e "$CONFIG_DIR" ]; then
+  mv /etc/openchronology "$CONFIG_DIR"
+  ln -s circagraph /etc/openchronology
+  if [ -f "$CONFIG_DIR/openchronology.env" ] && [ ! -e "$CONFIG" ]; then
+    mv "$CONFIG_DIR/openchronology.env" "$CONFIG"
+    ln -s circagraph.env "$CONFIG_DIR/openchronology.env"
+  fi
+  renamed=1
+fi
+
+# The system users: circagraph and circagraph-logs, or an installation's from before the
+# rename, openchronology and openchronology-logs, which it keeps.
+if [ -e "$CONFIG" ]; then
+  user=$(stat -c %G "$CONFIG")
+elif getent passwd openchronology >/dev/null && ! getent passwd circagraph >/dev/null; then
+  user=openchronology
+else
+  user=circagraph
+fi
+logs=$user-logs
+home=/var/lib/$user
+if ! getent passwd "$user" >/dev/null; then
+  adduser --system --group --home "$home" --no-create-home \
+    --comment "Circagraph server" "$user" >/dev/null
 fi
 # The log receivers' own user (#501): it reads their configuration, not the server's, and has
 # no database role.
-if ! getent passwd openchronology-logs >/dev/null; then
+if ! getent passwd "$logs" >/dev/null; then
   adduser --system --group --home /nonexistent --no-create-home \
-    --comment "OpenChronology log receivers" openchronology-logs >/dev/null
+    --comment "Circagraph log receivers" "$logs" >/dev/null
 fi
-install -d -m 0750 -o openchronology -g openchronology /var/lib/openchronology
+install -d -m 0750 -o "$user" -g "$user" "$home"
 # Others may pass through to the log receivers' files, but not list them; each file is 0640.
-install -d -m 0751 -o root -g openchronology "$CONFIG_DIR"
+install -d -m 0751 -o root -g "$user" "$CONFIG_DIR"
+# The services run as these users, with state folders named after them.
+sh "$APP/bin/circagraph-units" "$user"
 
 # The PostgreSQL cluster this package's pgmp was built for, and its port.
 cluster_port() {
@@ -38,7 +67,7 @@ port=$(cluster_port)
 [ -n "$port" ] || port=5432
 
 # Configuration files are created once and then belong to the administrator: upgrades never
-# rewrite them (each version's templates stay in /usr/share/openchronology to compare).
+# rewrite them (each version's templates stay in /usr/share/circagraph to compare).
 new_config() {
   [ -e "$1" ] && return 0
   sed "$3" "$4" >"$1.dpkg-new"
@@ -47,16 +76,17 @@ new_config() {
   mv "$1.dpkg-new" "$1"
 }
 key=$(od -An -tx1 -N32 /dev/urandom | tr -d ' \n')
-url="postgresql:///openchronology?host=/var/run/postgresql"
+url="postgresql:///$user?host=/var/run/postgresql"
 [ "$port" = 5432 ] || url="$url\\&port=$port"
-new_config "$CONFIG" openchronology "s|^AUTH_ENCRYPTION_KEY=\$|AUTH_ENCRYPTION_KEY=$key|; s|^DATABASE_URL=.*|DATABASE_URL=$url|" \
-  "$EXAMPLES/openchronology.env.example"
-new_config "$CONFIG_DIR/syslog.env" openchronology-logs "" "$EXAMPLES/syslog.env.example"
-new_config "$CONFIG_DIR/github.env" openchronology-logs "" "$EXAMPLES/github.env.example"
-new_config "$CONFIG_DIR/journald.env" openchronology-logs "" "$EXAMPLES/journald.env.example"
+new_config "$CONFIG" "$user" "s|^AUTH_ENCRYPTION_KEY=\$|AUTH_ENCRYPTION_KEY=$key|; s|^DATABASE_URL=.*|DATABASE_URL=$url|" \
+  "$EXAMPLES/circagraph.env.example"
+new_config "$CONFIG_DIR/syslog.env" "$logs" "" "$EXAMPLES/syslog.env.example"
+new_config "$CONFIG_DIR/github.env" "$logs" "s|/var/lib/circagraph-github/|/var/lib/$user-github/|" \
+  "$EXAMPLES/github.env.example"
+new_config "$CONFIG_DIR/journald.env" "$logs" "" "$EXAMPLES/journald.env.example"
 # From an installation before #501: the log receivers' configuration, and the files it names,
-# move from the openchronology user to theirs.
-sh "$APP/bin/openchronology-log-files" "$CONFIG_DIR" ||
+# move from the server's user to theirs.
+sh "$APP/bin/circagraph-log-files" "$CONFIG_DIR" "$user" "$logs" ||
   echo "Moving the log receivers' files failed; see $DOCS." >&2
 
 [ -n "$systemd" ] && systemctl daemon-reload
@@ -74,34 +104,47 @@ if ! psql_as_postgres -Atc 'SELECT 1' >/dev/null 2>&1; then
 fi
 running=
 psql_as_postgres -Atc 'SELECT 1' >/dev/null 2>&1 && running=1
-# An installed database is upgraded by the administrator (openchronology-migrate); one that
+# An installed database is upgraded by the administrator (circagraph-migrate); one that
 # is missing (a first install, or one that could not reach PostgreSQL) is created now.
+# The database and its role are named after the server's user.
 installed=
-if [ -n "$previous" ]; then
+if [ -n "$previous" ] || [ -n "$renamed" ]; then
   installed=1
   [ -n "$running" ] &&
-    [ -z "$(psql_as_postgres -Atc "SELECT 1 FROM pg_database WHERE datname='openchronology'")" ] &&
+    [ -z "$(psql_as_postgres -Atc "SELECT 1 FROM pg_database WHERE datname='$user'")" ] &&
     installed=
 fi
 if [ -n "$installed" ]; then
   # Settings the new template has that this installation's configuration does not.
-  missing=$(sed -n 's/^\([A-Z][A-Z0-9_]*\)=.*/\1/p' "$EXAMPLES/openchronology.env.example" |
+  missing=$(sed -n 's/^\([A-Z][A-Z0-9_]*\)=.*/\1/p' "$EXAMPLES/circagraph.env.example" |
     while read -r name; do grep -q "^$name=" "$CONFIG" || echo "  $name"; done)
   cat <<EOF
 
-OpenChronology $(dpkg-query -W -f='${Version}' openchronology-server) is installed over $previous.
+Circagraph $(dpkg-query -W -f='${Version}' circagraph-server) is installed over ${previous:-openchronology-server}.
 Upgrades stop the server; it starts again once the database is migrated to this version:
 
   1. Review the configuration in $CONFIG against this version's template:
-       diff -u $CONFIG $EXAMPLES/openchronology.env.example
+       diff -u $CONFIG $EXAMPLES/circagraph.env.example
 EOF
   if [ -n "$missing" ]; then
     echo "     New settings to consider (their defaults apply until you add them):"
     echo "$missing" | sed 's/^/     /'
   fi
   cat <<EOF
-  2. Back up the database:   sudo -u postgres pg_dump -p $port openchronology > openchronology.sql
-  3. Migrate and restart:    sudo openchronology-migrate
+  2. Back up the database:   sudo -u postgres pg_dump -p $port $user > $user.sql
+  3. Migrate and restart:    sudo circagraph-migrate
+EOF
+  if [ -n "$renamed" ]; then
+    cat <<EOF
+
+OpenChronology is now Circagraph: its configuration moved to $CONFIG_DIR, its commands are
+circagraph-migrate and cg-import-github (the old names still work), and its services are
+circagraph, circagraph-mail, circagraph-syslog, circagraph-github and circagraph-journald.
+circagraph-migrate enables and starts circagraph. Enable again whichever of the others ran
+before, for example:  sudo systemctl enable --now circagraph-mail
+EOF
+  fi
+  cat <<EOF
 
 See $DOCS.
 
@@ -112,47 +155,47 @@ fi
 if [ -z "$running" ]; then
   cat <<EOF
 
-OpenChronology is installed, but PostgreSQL $PG_MAJOR (cluster "main", port $port) is not
+Circagraph is installed, but PostgreSQL $PG_MAJOR (cluster "main", port $port) is not
 running, so the database was not created. Start it, then finish the setup:
 
   sudo pg_ctlcluster $PG_MAJOR main start
-  sudo dpkg-reconfigure openchronology-server
+  sudo dpkg-reconfigure circagraph-server
 
 See $DOCS.
 
 EOF
   exit 0
 fi
-if [ -z "$(psql_as_postgres -Atc "SELECT 1 FROM pg_roles WHERE rolname='openchronology'")" ]; then
-  psql_as_postgres -c 'CREATE ROLE openchronology LOGIN'
+if [ -z "$(psql_as_postgres -Atc "SELECT 1 FROM pg_roles WHERE rolname='$user'")" ]; then
+  psql_as_postgres -c "CREATE ROLE \"$user\" LOGIN"
 fi
-if [ -z "$(psql_as_postgres -Atc "SELECT 1 FROM pg_database WHERE datname='openchronology'")" ]; then
-  psql_as_postgres -c 'CREATE DATABASE openchronology OWNER openchronology'
+if [ -z "$(psql_as_postgres -Atc "SELECT 1 FROM pg_database WHERE datname='$user'")" ]; then
+  psql_as_postgres -c "CREATE DATABASE \"$user\" OWNER \"$user\""
 fi
 # pgmp is not a trusted extension: the superuser creates it once for the application's role.
-psql_as_postgres -d openchronology -c 'CREATE EXTENSION IF NOT EXISTS pgmp'
-openchronology-migrate --no-restart
+psql_as_postgres -d "$user" -c 'CREATE EXTENSION IF NOT EXISTS pgmp'
+circagraph-migrate --no-restart
 if [ -n "$systemd" ]; then
-  systemctl enable --quiet openchronology.service
-  systemctl restart openchronology.service
+  systemctl enable --quiet circagraph.service
+  systemctl restart circagraph.service
   # The mail worker and the log importers, each if it is enabled (#371, #374).
   for unit in mail syslog github journald; do
-    if systemctl is-enabled --quiet "openchronology-$unit.service" 2>/dev/null; then
-      systemctl restart "openchronology-$unit.service"
+    if systemctl is-enabled --quiet "circagraph-$unit.service" 2>/dev/null; then
+      systemctl restart "circagraph-$unit.service"
     fi
   done
 fi
 origin=$(sed -n 's/^APP_ORIGIN=//p' "$CONFIG")
-state="ready (start it with the openchronology service)"
+state="ready (start it with the circagraph service)"
 [ -n "$systemd" ] && state="running"
 cat <<EOF
 
-OpenChronology is installed and $state at $origin.
+Circagraph is installed and $state at $origin.
 
 Next steps:
   - Set APP_ORIGIN, email, an administrator and sign-in providers in $CONFIG,
-    then: sudo openchronology-migrate (creates the administrator) or
-          sudo systemctl restart openchronology
+    then: sudo circagraph-migrate (creates the administrator) or
+          sudo systemctl restart circagraph
   - Put an HTTPS reverse proxy in front of it for public use.
   - Back up AUTH_ENCRYPTION_KEY from $CONFIG separately from the database.
 

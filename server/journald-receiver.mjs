@@ -2,7 +2,7 @@
 /**
  * Follows the systemd journal and appends each entry as a moment to the timelines its routes
  * choose, through the Circagraph API with an API key (docs/journald.md, #151): live what
- * `och-import-logs --format journald` reads from `journalctl -o json` after the fact, as the
+ * `cg-import-logs --format journald` reads from `journalctl -o json` after the fact, as the
  * same moments with the same IDs, so a live stream and an import of the same entries never
  * duplicate each other.
  *

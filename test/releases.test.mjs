@@ -88,7 +88,7 @@ test('links come from the latest release, or by name before there is one', () =>
   assert.equal(assetSize(before, OFFLINE.asset), '2.0 MB');
   assert.equal(
     installCommand(null, server),
-    'curl -fLO https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-server-debian13-amd64.deb && sudo apt install ./openchronology-server-debian13-amd64.deb',
+    'curl -fLO https://github.com/circagraph/timeline-app/releases/latest/download/circagraph-server-debian13-amd64.deb && sudo apt install ./circagraph-server-debian13-amd64.deb',
   );
   const url = 'https://github.com/circagraph/timeline-app/releases/download/v1.2.0/';
   const release = releaseFrom({
@@ -110,8 +110,21 @@ test('links come from the latest release, or by name before there is one', () =>
   assert.equal(release.assets['evil.exe'], undefined);
   assert.match(
     installCommand(release, server),
-    /releases\/download\/v1\.2\.0\/openchronology-server/,
+    /releases\/download\/v1\.2\.0\/circagraph-server/,
   );
+  // A release from before the rename names its server packages openchronology-server-*.
+  const older = releaseFrom({
+    tag_name: 'v0.30.2',
+    assets: [
+      {
+        name: server.asset.replace(/^circagraph-/, 'openchronology-'),
+        browser_download_url: url + 'openchronology-server',
+        size: 1048576,
+      },
+    ],
+  });
+  assert.equal(assetLink(older, server.asset), url + 'openchronology-server');
+  assert.equal(assetSize(older, server.asset), '1.0 MB');
   assert.equal(releaseFrom({ message: 'Not Found' }), null);
   // Windows downloads and runs the installer, elevated.
   assert.equal(
@@ -119,7 +132,7 @@ test('links come from the latest release, or by name before there is one', () =>
       null,
       SERVERS.find((s) => s.key === 'windows'),
     ),
-    'Invoke-WebRequest https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-server-windows-amd64-setup.exe -OutFile "$env:TEMP\\openchronology-server-windows-amd64-setup.exe"; Start-Process -Wait -Verb RunAs "$env:TEMP\\openchronology-server-windows-amd64-setup.exe"',
+    'Invoke-WebRequest https://github.com/circagraph/timeline-app/releases/latest/download/circagraph-server-windows-amd64-setup.exe -OutFile "$env:TEMP\\circagraph-server-windows-amd64-setup.exe"; Start-Process -Wait -Verb RunAs "$env:TEMP\\circagraph-server-windows-amd64-setup.exe"',
   );
   // macOS installs with Homebrew, from the tap.
   assert.equal(
@@ -127,7 +140,7 @@ test('links come from the latest release, or by name before there is one', () =>
       null,
       SERVERS.find((s) => s.key === 'macos'),
     ),
-    'brew install circagraph/tap/openchronology-server && openchronology-setup',
+    'brew install circagraph/tap/circagraph-server && circagraph-setup',
   );
   // FreeBSD installs with its own fetch and pkg, as root.
   assert.equal(
@@ -135,7 +148,7 @@ test('links come from the latest release, or by name before there is one', () =>
       null,
       SERVERS.find((s) => s.key === 'freebsd15'),
     ),
-    'fetch https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-server-freebsd15-amd64.pkg && pkg install -y ./openchronology-server-freebsd15-amd64.pkg && openchronology-setup',
+    'fetch https://github.com/circagraph/timeline-app/releases/latest/download/circagraph-server-freebsd15-amd64.pkg && pkg install -y ./circagraph-server-freebsd15-amd64.pkg && circagraph-setup',
   );
   // RPM distributions install with dnf.
   assert.equal(
@@ -143,7 +156,7 @@ test('links come from the latest release, or by name before there is one', () =>
       null,
       SERVERS.find((s) => s.key === 'fedora44'),
     ),
-    'curl -fLO https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-server-fedora44-amd64.rpm && sudo dnf install ./openchronology-server-fedora44-amd64.rpm',
+    'curl -fLO https://github.com/circagraph/timeline-app/releases/latest/download/circagraph-server-fedora44-amd64.rpm && sudo dnf install ./circagraph-server-fedora44-amd64.rpm',
   );
 });
 
@@ -173,8 +186,8 @@ test('the guides: one per system and Linux family, Arch included, each with a wa
     desktop['linux/arch'].steps[1].command,
     /^git clone https:\/\/aur\.archlinux\.org\/openchronology-desktop-bin\.git && cd openchronology-desktop-bin && makepkg -si$/,
   );
-  assert.equal(server['linux/arch'].steps[0].command, 'yay -S openchronology-server');
-  assert.equal(server['linux/arch'].steps[2].command, 'sudo openchronology-setup');
+  assert.equal(server['linux/arch'].steps[0].command, 'yay -S circagraph-server');
+  assert.equal(server['linux/arch'].steps[2].command, 'sudo circagraph-setup');
   assert.match(server['linux/arch'].links[1].href, /deploy\/arch\/README\.Arch$/);
   // The browser's distribution first among Debian and Ubuntu.
   assert.match(server['linux/debian'].steps[0].command, /ubuntu24\.04/);

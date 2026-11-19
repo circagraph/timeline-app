@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-# The server's platform-independent part (#116), openchronology-server-platform.tar.gz: the
+# The server's platform-independent part (#116), circagraph-server-platform.tar.gz: the
 # editor and the Next.js platform built on Linux, the converter's sources with their Rust
 # crates (to build offline), the documentation and the Homebrew commands. The FreeBSD package
 # (deploy/freebsd-server/build.sh) and the Homebrew formula (deploy/homebrew) build och-convert
@@ -52,14 +52,14 @@ RUN --mount=type=bind,target=/build-context \
 # (the platform does not optimize images) and without a Node.js runtime: FreeBSD's node24
 # package and Homebrew's node@24 provide it.
 FROM debian:bookworm-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc AS tree
-COPY --from=app /app/platform/.next/standalone /out/lib/openchronology/
-COPY --from=app /app/platform/.next/static /out/lib/openchronology/platform/.next/static
-COPY --from=app /app/platform/public /out/lib/openchronology/platform/public
-COPY --from=app /app/dist /out/lib/openchronology/dist
-COPY --from=app /app/package.json /out/lib/openchronology/
-COPY --from=app /app/server /out/lib/openchronology/server
-COPY --from=app /app/legal /out/lib/openchronology/legal
-COPY deploy/debian-server/openchronology-server.mjs /out/lib/openchronology/openchronology-server.mjs
+COPY --from=app /app/platform/.next/standalone /out/lib/circagraph/
+COPY --from=app /app/platform/.next/static /out/lib/circagraph/platform/.next/static
+COPY --from=app /app/platform/public /out/lib/circagraph/platform/public
+COPY --from=app /app/dist /out/lib/circagraph/dist
+COPY --from=app /app/package.json /out/lib/circagraph/
+COPY --from=app /app/server /out/lib/circagraph/server
+COPY --from=app /app/legal /out/lib/circagraph/legal
+COPY deploy/debian-server/circagraph-server.mjs /out/lib/circagraph/circagraph-server.mjs
 # The docs first, so the project's README, not docs/README.md, is the one installed.
 COPY docs /out/doc/
 COPY LICENSE NOTICE THIRD_PARTY.md README.md /out/doc/
@@ -70,11 +70,11 @@ COPY --from=native /build/rust-dependencies /out/native/rust-dependencies
 COPY deploy/homebrew/cargo-config.toml /out/native/.cargo/config.toml
 # The Homebrew formula's commands and configuration templates (deploy/homebrew).
 COPY deploy/homebrew /out/homebrew
-COPY deploy/debian-server/openchronology.env deploy/debian-server/syslog.env \
+COPY deploy/debian-server/circagraph.env deploy/debian-server/syslog.env \
     deploy/debian-server/github.env /out/homebrew/
-RUN rm -rf /out/lib/openchronology/node_modules/@img /out/homebrew/cargo-config.toml \
+RUN rm -rf /out/lib/circagraph/node_modules/@img /out/homebrew/cargo-config.toml \
     /out/homebrew/*.rb.in /out/homebrew/tap-README.md /out/homebrew/README.md \
-    && tar -C /out -czf /openchronology-server-platform.tar.gz lib doc native homebrew
+    && tar -C /out -czf /circagraph-server-platform.tar.gz lib doc native homebrew
 
 FROM scratch AS export
-COPY --from=tree /openchronology-server-platform.tar.gz /
+COPY --from=tree /circagraph-server-platform.tar.gz /
