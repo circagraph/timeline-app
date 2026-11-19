@@ -11,11 +11,12 @@ import {
   RICH_TEXT_NOTES,
   MOMENT_HEADINGS,
   RELATIONSHIP_ARROWS,
+  TIMELINE_THEME,
 } from '../dist/core.mjs';
 
 const LOREM =
   'The archive records every change in exact rational time, and every reader may follow it. ';
-function printDocumentFixture(separate) {
+function printDocumentFixture(separate, dark) {
   const events = Array.from({ length: 60 }, (_, i) => ({
     id: 'm' + i,
     time: `${i * 10}/1`,
@@ -46,9 +47,22 @@ function printDocumentFixture(separate) {
     version: 1,
     title: 'Printed',
     description: '',
-    plugins: [MOMENT_COLORS, RICH_TEXT_NOTES, MOMENT_HEADINGS, RELATIONSHIP_ARROWS].map(
-      (manifest) => ({ manifest, enabled: true }),
-    ),
+    plugins: [
+      ...[MOMENT_COLORS, RICH_TEXT_NOTES, MOMENT_HEADINGS, RELATIONSHIP_ARROWS].map((manifest) => ({
+        manifest,
+        enabled: true,
+      })),
+      // A theme for a dark ground, which print leaves to the screen.
+      ...(dark
+        ? [
+            {
+              manifest: TIMELINE_THEME,
+              enabled: true,
+              settings: { backgroundColor: '#1b1b1f', textColor: '#f0f0f0', textSize: '120' },
+            },
+          ]
+        : []),
+    ],
     ...(separate ? { view: { separation: { tags: ['war'] } } } : {}),
     events,
     durations,
@@ -110,8 +124,8 @@ function readPages(page) {
 }
 
 export async function checkPrint(page, engine) {
-  const load = async (separate) => {
-    const document = printDocumentFixture(separate);
+  const load = async (separate, dark) => {
+    const document = printDocumentFixture(separate, dark);
     await page.locator('#json-file').setInputFiles({
       name: 'printed.ochx',
       mimeType: 'application/json',
@@ -195,4 +209,29 @@ export async function checkPrint(page, engine) {
   await page.locator('#print-close').click();
   // The paper chosen is remembered.
   assert.equal(await page.evaluate(() => localStorage.getItem('circagraph:print-paper')), 'a4');
+
+  // Printed light on white paper, though the app is dark and the timeline's theme is for a dark
+  // ground; the theme's text size still applies.
+  await page.evaluate(() => (document.documentElement.dataset.theme = 'dark'));
+  await load(false, true);
+  await printFrom(page, stage.x + 120, stage.y + 60, 'Print as a document…');
+  const look = await page.evaluate(() => {
+    const p = document.querySelector('#print-pages .print-page');
+    const title = p.querySelector('.print-title');
+    const notes = p.querySelector('.reader-notes');
+    return {
+      paper: getComputedStyle(p).backgroundColor,
+      title: getComputedStyle(title).color,
+      notes: getComputedStyle(notes).color,
+      scale: getComputedStyle(p).getPropertyValue('--timeline-text-scale').trim(),
+    };
+  });
+  assert.equal(look.paper, 'rgb(255, 255, 255)');
+  for (const color of [look.title, look.notes]) {
+    const [r, g, b] = color.match(/\d+/g).map(Number);
+    assert.ok(r + g + b < 3 * 110, `dark text on white, not ${color}`);
+  }
+  assert.equal(look.scale, '1.2');
+  await page.locator('#print-close').click();
+  await page.evaluate(() => delete document.documentElement.dataset.theme);
 }

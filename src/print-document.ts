@@ -24,7 +24,7 @@ import {
   renderPluginOutline,
   renderPluginShape,
 } from './plugin-ui.js';
-import { themeProperties } from './timeline-theme.js';
+import { stageScheme, themeProperties } from './timeline-theme.js';
 import {
   DocRow,
   PAPER,
@@ -240,6 +240,26 @@ export interface PrintResult {
   pages: number;
 }
 /**
+ * The timeline's theme as printed: always light on white paper. Its fonts and sizes apply, and its
+ * colors too unless they were chosen for a dark background, which would leave them unreadable on
+ * white; its background never does.
+ */
+export function printedTheme(plugins: PrintInput['plugins']): Record<string, string> {
+  const theme = pluginTheme(plugins);
+  const properties = themeProperties(
+    stageScheme(theme) === 'dark'
+      ? {
+          textFont: theme.textFont,
+          textSize: theme.textSize,
+          measureFont: theme.measureFont,
+          measureSize: theme.measureSize,
+        }
+      : theme,
+  );
+  delete properties['--timeline-background'];
+  return properties;
+}
+/**
  * Lays the document out in `host` as pages of `input.paper`, replacing what it held, and sets
  * the paper size for printing. Measures in `host`, so it must be in the page and shown.
  */
@@ -247,7 +267,9 @@ export async function printDocument(host: HTMLElement, input: PrintInput): Promi
   const paper = PAPER[input.paper];
   host.replaceChildren();
   host.className = 'print-document';
-  for (const [name, value] of Object.entries(themeProperties(pluginTheme(input.plugins))))
+  for (const name of [...host.style])
+    if (name.startsWith('--timeline-')) host.style.removeProperty(name);
+  for (const [name, value] of Object.entries(printedTheme(input.plugins)))
     host.style.setProperty(name, value);
   const pageStyle = document.createElement('style');
   pageStyle.textContent = `@page { size: ${paper.css}; margin: 0; }`;
