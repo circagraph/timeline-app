@@ -1,21 +1,30 @@
 #!/bin/sh
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-# Purging removes the configuration (including AUTH_ENCRYPTION_KEY) and cached downloads. The
-# database is never dropped automatically.
+# Purging removes the configuration (including AUTH_ENCRYPTION_KEY), the services' drop-ins and
+# cached downloads. The database is never dropped automatically.
 set -e
-[ -d /run/systemd/system ] && systemctl daemon-reload >/dev/null 2>&1 || true
 if [ "$1" = purge ]; then
-  rm -rf /etc/openchronology /var/lib/openchronology /var/cache/openchronology
+  # The server's user, and with it the database's name: circagraph, or openchronology for an
+  # installation from before the rename.
+  user=circagraph
+  [ -e /etc/circagraph/circagraph.env ] && user=$(stat -c %G /etc/circagraph/circagraph.env)
+  rm -rf /etc/circagraph /etc/openchronology "/var/lib/$user" "/var/cache/$user" \
+    /var/cache/circagraph
+  for unit in circagraph circagraph-mail circagraph-syslog circagraph-github circagraph-journald; do
+    rm -f "/etc/systemd/system/$unit.service.d/50-users.conf"
+    rmdir "/etc/systemd/system/$unit.service.d" 2>/dev/null || true
+  done
   cat <<MSG
 
-The OpenChronology configuration was removed. The PostgreSQL database and the openchronology
-and openchronology-logs system users remain. To delete them as well:
+The Circagraph configuration was removed. The PostgreSQL database and the $user
+and $user-logs system users remain. To delete them as well:
 
-  sudo -u postgres dropdb openchronology
-  sudo -u postgres dropuser openchronology
-  sudo deluser --system openchronology
-  sudo deluser --system openchronology-logs
+  sudo -u postgres dropdb $user
+  sudo -u postgres dropuser $user
+  sudo deluser --system $user
+  sudo deluser --system $user-logs
 
 MSG
 fi
+[ -d /run/systemd/system ] && systemctl daemon-reload >/dev/null 2>&1 || true
 exit 0

@@ -41,14 +41,17 @@ export const serverTargets = {
   windows: { format: 'exe', pg: 17 },
 };
 /** The platform-independent part FreeBSD's package and Homebrew's formula build from. */
-export const PLATFORM = 'openchronology-server-platform.tar.gz';
-/** A target's package file, as built and as attached to releases (its version is inside). */
+export const PLATFORM = 'circagraph-server-platform.tar.gz';
+/**
+ * A target's package file, as built and as attached to releases (its version is inside); named
+ * openchronology-server-* until 0.30.
+ */
 export const serverPackage = (target) =>
   serverTargets[target]?.format === 'brew'
     ? PLATFORM
     : serverTargets[target]?.format === 'exe'
-      ? `openchronology-server-${target}-amd64-setup.exe`
-      : `openchronology-server-${target}-amd64.${serverTargets[target]?.format ?? 'deb'}`;
+      ? `circagraph-server-${target}-amd64-setup.exe`
+      : `circagraph-server-${target}-amd64.${serverTargets[target]?.format ?? 'deb'}`;
 /**
  * The upstream version of a release tag (Debian and RPM alike): without its "v", and with a
  * pre-release ("-rc.1") marked "~rc.1" so that it sorts before the release.

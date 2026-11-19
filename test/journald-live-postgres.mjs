@@ -2,7 +2,7 @@
 // Following the real journal end to end (#151): entries written with systemd-cat reach a
 // timeline through the journald receiver (journalctl → API key → PostgreSQL); stopped and
 // started again, it resumes after the last entry sent, missing nothing written meanwhile and
-// sending nothing twice; and importing the same entries afterwards with och-import-logs
+// sending nothing twice; and importing the same entries afterwards with cg-import-logs
 // adds nothing, since a live entry and an imported one are the same moment.
 // Skipped (with a message) where this account cannot read the system journal.
 import assert from 'node:assert/strict';

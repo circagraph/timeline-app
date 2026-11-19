@@ -1,23 +1,24 @@
-# The syslog receiver (docs/syslog.md) as a systemd service, configured in
-# /etc/openchronology/syslog.env (Debian and RPM packages).
+# The Circagraph platform as a systemd service (Debian and RPM packages), on the address
+# in /etc/circagraph/circagraph.env.
 [Unit]
-Description=OpenChronology syslog receiver
-Documentation=file:///usr/share/doc/openchronology-server/README.Debian
-After=network.target openchronology.service
+Description=Circagraph platform
+Documentation=file:///usr/share/doc/circagraph-server/README.Debian
+After=network.target postgresql.service
+Wants=postgresql.service
 
 [Service]
 Type=simple
-# Its own user (#501): it cannot read the server's configuration or log in to its database.
-User=openchronology-logs
-Group=openchronology-logs
-EnvironmentFile=/etc/openchronology/syslog.env
-Environment=NODE_ENV=production
-WorkingDirectory=/usr/lib/openchronology
-ExecStart=/usr/lib/openchronology/node/bin/node server/syslog-receiver.mjs
+User=circagraph
+Group=circagraph
+EnvironmentFile=/etc/circagraph/circagraph.env
+WorkingDirectory=/usr/lib/circagraph
+ExecStart=/usr/lib/circagraph/node/bin/node /usr/lib/circagraph/circagraph-server.mjs
 Restart=on-failure
 # Node exits with 128 + SIGTERM when stopped; that is a clean stop, not a failure.
 SuccessExitStatus=143
-RestartSec=10
+RestartSec=5
+# Open live views keep the server from exiting promptly; do not wait long for them.
+TimeoutStopSec=10
 # Hardening: no privileges, devices, kernel or clock changes, namespaces or foreign system
 # calls, and files it creates private to it. AF_NETLINK is for Node's network interface list.
 NoNewPrivileges=yes
@@ -39,8 +40,10 @@ SystemCallArchitectures=native
 SystemCallFilter=@system-service
 SystemCallErrorNumber=EPERM
 UMask=0077
-# Other users' processes are hidden from it.
-ProtectProc=invisible
+# /var/cache/circagraph (CACHE_DIRECTORY), where downloads are cached (EXPORT_CACHE).
+CacheDirectory=circagraph
 
 [Install]
 WantedBy=multi-user.target
+# Its name before the rename to Circagraph starts and stops it too.
+Alias=openchronology.service

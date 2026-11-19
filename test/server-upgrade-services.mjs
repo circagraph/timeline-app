@@ -7,21 +7,21 @@
 // for the mail worker (the outbox is empty, so it sends nothing), an API key and a timeline for
 // the importers. Nothing reaches the receiver, and the container has no systemd-journald, so the
 // follower's journalctl finds no entries; both still run, as their units would. The upgrade
-// moves the importers' files from the openchronology user to openchronology-logs (#501).
+// moves the importers' files from the circagraph user to circagraph-logs (#501).
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { unitCommand } from './server-syslog.mjs';
 
 const state = '/run/och-test-systemd';
-const etc = '/etc/openchronology';
+const etc = '/etc/circagraph';
 /**
- * The services an upgrade stops: each with its name in openchronology-migrate's output and the
+ * The services an upgrade stops: each with its name in circagraph-migrate's output and the
  * line it logs once it runs (the mail worker logs nothing until it sends).
  */
 const services = {
-  'openchronology-mail.service': { name: 'mail worker', ready: null },
-  'openchronology-syslog.service': { name: 'syslog receiver', ready: /^syslog: listening/m },
-  'openchronology-journald.service': { name: 'journald follower', ready: /^journald: following/m },
+  'circagraph-mail.service': { name: 'mail worker', ready: null },
+  'circagraph-syslog.service': { name: 'syslog receiver', ready: /^syslog: listening/m },
+  'circagraph-journald.service': { name: 'journald follower', ready: /^journald: following/m },
 };
 // A known-hosts file outside the configuration, named through a symbolic link (#501).
 const linkedHosts = '/tmp/och-test-known-hosts';
@@ -29,7 +29,7 @@ const pidFile = (unit) => `/tmp/${unit}.pid`;
 const logFile = (unit) => `/tmp/${unit}.log`;
 // The configuration files the placeholders go in, restored afterwards.
 const configs = [
-  `${etc}/openchronology.env`,
+  `${etc}/circagraph.env`,
   `${etc}/syslog.env`,
   `${etc}/syslog-routes.json`,
   `${etc}/journald.env`,
@@ -92,7 +92,7 @@ exit $status
 
 /**
  * With the mail worker and the log importers enabled and running, `upgrade()` (reinstalling the
- * package) stops them and openchronology-migrate starts each again; `--no-restart` starts
+ * package) stops them and circagraph-migrate starts each again; `--no-restart` starts
  * nothing, and disabled ones stay stopped while an enabled one starts. Returns the upgrade's and
  * the migration's output for the caller's checks.
  */
@@ -120,10 +120,10 @@ export async function checkServicesUpgrade({ sh, upgrade }) {
         .map((file) => `if [ -e ${file} ]; then cp -p ${file} ${file}.och-test; fi; `)
         .join('') +
       `sed -i -e 's/^RESEND_API_KEY=.*/RESEND_API_KEY=re_placeholder/' ` +
-      `-e 's/^AUTH_EMAIL_FROM=.*/AUTH_EMAIL_FROM=mail@example.test/' ${etc}/openchronology.env; ` +
+      `-e 's/^AUTH_EMAIL_FROM=.*/AUTH_EMAIL_FROM=mail@example.test/' ${etc}/circagraph.env; ` +
       `sed -i 's/^OCH_API_KEY=.*/OCH_API_KEY=${apiKey}/' ${etc}/syslog.env ${etc}/journald.env; ` +
       `printf '{"default":"${timeline}"}' > ${etc}/syslog-routes.json; ` +
-      `chown root:openchronology-logs ${etc}/syslog-routes.json; chmod 0640 ${etc}/syslog-routes.json; ` +
+      `chown root:circagraph-logs ${etc}/syslog-routes.json; chmod 0640 ${etc}/syslog-routes.json; ` +
       `sed -i 's/^JOURNALD_TIMELINE=.*/JOURNALD_TIMELINE=${timeline}/' ${etc}/journald.env`,
   );
   const logs = () =>
@@ -139,14 +139,14 @@ export async function checkServicesUpgrade({ sh, upgrade }) {
     assert.deepEqual(await states(), all('active'), await logs());
 
     // The log importers' files as an installation from before #501 has them, for the upgrade to
-    // move to openchronology-logs: the configuration and routes in openchronology's group, an
+    // move to circagraph-logs: the configuration and routes in circagraph's group, an
     // SSH key it owns, and a known-hosts file reached through a symbolic link, which stays.
     await sh(
-      `set -e; chgrp openchronology ${etc}/syslog.env ${etc}/journald.env ${etc}/syslog-routes.json; ` +
+      `set -e; chgrp circagraph ${etc}/syslog.env ${etc}/journald.env ${etc}/syslog-routes.json; ` +
         `printf 'key\\n' > ${etc}/journald_ssh_key; chmod 0600 ${etc}/journald_ssh_key; ` +
-        `chown openchronology:openchronology ${etc}/journald_ssh_key; ` +
+        `chown circagraph:circagraph ${etc}/journald_ssh_key; ` +
         `printf 'hosts\\n' > ${linkedHosts}; chmod 0644 ${linkedHosts}; ` +
-        `chown openchronology:openchronology ${linkedHosts}; ` +
+        `chown circagraph:circagraph ${linkedHosts}; ` +
         `ln -s ${linkedHosts} ${etc}/journald_known_hosts; ` +
         `printf 'JOURNALD_SSH_KEY=${etc}/journald_ssh_key\\nJOURNALD_KNOWN_HOSTS="${etc}/journald_known_hosts"\\n' >> ${etc}/journald.env`,
     );
@@ -156,23 +156,23 @@ export async function checkServicesUpgrade({ sh, upgrade }) {
       (await sh(`stat -c '%a %U %G' ${files.join(' ')}`)).trim().split('\n');
     assert.deepEqual(
       await owners([`${etc}/syslog.env`, `${etc}/journald.env`, `${etc}/syslog-routes.json`]),
-      Array(3).fill('640 root openchronology-logs'),
+      Array(3).fill('640 root circagraph-logs'),
       upgraded,
     );
     assert.deepEqual(await owners([`${etc}/journald_ssh_key`]), [
-      '600 openchronology-logs openchronology-logs',
+      '600 circagraph-logs circagraph-logs',
     ]);
-    assert.deepEqual(await owners([linkedHosts]), ['644 openchronology openchronology']);
+    assert.deepEqual(await owners([linkedHosts]), ['644 circagraph circagraph']);
     assert.match(upgraded, /journald_known_hosts is not a regular file; left as it is/);
-    assert.deepEqual(await owners([`${etc}/openchronology.env`]), ['640 root openchronology']);
+    assert.deepEqual(await owners([`${etc}/circagraph.env`]), ['640 root circagraph']);
 
     await sh(`: > ${state}/calls`);
-    const migrated = await sh('openchronology-migrate 2>&1');
-    assert.match(migrated, /OpenChronology restarted\./, migrated);
+    const migrated = await sh('circagraph-migrate 2>&1');
+    assert.match(migrated, /Circagraph restarted\./, migrated);
     const calls = await sh(`cat ${state}/calls`);
-    assert.match(calls, /^systemctl restart openchronology\.service$/m);
+    assert.match(calls, /^systemctl restart circagraph\.service$/m);
     for (const [unit, { name }] of Object.entries(services)) {
-      assert.match(migrated, new RegExp(`^OpenChronology ${name} restarted\\.$`, 'm'), migrated);
+      assert.match(migrated, new RegExp(`^Circagraph ${name} restarted\\.$`, 'm'), migrated);
       assert.match(calls, new RegExp(`^systemctl restart ${unit.replaceAll('.', '\\.')}$`, 'm'));
     }
     // Still running a moment later: each started with its configuration, not failed on it.
@@ -183,19 +183,19 @@ export async function checkServicesUpgrade({ sh, upgrade }) {
 
     // --no-restart starts nothing.
     await sh(`systemctl stop ${units.join(' ')}`);
-    const migratedOnly = await sh('openchronology-migrate --no-restart 2>&1');
+    const migratedOnly = await sh('circagraph-migrate --no-restart 2>&1');
     assert.doesNotMatch(migratedOnly, /restarted/);
     assert.deepEqual(await states(), all('inactive'));
 
     // Disabled ones (not configured) stay stopped; an enabled one starts.
-    await sh('systemctl disable openchronology-mail.service openchronology-journald.service');
-    const mixed = await sh('openchronology-migrate 2>&1');
-    assert.match(mixed, /OpenChronology restarted\./);
-    assert.match(mixed, /^OpenChronology syslog receiver restarted\.$/m, mixed);
+    await sh('systemctl disable circagraph-mail.service circagraph-journald.service');
+    const mixed = await sh('circagraph-migrate 2>&1');
+    assert.match(mixed, /Circagraph restarted\./);
+    assert.match(mixed, /^Circagraph syslog receiver restarted\.$/m, mixed);
     assert.doesNotMatch(mixed, /mail worker restarted|journald follower restarted/);
     assert.deepEqual(await states(), {
       ...all('inactive'),
-      'openchronology-syslog.service': 'active',
+      'circagraph-syslog.service': 'active',
     });
     return { upgrade: upgraded, migrate: migrated };
   } finally {

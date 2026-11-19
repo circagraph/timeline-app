@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadEnvFile } from './server/env-file.mjs';
 const app = dirname(fileURLToPath(import.meta.url));
-loadEnvFile(process.env.OCH_CONFIG || '/etc/openchronology/openchronology.env');
+loadEnvFile(process.env.OCH_CONFIG || '/etc/circagraph/circagraph.env');
 // The configuration names the listening address HOST; Next.js reads HOSTNAME, which shells
 // also set to the machine's name.
 process.env.HOSTNAME = process.env.HOST || '127.0.0.1';

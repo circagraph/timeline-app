@@ -1,26 +1,26 @@
 # The journald follower (docs/journald.md) as a systemd service, configured in
-# /etc/openchronology/journald.env (Debian and RPM packages).
+# /etc/circagraph/journald.env (Debian and RPM packages).
 [Unit]
-Description=OpenChronology journald follower
-Documentation=file:///usr/share/doc/openchronology-server/README.Debian
-After=network.target openchronology.service systemd-journald.service
+Description=Circagraph journald follower
+Documentation=file:///usr/share/doc/circagraph-server/README.Debian
+After=network.target circagraph.service systemd-journald.service
 
 [Service]
 Type=simple
 # Its own user (#501): it cannot read the server's configuration or log in to its database.
 # Reading the system journal (journalctl) needs the systemd-journal group, which the syslog
-# receiver (also openchronology-logs) does not have. As this process's main group, it also
+# receiver (also circagraph-logs) does not have. As this process's main group, it also
 # keeps the receiver from tracing it or reading its memory (that needs the same groups); its
-# configuration's group, openchronology-logs, is supplementary.
-User=openchronology-logs
+# configuration's group, circagraph-logs, is supplementary.
+User=circagraph-logs
 Group=systemd-journal
-SupplementaryGroups=openchronology-logs
-EnvironmentFile=/etc/openchronology/journald.env
+SupplementaryGroups=circagraph-logs
+EnvironmentFile=/etc/circagraph/journald.env
 Environment=NODE_ENV=production
-WorkingDirectory=/usr/lib/openchronology
-ExecStart=/usr/lib/openchronology/node/bin/node server/journald-receiver.mjs
+WorkingDirectory=/usr/lib/circagraph
+ExecStart=/usr/lib/circagraph/node/bin/node server/journald-receiver.mjs
 # The cursor of the last entry sent (and, over SSH, the hosts seen): kept across restarts.
-StateDirectory=openchronology-journald
+StateDirectory=circagraph-journald
 Restart=on-failure
 # Node exits with 128 + SIGTERM when stopped; that is a clean stop, not a failure.
 SuccessExitStatus=143
@@ -51,3 +51,5 @@ ProtectProc=invisible
 
 [Install]
 WantedBy=multi-user.target
+# Its name before the rename to Circagraph starts and stops it too.
+Alias=openchronology-journald.service
