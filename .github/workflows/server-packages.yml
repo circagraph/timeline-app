@@ -104,7 +104,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: server-platform
-          path: server-artifacts/openchronology-server-platform.tar.gz
+          path: server-artifacts/circagraph-server-platform.tar.gz
           if-no-files-found: error
   # Arch Linux (#331): the AUR's openchronology-server, rendered for the platform archive, built
   # with makepkg and installed, set up, run, upgraded and removed in a fresh Arch container.
@@ -240,21 +240,23 @@ jobs:
           path: server-artifacts/
       - name: Tap the formula locally
         run: |
-          brew tap-new --no-git openchronology/local
-          tap="$(brew --repository openchronology/local)"
+          brew tap-new --no-git circagraph/local
+          tap="$(brew --repository circagraph/local)"
           node scripts/homebrew-formula.mjs \
-            --tarball server-artifacts/openchronology-server-platform.tar.gz \
-            --url "file://$PWD/server-artifacts/openchronology-server-platform.tar.gz" \
-            --out "$tap/Formula/openchronology-server.rb"
+            --tarball server-artifacts/circagraph-server-platform.tar.gz \
+            --url "file://$PWD/server-artifacts/circagraph-server-platform.tar.gz" \
+            --out "$tap/Formula/circagraph-server.rb"
       # A PostgreSQL the runner may run already would hold the socket PostgreSQL 17 needs.
       - name: Stop other PostgreSQL servers
         run: brew services list | awk '/^postgresql/ {print $1}' | xargs -n1 brew services stop || true
       - name: Install it as users do
         timeout-minutes: 10
-        run: brew install --build-from-source openchronology/local/openchronology-server
-      - run: brew test openchronology/local/openchronology-server
-      - name: Set it up, run it and remove it
-        timeout-minutes: 5
+        run: brew install --build-from-source circagraph/local/circagraph-server
+      - run: brew test circagraph/local/circagraph-server
+      # Then, from a clean slate, 0.30.2's openchronology-server (its formula from the tag, its
+      # platform archive from the release) is set up and upgraded to this circagraph-server.
+      - name: Set it up, run it and remove it; upgrade openchronology-server to it
+        timeout-minutes: 30
         run: node test/server-homebrew.mjs
   # Windows (#116): the self-contained installer, with its own PostgreSQL 17 and pgmp built for
   # it with MSVC, built from the platform and installed, run, upgraded and removed unattended.

@@ -1,8 +1,10 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-# The OpenChronology server for macOS (#116), published to circagraph/homebrew-tap by
-# releases (scripts/homebrew-formula.mjs renders this template).
-class OpenchronologyServer < Formula
-  desc "Exact timelines, shared on your terms: the OpenChronology platform server"
+# The Circagraph server for macOS (#116), published to circagraph/homebrew-tap by releases
+# (scripts/homebrew-formula.mjs renders this template). Until 0.30 it was openchronology-server;
+# the tap's formula_renames.json moves those installations here, and post_install moves their
+# configuration.
+class CircagraphServer < Formula
+  desc "Exact timelines, shared on your terms: the Circagraph platform server"
   homepage "https://github.com/circagraph/timeline-app"
   url "@URL@"
   version "@VERSION@"
@@ -42,8 +44,11 @@ class OpenchronologyServer < Formula
     end
     # The platform (Next.js and the editor), laid out as the other packages lay it out.
     libexec.mkpath
-    cp_r "lib/openchronology/.", libexec
+    cp_r "lib/circagraph/.", libexec
     (libexec/"bin").install "native/native-store/target/release/och-convert"
+    # The launcher by its name before the rename, which the openchronology-server service that
+    # an earlier installation started runs until circagraph-migrate replaces it.
+    libexec.install_symlink "circagraph-server.mjs" => "openchronology-server.mjs"
 
     # pgmp, installed where Homebrew's postgresql@17 finds extensions (as pgvector is).
     resource("pgmp").stage do
@@ -60,25 +65,25 @@ class OpenchronologyServer < Formula
     end
 
     # Configuration templates, with this Mac's paths.
-    (share/"openchronology").install "homebrew/openchronology.env" => "openchronology.env.example",
-                                     "homebrew/syslog.env"         => "syslog.env.example",
-                                     "homebrew/github.env"         => "github.env.example"
-    inreplace share.glob("openchronology/*.example") do |s|
-      s.gsub! "/etc/openchronology", "#{etc}/openchronology", audit_result: false
+    (share/"circagraph").install "homebrew/circagraph.env" => "circagraph.env.example",
+                                 "homebrew/syslog.env"     => "syslog.env.example",
+                                 "homebrew/github.env"     => "github.env.example"
+    inreplace share.glob("circagraph/*.example") do |s|
+      s.gsub! "/etc/circagraph", "#{etc}/circagraph", audit_result: false
       # The GitHub receiver's state, beside the server's data.
-      s.gsub! "/var/lib/openchronology-github", "#{var}/openchronology", audit_result: false
-      s.gsub! "sudo systemctl restart openchronology", "brew services restart openchronology-server",
+      s.gsub! "/var/lib/circagraph-github", "#{var}/circagraph", audit_result: false
+      s.gsub! "sudo systemctl restart circagraph", "brew services restart circagraph-server",
               audit_result: false
-      # The mail, syslog and GitHub workers run as your launchd agents (openchronology-agent).
-      s.gsub! "sudo systemctl enable --now openchronology-", "openchronology-agent start ",
+      # The mail, syslog and GitHub workers run as your launchd agents (circagraph-agent).
+      s.gsub! "sudo systemctl enable --now circagraph-", "circagraph-agent start ",
               audit_result: false
-      s.gsub! "sudo openchronology-", "openchronology-", audit_result: false
+      s.gsub! "sudo circagraph-", "circagraph-", audit_result: false
     end
 
     # The commands, pointing at this installation.
-    commands = %w[openchronology-setup openchronology-migrate openchronology-reset-admin-password
-                  och-import-logs och-import-github openchronology-mail openchronology-syslog
-                  openchronology-github openchronology-agent]
+    commands = %w[circagraph-setup circagraph-migrate circagraph-reset-admin-password
+                  cg-import-logs cg-import-github circagraph-mail circagraph-syslog
+                  circagraph-github circagraph-agent]
     commands.each { |command| bin.install "homebrew/#{command}" }
     # Not every command names every path.
     inreplace commands.map { |command| bin/command } do |s|
@@ -89,40 +94,63 @@ class OpenchronologyServer < Formula
       s.gsub! "@PG_MAJOR@", postgresql.version.major.to_s, audit_result: false
     end
 
+    # The commands' names before the rename (openchronology-*, och-import-*) still work.
+    commands.each do |command|
+      old = command.sub(/\Acircagraph-/, "openchronology-").sub(/\Acg-/, "och-")
+      bin.install_symlink command => old
+    end
+
     doc.install Dir["doc/*"], "homebrew/README.Homebrew"
   end
 
   def post_install
-    (var/"openchronology").mkpath
+    # An installation of openchronology-server: its configuration, under the new names, with
+    # links from the old ones. Its database, its state (var/openchronology) and its launchd
+    # agents keep their names until circagraph-migrate moves the agents.
+    old_config = etc/"openchronology"
+    config = etc/"circagraph"
+    if old_config.directory? && !old_config.symlink? && !config.exist?
+      mv old_config, config
+      ln_s "circagraph", old_config
+    end
+    if (config/"openchronology.env").file? && !(config/"openchronology.env").symlink? &&
+       !(config/"circagraph.env").exist?
+      mv config/"openchronology.env", config/"circagraph.env"
+      ln_s "circagraph.env", config/"openchronology.env"
+    end
+    (var/"circagraph").mkpath
     (var/"log").mkpath
   end
 
   def caveats
     <<~EOS
       To finish the installation, run:
-        openchronology-setup
-      It starts PostgreSQL 17 (brew services) if it is not running, creates the openchronology
+        circagraph-setup
+      It starts PostgreSQL 17 (brew services) if it is not running, creates the circagraph
       database, and starts the server on http://localhost:5173.
 
-      Configuration: #{etc}/openchronology/openchronology.env
-      After upgrading, migrate the database: openchronology-migrate
-      More: #{HOMEBREW_PREFIX}/share/doc/openchronology-server/README.Homebrew
+      Configuration: #{etc}/circagraph/circagraph.env
+      After upgrading, migrate the database: circagraph-migrate
+      Upgrading from openchronology-server, circagraph-migrate also moves its service and
+      launchd agents to their new names; the database keeps its name.
+      More: #{HOMEBREW_PREFIX}/share/doc/circagraph-server/README.Homebrew
     EOS
   end
 
   service do
-    run [Formula["node@24"].opt_bin/"node", opt_libexec/"openchronology-server.mjs"]
-    environment_variables OCH_CONFIG: etc/"openchronology/openchronology.env",
+    run [Formula["node@24"].opt_bin/"node", opt_libexec/"circagraph-server.mjs"]
+    environment_variables OCH_CONFIG: etc/"circagraph/circagraph.env",
                           NODE_ENV:   "production"
     keep_alive true
     working_dir opt_libexec
-    log_path var/"log/openchronology.log"
-    error_log_path var/"log/openchronology.log"
+    log_path var/"log/circagraph.log"
+    error_log_path var/"log/circagraph.log"
   end
 
   test do
-    assert_match "Usage: och-import-logs", shell_output("#{bin}/och-import-logs --help")
-    assert_match "Usage: och-import-github", shell_output("#{bin}/och-import-github --help")
+    assert_match "Usage: cg-import-logs", shell_output("#{bin}/cg-import-logs --help")
+    assert_match "Usage: cg-import-github", shell_output("#{bin}/cg-import-github --help")
+    assert_match "Usage: cg-import-logs", shell_output("#{bin}/och-import-logs --help")
     assert_path_exists libexec/"bin/och-convert"
     # pgmp loads in a scratch PostgreSQL 17 cluster.
     ENV["LC_ALL"] = "C"

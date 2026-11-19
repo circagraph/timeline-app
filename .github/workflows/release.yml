@@ -149,7 +149,9 @@ jobs:
             gh release edit "$RELEASE_TAG" --draft=false --latest
           fi
   # Stable releases publish the Homebrew formula (#116) to circagraph/homebrew-tap, for the
-  # platform archive this release attached; pre-releases leave the tap as it is.
+  # platform archive this release attached; pre-releases leave the tap as it is. The formula was
+  # openchronology-server until 0.30: formula_renames.json moves its installations to
+  # circagraph-server, and its old file leaves the tap.
   homebrew:
     name: Publish the Homebrew formula
     needs: publish
@@ -170,11 +172,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          gh release download "$RELEASE_TAG" --pattern openchronology-server-platform.tar.gz --dir release
+          gh release download "$RELEASE_TAG" --pattern circagraph-server-platform.tar.gz --dir release
           node scripts/homebrew-formula.mjs \
-            --tarball release/openchronology-server-platform.tar.gz \
-            --url "https://github.com/${GH_REPO}/releases/download/${RELEASE_TAG}/openchronology-server-platform.tar.gz" \
-            --out openchronology-server.rb
+            --tarball release/circagraph-server-platform.tar.gz \
+            --url "https://github.com/${GH_REPO}/releases/download/${RELEASE_TAG}/circagraph-server-platform.tar.gz" \
+            --out circagraph-server.rb
       - name: Push it to the tap
         env:
           TAP_KEY: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY }}
@@ -185,13 +187,15 @@ jobs:
           export GIT_SSH_COMMAND="ssh -i ~/.ssh/tap -o IdentitiesOnly=yes"
           git clone git@github.com:circagraph/homebrew-tap.git tap
           mkdir -p tap/Formula
-          cp openchronology-server.rb tap/Formula/
+          cp circagraph-server.rb tap/Formula/
           cp deploy/homebrew/tap-README.md tap/README.md
+          echo '{ "openchronology-server": "circagraph-server" }' > tap/formula_renames.json
           cd tap
-          git add Formula/openchronology-server.rb README.md
+          if [ -e Formula/openchronology-server.rb ]; then git rm -q Formula/openchronology-server.rb; fi
+          git add Formula/circagraph-server.rb README.md formula_renames.json
           if git diff --cached --quiet; then exit 0; fi
-          git -c user.name="OpenChronology releases" -c user.email="releases@openchronology.invalid" \
-            commit -m "openchronology-server ${RELEASE_TAG#v}"
+          git -c user.name="Circagraph releases" -c user.email="releases@circagraph.invalid" \
+            commit -m "circagraph-server ${RELEASE_TAG#v}"
           git push origin HEAD:main
   # Stable releases publish the offline editor to circagraph.github.io (#510), built at the
   # tag, so the hosted copy is a release's, never unreleased changes on main. Called from here

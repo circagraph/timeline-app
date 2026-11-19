@@ -127,7 +127,7 @@ test('links come from the latest release, or by name before there is one', () =>
       null,
       SERVERS.find((s) => s.key === 'macos'),
     ),
-    'brew install circagraph/tap/openchronology-server && openchronology-setup',
+    'brew install circagraph/tap/circagraph-server && circagraph-setup',
   );
   // FreeBSD installs with its own fetch and pkg, as root.
   assert.equal(

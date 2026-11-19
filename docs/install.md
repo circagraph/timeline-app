@@ -23,7 +23,7 @@ The whole server also installs as one package. It contains the platform, its Nod
 | Fedora 44               | `openchronology-server-fedora44-amd64.rpm`                   | 18          |
 | Arch Linux (AUR)        | `openchronology-server`                                      | Arch's      |
 | FreeBSD 14 and 15       | `openchronology-server-freebsd15-amd64.pkg` (or `freebsd14`) | 17          |
-| macOS (Homebrew)        | `brew install circagraph/tap/openchronology-server`      | 17          |
+| macOS (Homebrew)        | `brew install circagraph/tap/circagraph-server`              | 17          |
 | Windows                 | `openchronology-server-windows-amd64-setup.exe`              | 17, bundled |
 
 ```sh
@@ -31,7 +31,7 @@ sudo apt install ./openchronology-server-debian13-amd64.deb      # Debian and Ub
 sudo dnf install ./openchronology-server-fedora44-amd64.rpm      # Rocky, RHEL and Fedora
 pkg install -y ./openchronology-server-freebsd15-amd64.pkg && openchronology-setup   # FreeBSD, as root
 yay -S openchronology-server && sudo openchronology-setup   # Arch Linux, with any AUR helper
-brew install circagraph/tap/openchronology-server && openchronology-setup     # macOS
+brew install circagraph/tap/circagraph-server && circagraph-setup             # macOS
 ```
 
 (`dpkg -i` doesn't install dependencies; after it, run `sudo apt -f install`.) The first installation:
