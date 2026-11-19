@@ -4832,15 +4832,9 @@ body[data-warnings]:not([data-images-shown])
   overflow: auto;
   padding: 24px 16px;
 }
-/* Pages are printed light, whatever the app's scheme; a timeline's theme still applies. */
+/* Pages are printed light on white paper, whatever the app's scheme or the timeline's background:
+   theme.css gives .print-document every token's light value. */
 .print-document {
-  --stage-ground: #fff;
-  --stage-marker: #547d5b;
-  --stage-marker-edge: #cedcc7;
-  --ink: #1d1d1b;
-  --muted: #5f5f5a;
-  --hover: #ececea;
-  --tint: #f4f4f2;
   color-scheme: light;
   display: flex;
   flex-direction: column;
@@ -4859,7 +4853,7 @@ body[data-warnings]:not([data-images-shown])
   position: relative;
   flex: none;
   overflow: hidden;
-  background: var(--timeline-background, #fff);
+  background: #fff;
   box-shadow: 0 2px 12px rgb(0 0 0 / 35%);
 }
 .print-column,

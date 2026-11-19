@@ -4,7 +4,7 @@
    follows the system's setting unless <html data-theme> names one (src/theme-choice.ts); print
    is always light. The first block is every token's light value, and all a browser without
    light-dark() gets; the second pairs each with its dark one (a token left out of it is the same
-   in both).
+   in both). A printed document (src/print-document.ts) takes the light values whatever the scheme.
    test/theme-contrast.test.mjs checks the pairs used together against WCAG AA. */
 :root {
   color-scheme: light dark;
@@ -21,7 +21,8 @@
     color-scheme: light !important;
   }
 }
-:root {
+:root,
+.print-document {
   /* The page, its text and its links. */
   --bg: #f5f6f1;
   --ink: #20372c;
