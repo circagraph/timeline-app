@@ -164,7 +164,8 @@ jobs:
       - name: Prepare the FreeBSD build
         run: node scripts/server-package.mjs "${{ matrix.target }}"
       - name: Build the package on FreeBSD ${{ matrix.release }}
-        timeout-minutes: 15
+        # The VM fetches its toolchain from FreeBSD's package mirror, which is sometimes slow.
+        timeout-minutes: 30
         uses: vmactions/freebsd-vm@811efaaac0668df8bfb8308c3ec997b5ab50037b # v1.6.0
         with:
           release: ${{ matrix.release }}
@@ -201,7 +202,7 @@ jobs:
           name: server-${{ matrix.target }}
           path: server-artifacts/
       - name: Install, run, upgrade and remove it on FreeBSD ${{ matrix.release }}
-        timeout-minutes: 15
+        timeout-minutes: 30
         uses: vmactions/freebsd-vm@811efaaac0668df8bfb8308c3ec997b5ab50037b # v1.6.0
         with:
           release: ${{ matrix.release }}
