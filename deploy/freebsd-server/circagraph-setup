@@ -29,8 +29,8 @@ advise_only=
 if [ "${1:-}" = upgrade ]; then advise_only=1; fi
 
 # openchronology-server still installed (its rc.d script is its file): it would start the same
-# server from the same configuration. pkg replaces it when installing this package, since both
-# have pgmp's files; one installed some other way is removed first.
+# server from the same configuration. pkg refuses to install this package beside it (both have
+# pgmp's files), so it is removed first; this catches one installed some other way.
 if [ -e /usr/local/etc/rc.d/openchronology ]; then
   cat >&2 <<MSG
 

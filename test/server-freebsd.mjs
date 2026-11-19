@@ -176,9 +176,10 @@ await sh('rm -rf /usr/local/etc/circagraph /var/db/circagraph /var/db/circagraph
 await sh(`su -l postgres -c 'dropdb circagraph && dropuser circagraph'`);
 await sh('pw userdel circagraph && pw userdel circagraph-logs');
 
-// Installed over openchronology-server, the package's name until 0.30: pkg replaces it (both have
-// pgmp's files), the configuration moves to /usr/local/etc/circagraph and its rc.conf settings to
-// the new names, and the installation keeps its users and database.
+// Installed after openchronology-server, the package's name until 0.30, is removed (pkg will not
+// replace it: both have pgmp's files and the old commands' names): the configuration moves to
+// /usr/local/etc/circagraph and its rc.conf settings to the new names, and the installation keeps
+// its users and database.
 const PREVIOUS = 'v0.30.2';
 const previous = `https://github.com/circagraph/timeline-app/releases/download/${PREVIOUS}/openchronology-server-${target}-amd64.pkg`;
 await sh(`fetch -q -o /tmp/openchronology-server.pkg ${previous}`);
@@ -197,6 +198,9 @@ const oldKey = /^AUTH_ENCRYPTION_KEY=.*$/m.exec(
 )[0];
 // An enabled worker stays enabled (not started here: it has no email configuration).
 await sh('sysrc openchronology_mail_enable=YES');
+const refused = await sh(`env ASSUME_ALWAYS_YES=yes pkg install -y ${file} 2>&1 || true`);
+assert.match(refused, /conflicts with openchronology-server/, refused.slice(-4000));
+await sh('env ASSUME_ALWAYS_YES=yes pkg delete -y openchronology-server 2>&1');
 const replaced = await sh(`env ASSUME_ALWAYS_YES=yes pkg install -y ${file} 2>&1`);
 assert.match(
   replaced,

@@ -242,6 +242,9 @@ jobs:
       - name: Tap the formula locally
         run: |
           brew tap-new --no-git circagraph/local
+          # Homebrew refuses formulae of an untrusted tap by their short names, as brew upgrade
+          # finds them; a Homebrew without brew trust trusts every tap.
+          brew trust circagraph/local 2>/dev/null || true
           tap="$(brew --repository circagraph/local)"
           node scripts/homebrew-formula.mjs \
             --tarball server-artifacts/circagraph-server-platform.tar.gz \

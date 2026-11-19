@@ -225,12 +225,13 @@ them, run instead, as an administrator:
   Reset-Contents $data
 }
 # OpenChronology Server's configuration, moved above, takes this version's name, and paths in
-# the configuration files that name the old folder name the new one.
+# the configuration files that name the old folder name the new one (OpenChronology Server
+# wrote some with a forward slash after the folder, as in ...\OpenChronology/syslog-routes.json).
 $oldConfig = Join-Path $data 'openchronology.env'
 if ((Test-Path -LiteralPath $oldConfig) -and -not (Test-Path -LiteralPath $config)) {
   foreach ($file in Get-ChildItem -LiteralPath $data -Filter '*.env' -File) {
     $text = [IO.File]::ReadAllText($file.FullName)
-    $new = $text -replace '(?i)\\ProgramData\\OpenChronology(?=\\|\s|$)', '\ProgramData\Circagraph'
+    $new = $text -replace '(?i)\\ProgramData\\OpenChronology(?=[\\/]|\s|$)', '\ProgramData\Circagraph'
     if ($new -cne $text) { [IO.File]::WriteAllText($file.FullName, $new) }
   }
   Move-Item -LiteralPath $oldConfig -Destination $config

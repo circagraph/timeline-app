@@ -235,7 +235,8 @@ const oldKey = /^AUTH_ENCRYPTION_KEY=.*$/m.exec(
 )[0];
 // The syslog receiver, configured and set to start with Windows; email delivery is not.
 const oldSyslog = await readFile(`${oldData}\\syslog.env`, 'utf8');
-assert.match(oldSyslog, /^SYSLOG_ROUTES=C:\\ProgramData\\OpenChronology\\syslog-routes\.json$/m);
+// OpenChronology Server wrote the path with a forward slash before the file's name.
+assert.match(oldSyslog, /^SYSLOG_ROUTES=C:\\ProgramData\\OpenChronology[\\/]syslog-routes\.json$/m);
 await writeFile(
   `${oldData}\\syslog.env`,
   oldSyslog.replace(/^OCH_API_KEY=.*$/m, `OCH_API_KEY=och_key_${'0'.repeat(32)}_${'0'.repeat(64)}`),
@@ -274,7 +275,7 @@ assert.match(await ps(`Test-Path '${data}\\openchronology.env'`), /False/);
 assert.match(await ps(`(Get-Item '${oldData}').LinkType`), /Junction/);
 assert.match(
   await readFile(`${data}\\syslog.env`, 'utf8'),
-  /^SYSLOG_ROUTES=C:\\ProgramData\\Circagraph\\syslog-routes\.json$/m,
+  /^SYSLOG_ROUTES=C:\\ProgramData\\Circagraph[\\/]syslog-routes\.json$/m,
 );
 assert.equal(
   await psql("SELECT count(*) FROM oc_users WHERE username='kept'", 'openchronology'),

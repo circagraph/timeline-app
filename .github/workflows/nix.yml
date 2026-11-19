@@ -46,7 +46,7 @@ jobs:
           server=$(nix build --no-link --print-out-paths .#packages.${{ matrix.system }}.circagraph-server)
           test -x "$server/bin/circagraph-server" && test -x "$server/bin/openchronology-migrate"
           "$server/lib/circagraph/bin/och-convert" 2>&1 | grep -q 'Usage: och-convert'
-          test -s "$server/lib/openchronology/platform/public/openchronology-web-source.tar.gz"
+          test -s "$server/lib/circagraph/platform/public/openchronology-web-source.tar.gz"
       - name: Say when no binary cache was written
         if: inputs.push && vars.CACHIX_CACHE == ''
         run: echo "::notice::No Cachix cache is configured (CACHIX_CACHE, CACHIX_AUTH_TOKEN), so nothing was pushed."

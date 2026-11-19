@@ -55,7 +55,7 @@ jobs:
             | node -e 'const p = JSON.parse(require("fs").readFileSync(0, "utf8")); if (p.entries !== 1) process.exit(1)'
       - name: Verify the GitHub importer command inside the web image
         run: |
-          docker compose run --rm --no-deps app och-import-github --help | grep -q '^Usage: och-import-github'
+          docker compose run --rm --no-deps app cg-import-github --help | grep -q '^Usage: cg-import-github'
       - name: Verify migrations can run again
         run: |
           docker compose run --rm migrate
