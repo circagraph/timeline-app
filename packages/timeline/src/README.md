@@ -2,7 +2,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-The source of the `<och-timeline>` element. [`scripts/timeline-package.mjs`](../../../scripts/timeline-package.mjs)
+The source of the `<circagraph-timeline>` element. [`scripts/timeline-package.mjs`](../../../scripts/timeline-package.mjs)
 puts the built offline editor inside it and writes `../dist/timeline.js`.
 
 ## Contents

@@ -1,10 +1,10 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-// <och-timeline>: the offline editor (dist/circagraph-offline.html) in a sandboxed frame of
+// <circagraph-timeline> (also <och-timeline>, its first name): the offline editor (dist/circagraph-offline.html) in a sandboxed frame of
 // any page, opened at a timeline given inline, by address or by script. scripts/timeline-package.mjs
 // builds it into packages/timeline/dist/timeline.js with the offline file in place of OFFLINE_HTML.
 (() => {
   const OFFLINE_HTML = '__OFFLINE_HTML__';
-  if (customElements.get('och-timeline')) return;
+  if (customElements.get('circagraph-timeline')) return;
   /**
    * The timeline with what every one has filled in when left out, so a page (or a model writing
    * one) can give only what matters: the format and version, an empty description, and a time
@@ -133,5 +133,8 @@
       this.shadowRoot.append(message);
     }
   }
-  customElements.define('och-timeline', OchTimeline);
+  customElements.define('circagraph-timeline', OchTimeline);
+  // Pages written for the package's first name keep working.
+  if (!customElements.get('och-timeline'))
+    customElements.define('och-timeline', class extends OchTimeline {});
 })();

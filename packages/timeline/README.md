@@ -1,13 +1,16 @@
-# @openchronology/timeline
+# @circagraph/timeline
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-The [Circagraph](https://circagraph.org) timeline editor as one element, `<och-timeline>`, for
+The [Circagraph](https://circagraph.org) timeline editor as one element, `<circagraph-timeline>`, for
 any web page, and for the HTML an AI chat writes into a reply or an artifact. Give it a timeline in
 the `.ochx` format and it shows it: exact dates at any scale, zooming, search, tags, durations,
 links between events and saved views. Readers can edit it there and **Export** the result as an
 `.ochx` file, which opens at [circagraph.org](https://circagraph.org), in the desktop app or in the
 [offline editor](https://circagraph.github.io/).
+
+It was published as `@openchronology/timeline`, with the element `<och-timeline>`, until 0.30;
+that package is deprecated, and `<och-timeline>` still works as another name for the element.
 
 It is the offline editor, the same file as `circagraph-offline.html`, in a sandboxed frame of
 its own. It makes no network requests, and the page around it is out of its reach.
@@ -15,9 +18,9 @@ its own. It makes no network requests, and the page around it is out of its reac
 ## Use
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@openchronology/timeline@0.25.0/dist/timeline.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@circagraph/timeline@0.31.0/dist/timeline.js"></script>
 
-<och-timeline mode="view" height="480">
+<circagraph-timeline mode="view" height="480">
   <script type="application/json">
     {
       "title": "Moon landings",
@@ -37,7 +40,7 @@ its own. It makes no network requests, and the page around it is out of its reac
       "view": { "separation": { "separations": [{ "tags": ["crewed"] }] } }
     }
   </script>
-</och-timeline>
+</circagraph-timeline>
 ```
 
 Pin a version in the address, as above; the element does not change under a page that names one.
