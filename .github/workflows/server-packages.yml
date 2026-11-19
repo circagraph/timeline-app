@@ -104,15 +104,16 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: server-platform
-          path: server-artifacts/openchronology-server-platform.tar.gz
+          path: server-artifacts/circagraph-server-platform.tar.gz
           if-no-files-found: error
-  # Arch Linux (#331): the AUR's openchronology-server, rendered for the platform archive, built
-  # with makepkg and installed, set up, run, upgraded and removed in a fresh Arch container.
+  # Arch Linux (#331): the AUR's circagraph-server, rendered for the platform archive, built
+  # with makepkg and installed, set up, run, upgraded and removed in a fresh Arch container, then
+  # installed in place of v0.30.2's openchronology-server (the checkout's tags).
   arch:
     name: Server / arch
     needs: platform
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 75
     env:
       RELEASE_TAG: ${{ inputs.tag }}
     steps:
@@ -129,10 +130,10 @@ jobs:
           name: server-platform
           path: server-artifacts/
       - name: Render the AUR package
-        run: node scripts/aur-packages.mjs --out aur --platform server-artifacts/openchronology-server-platform.tar.gz
+        run: node scripts/aur-packages.mjs --out aur --platform server-artifacts/circagraph-server-platform.tar.gz
       - name: Build, install, set up, run, upgrade and remove it on Arch Linux
-        timeout-minutes: 40
-        run: node test/server-arch.mjs aur/openchronology-server
+        timeout-minutes: 50
+        run: node test/server-arch.mjs aur/circagraph-server
   # FreeBSD (#116): a FreeBSD virtual machine builds och-convert and pgmp from the platform and
   # makes the package (deploy/freebsd-server/build.sh).
   freebsd:
