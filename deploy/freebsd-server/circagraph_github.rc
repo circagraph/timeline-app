@@ -1,0 +1,47 @@
+#!/bin/sh
+# Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
+#
+# PROVIDE: circagraph_github
+# REQUIRE: LOGIN circagraph
+# KEYWORD: shutdown
+#
+# The Circagraph GitHub receiver. Enable it in /etc/rc.conf with sysrc circagraph_github_enable=YES.
+# Its configuration is /usr/local/etc/circagraph/github.env (or circagraph_github_config).
+
+. /etc/rc.subr
+
+name=circagraph_github
+rcvar=circagraph_github_enable
+load_rc_config $name
+
+: ${circagraph_github_enable:="NO"}
+: ${circagraph_github_config:="/usr/local/etc/circagraph/github.env"}
+# The log receivers' user: circagraph-logs, or the server's user's (circagraph_account, see the
+# circagraph service) followed by -logs.
+: ${circagraph_account:="circagraph"}
+: ${circagraph_logs_account:="${circagraph_account}-logs"}
+
+# daemon(8) runs it as its own user, circagraph-logs (#501), which cannot read the server's
+# configuration or log in to its database; restarts it if it fails and sends its output to
+# syslog, holding nothing open of the terminal or script that started it (-f).
+# Its configuration is read as systemd reads it (OCH_CONFIG, #118).
+pidfile="/var/run/circagraph/circagraph_github.pid"
+procname="daemon"
+command="/usr/sbin/daemon"
+command_args="-f -r -S -T circagraph_github -P ${pidfile} -u ${circagraph_logs_account} /usr/bin/env NODE_ENV=production OCH_CONFIG=${circagraph_github_config} /usr/local/bin/node --import=/usr/local/lib/circagraph/server/load-configuration.mjs /usr/local/lib/circagraph/server/github-receiver.mjs"
+circagraph_github_chdir="/usr/local/lib/circagraph"
+start_precmd="circagraph_github_prestart"
+
+circagraph_github_prestart()
+{
+	# Root's: in a folder of the service's user, it could replace daemon(8)'s pidfile and have
+	# stop signal another process.
+	install -d -o root -g wheel -m 0755 /var/run/circagraph
+	# The receiver's own, for GITHUB_STATE: each item's board column, kept across restarts.
+	# /var/db/circagraph-github, or openchronology-github for an installation from before the
+	# rename, as its github.env names it.
+	install -d -o ${circagraph_logs_account} -g ${circagraph_logs_account} -m 0700 \
+		/var/db/${circagraph_account}-github
+}
+
+run_rc_command "$1"

@@ -1,0 +1,253 @@
+#!/bin/sh
+# Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
+# Sets up Circagraph after the FreeBSD package is installed (#116), as the Linux packages'
+# installation does: the system users, the configuration, PostgreSQL (initialized and enabled
+# when it is not yet), the role and database with pgmp, the migration and the service. An
+# installation that has its configuration and database already (an upgrade) is left alone,
+# with advice.
+# An installation of openchronology-server (the package's name until 0.30) moves: its
+# configuration from /usr/local/etc/openchronology to /usr/local/etc/circagraph (a link stays
+# behind) and its rc.conf settings to the circagraph services' names. It keeps its system
+# users, database and state folders under their first names (circagraph_account in rc.conf).
+# Usage, as root: circagraph-setup   (safe to run again)
+# The package runs it with "upgrade" when upgrading, to move and advise only: it starts nothing
+# then, since pkg ends what its scripts leave running.
+set -e
+VERSION=@VERSION@
+PG_MAJOR=@PG_MAJOR@
+CONFIG_DIR=/usr/local/etc/circagraph
+CONFIG=$CONFIG_DIR/circagraph.env
+OLD_DIR=/usr/local/etc/openchronology
+EXAMPLES=/usr/local/share/circagraph
+DOCS=/usr/local/share/doc/circagraph-server/README.FreeBSD
+PGDATA=/var/db/postgres/data$PG_MAJOR
+if [ "$(id -u)" -ne 0 ]; then
+  echo "Run as root: circagraph-setup" >&2
+  exit 1
+fi
+advise_only=
+if [ "${1:-}" = upgrade ]; then advise_only=1; fi
+
+# openchronology-server still installed (its rc.d script is its file): it would start the same
+# server from the same configuration. pkg replaces it when installing this package, since both
+# have pgmp's files; one installed some other way is removed first.
+if [ -e /usr/local/etc/rc.d/openchronology ]; then
+  cat >&2 <<MSG
+
+openchronology-server, Circagraph's package under its earlier name, is still installed.
+Remove it first (its configuration, database and system users stay), then set up again:
+
+  pkg delete -y openchronology-server
+  circagraph-setup
+
+See $DOCS.
+
+MSG
+  if [ -n "$advise_only" ]; then exit 0; fi
+  exit 1
+fi
+
+# From openchronology-server: its configuration, and its services' rc.conf settings, under the
+# new names. Its services were stopped when pkg removed it.
+renamed=
+if [ -d "$OLD_DIR" ] && [ ! -L "$OLD_DIR" ]; then
+  if [ -e "$CONFIG_DIR" ] || [ -L "$CONFIG_DIR" ]; then
+    echo "$OLD_DIR was left as it is: $CONFIG_DIR exists." >&2
+  else
+    mv "$OLD_DIR" "$CONFIG_DIR"
+    ln -s circagraph "$OLD_DIR"
+    if [ -f "$CONFIG_DIR/openchronology.env" ] && [ ! -L "$CONFIG_DIR/openchronology.env" ] &&
+      [ ! -e "$CONFIG" ]; then
+      mv "$CONFIG_DIR/openchronology.env" "$CONFIG"
+      ln -s circagraph.env "$CONFIG_DIR/openchronology.env"
+    fi
+    # openchronology_enable becomes circagraph_enable, openchronology_mail_config
+    # circagraph_mail_config, and so on; one the new name has already is kept.
+    for service in '' _mail _syslog _github; do
+      for setting in enable config; do
+        old=openchronology${service}_$setting
+        new=circagraph${service}_$setting
+        value=$(sysrc -n -q "$old" 2>/dev/null) || continue
+        if [ -z "$(sysrc -n -q "$new" 2>/dev/null)" ]; then
+          sysrc -q "$new=$value" >/dev/null
+        fi
+        sysrc -q -x "$old" >/dev/null 2>&1 || true
+      done
+    done
+    renamed=1
+  fi
+fi
+existing=
+if [ -e "$CONFIG" ]; then existing=1; fi
+
+# The system users: circagraph and circagraph-logs, or an installation's from before the
+# rename, openchronology and openchronology-logs, which it keeps. The server's user is the
+# configuration's group.
+user=
+if [ -n "$existing" ]; then user=$(stat -L -f %Sg "$CONFIG"); fi
+case $user in
+  circagraph | openchronology) ;;
+  *)
+    if pw usershow openchronology >/dev/null 2>&1 && ! pw usershow circagraph >/dev/null 2>&1; then
+      user=openchronology
+    else
+      user=circagraph
+    fi
+    ;;
+esac
+logs=$user-logs
+if ! pw groupshow "$user" >/dev/null 2>&1; then
+  pw groupadd "$user"
+fi
+if ! pw usershow "$user" >/dev/null 2>&1; then
+  pw useradd "$user" -g "$user" -d "/var/db/$user" -s /usr/sbin/nologin -c "Circagraph server"
+fi
+# The log receivers' own user (#501): it reads their configuration, not the server's, and has
+# no database role.
+if ! pw groupshow "$logs" >/dev/null 2>&1; then
+  pw groupadd "$logs"
+fi
+if ! pw usershow "$logs" >/dev/null 2>&1; then
+  pw useradd "$logs" -g "$logs" -d /nonexistent -s /usr/sbin/nologin -c "Circagraph log receivers"
+fi
+# The services run as circagraph unless rc.conf names another user.
+if [ "$user" != circagraph ]; then
+  sysrc -q circagraph_account="$user" >/dev/null
+fi
+
+install -d -m 0750 -o "$user" -g "$user" "/var/db/$user"
+# Others may pass through to the log receivers' files (#501), but not list them; each is 0640.
+install -d -m 0751 -o root -g "$user" "$CONFIG_DIR"
+# Configuration files are created once and then belong to the administrator: upgrades never
+# rewrite them (each version's templates stay in /usr/local/share/circagraph to compare).
+new_config() {
+  [ -e "$1" ] && return 0
+  sed "$3" "$4" >"$1.new"
+  chown "root:$2" "$1.new"
+  chmod 0640 "$1.new"
+  mv "$1.new" "$1"
+}
+key=$(od -An -tx1 -N32 /dev/random | tr -d ' \n')
+# The database and its role are named after the server's user.
+new_config "$CONFIG" "$user" \
+  "s|^AUTH_ENCRYPTION_KEY=\$|AUTH_ENCRYPTION_KEY=$key|; s|^DATABASE_URL=.*|DATABASE_URL=postgresql://$user@/$user?host=/tmp|" \
+  "$EXAMPLES/circagraph.env.example"
+new_config "$CONFIG_DIR/syslog.env" "$logs" "" "$EXAMPLES/syslog.env.example"
+new_config "$CONFIG_DIR/github.env" "$logs" "s|/var/db/circagraph-github/|/var/db/$user-github/|" \
+  "$EXAMPLES/github.env.example"
+# From an installation before #501: the syslog receiver's configuration, and its routes file,
+# move from the server's user to the log receivers'.
+sh /usr/local/lib/circagraph/bin/circagraph-log-files "$CONFIG_DIR" "$user" "$logs" ||
+  echo "Moving the syslog receiver's files failed; see $DOCS." >&2
+
+# SQL as the postgres user, over the local socket (peer authentication).
+pg() {
+  db=$1
+  shift
+  printf '%s\n' "$*" | su -l postgres -c "psql -X -q -At -v ON_ERROR_STOP=1 -d $db"
+}
+reachable() { pg postgres 'SELECT 1' >/dev/null 2>&1; }
+if [ -z "$advise_only" ] && ! reachable; then
+  if [ ! -s "$PGDATA/PG_VERSION" ]; then
+    su -l postgres -c "initdb -D $PGDATA -E UTF8 --locale=C --auth-local=peer --auth-host=scram-sha-256" \
+      >/dev/null
+  fi
+  sysrc -q postgresql_enable=YES >/dev/null
+  service postgresql start >/dev/null 2>&1 || true
+  for _ in $(seq 30); do
+    reachable && break
+    sleep 1
+  done
+fi
+running=
+if reachable; then running=1; fi
+installed=
+if [ -n "$existing" ] && [ -n "$running" ] &&
+  [ -n "$(pg postgres "SELECT 1 FROM pg_database WHERE datname='$user'")" ]; then
+  installed=1
+fi
+# Upgrading with PostgreSQL stopped: the same advice, without looking at the database.
+if [ -n "$advise_only" ] && [ -n "$existing" ]; then installed=1; fi
+if [ -n "$installed" ]; then
+  # Settings the new template has that this installation's configuration does not.
+  missing=$(sed -n 's/^\([A-Z][A-Z0-9_]*\)=.*/\1/p' "$EXAMPLES/circagraph.env.example" |
+    while read -r name; do grep -q "^$name=" "$CONFIG" || echo "  $name"; done)
+  over="an earlier version"
+  if [ -n "$renamed" ]; then over=openchronology-server; fi
+  cat <<MSG
+
+Circagraph $VERSION is installed over $over (its configuration and database
+are kept). The server starts again once the database is migrated to this version:
+
+  1. Review the configuration in $CONFIG against this version's template:
+       diff -u $CONFIG $EXAMPLES/circagraph.env.example
+MSG
+  if [ -n "$missing" ]; then
+    echo "     New settings to consider (their defaults apply until you add them):"
+    echo "$missing" | sed 's/^/     /'
+  fi
+  cat <<MSG
+  2. Back up the database:   su -l postgres -c 'pg_dump $user' > $user.sql
+  3. Migrate and restart:    circagraph-migrate
+MSG
+  if [ -n "$renamed" ]; then
+    cat <<MSG
+
+OpenChronology is now Circagraph. This installation keeps its system users ($user and
+$logs) and its database ($user); its configuration moved to $CONFIG_DIR
+(a link stays at $OLD_DIR). Its services are circagraph, circagraph_mail,
+circagraph_syslog and circagraph_github, enabled as the openchronology ones were, and its
+commands circagraph-migrate, circagraph-setup, circagraph-reset-admin-password,
+cg-import-logs and cg-import-github (their old names still work). If pkg printed
+openchronology-server's removal note, ignore it: what it lists is this installation's.
+MSG
+  fi
+  cat <<MSG
+
+See $DOCS.
+
+MSG
+  exit 0
+fi
+
+if [ -n "$advise_only" ]; then exit 0; fi
+if [ -z "$running" ]; then
+  cat <<MSG
+
+Circagraph is installed, but PostgreSQL is not running, so the database was not created.
+Start it, then finish the setup (as root):
+
+  service postgresql start
+  circagraph-setup
+
+See $DOCS.
+
+MSG
+  exit 0
+fi
+if [ -z "$(pg postgres "SELECT 1 FROM pg_roles WHERE rolname='$user'")" ]; then
+  pg postgres "CREATE ROLE \"$user\" LOGIN"
+fi
+if [ -z "$(pg postgres "SELECT 1 FROM pg_database WHERE datname='$user'")" ]; then
+  pg postgres "CREATE DATABASE \"$user\" OWNER \"$user\""
+fi
+# pgmp is not a trusted extension: the superuser creates it once for the application's role.
+pg "$user" 'CREATE EXTENSION IF NOT EXISTS pgmp'
+/usr/local/sbin/circagraph-migrate --no-restart
+sysrc -q circagraph_enable=YES >/dev/null
+service circagraph restart >/dev/null 2>&1 || service circagraph start >/dev/null
+origin=$(sed -n 's/^APP_ORIGIN=//p' "$CONFIG")
+cat <<MSG
+
+Circagraph is installed and running at $origin.
+
+Next steps:
+  - Set APP_ORIGIN, email, an administrator and sign-in providers in $CONFIG,
+    then: circagraph-migrate (creates the administrator) or
+          service circagraph restart
+  - Put an HTTPS reverse proxy in front of it for public use.
+  - Back up AUTH_ENCRYPTION_KEY from $CONFIG separately from the database.
+
+See $DOCS.
+
+MSG

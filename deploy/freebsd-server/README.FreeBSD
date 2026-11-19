@@ -1,37 +1,36 @@
-OpenChronology server for FreeBSD
-=================================
+Circagraph server for FreeBSD
+=============================
 
 Install
 -------
 
 As root:
 
-    pkg install -y ./openchronology-server-freebsd<release>-amd64.pkg
-    openchronology-setup
+    pkg install -y ./circagraph-server-freebsd<release>-amd64.pkg
+    circagraph-setup
 
 pkg installs what the package needs from FreeBSD's repositories: Node.js 24 (node24),
 PostgreSQL @PG_MAJOR@, GMP and SQLite. Like FreeBSD's ports, the package starts nothing
-itself (pkg ends whatever its scripts leave running); openchronology-setup finishes the
+itself (pkg ends whatever its scripts leave running); circagraph-setup finishes the
 first installation:
 
-  - creates the `openchronology` system user, and `openchronology-logs` for the syslog and
+  - creates the `circagraph` system user, and `circagraph-logs` for the syslog and
     GitHub receivers;
   - initializes PostgreSQL @PG_MAJOR@ if it is not yet (/var/db/postgres/data@PG_MAJOR@, with
     peer authentication on its local socket), and enables and starts it;
-  - writes /usr/local/etc/openchronology/openchronology.env, with a new
-    AUTH_ENCRYPTION_KEY;
-  - creates the `openchronology` PostgreSQL role and database, with the bundled pgmp
+  - writes /usr/local/etc/circagraph/circagraph.env, with a new AUTH_ENCRYPTION_KEY;
+  - creates the `circagraph` PostgreSQL role and database, with the bundled pgmp
     extension;
-  - migrates the database (openchronology-migrate), and enables and starts the
-    `openchronology` service, which listens on 127.0.0.1:5173.
+  - migrates the database (circagraph-migrate), and enables and starts the
+    `circagraph` service, which listens on 127.0.0.1:5173.
 
-openchronology-setup is safe to run again, for example if PostgreSQL could not be started
+circagraph-setup is safe to run again, for example if PostgreSQL could not be started
 the first time.
 
 Configure
 ---------
 
-Edit /usr/local/etc/openchronology/openchronology.env, then `service openchronology restart`:
+Edit /usr/local/etc/circagraph/circagraph.env, then `service circagraph restart`:
 
   - APP_ORIGIN: the public HTTPS origin users reach, without a trailing slash. The server
     refuses a plain http:// origin other than localhost; on a trusted private network
@@ -39,10 +38,10 @@ Edit /usr/local/etc/openchronology/openchronology.env, then `service openchronol
     http://<name>:5173 directly. The services log to syslog (/var/log/messages); if the
     website reports "Server misconfigured", the reason is there.
   - RESEND_API_KEY and AUTH_EMAIL_FROM for account email, then
-    `sysrc openchronology_mail_enable=YES && service openchronology_mail start`.
+    `sysrc circagraph_mail_enable=YES && service circagraph_mail start`.
   - ADMIN_USERNAME, ADMIN_EMAIL and ADMIN_INITIAL_PASSWORD for the first administrator,
-    created by `openchronology-migrate`. The password is used once; to sign in with it
-    again (or with a new one written there), run `openchronology-reset-admin-password`.
+    created by `circagraph-migrate`. The password is used once; to sign in with it
+    again (or with a new one written there), run `circagraph-reset-admin-password`.
   - Sign-in providers, human verification, quotas: see the comments in the file and
     authentication.md, administration.md in this directory.
 
@@ -59,77 +58,119 @@ Caddy 2.5 and later replace an incoming X-Forwarded-For with the client address,
 TRUST_PROXY=1 (with another proxy, only if it does the same; see README.md). Proxies
 should allow request bodies of at least 32 MiB and streaming responses (live updates).
 
-The syslog receiver (syslog.md) is configured in /usr/local/etc/openchronology/syslog.env
-with routes in /usr/local/etc/openchronology/syslog-routes.json; then
-`sysrc openchronology_syslog_enable=YES && service openchronology_syslog start`.
-It runs as its own user, openchronology-logs, which cannot read openchronology.env or log
-in to the database (#501): syslog.env is root:openchronology-logs, mode 0640, and so must
-be the routes file (`chown root:openchronology-logs FILE && chmod 0640 FILE`). See
+The syslog receiver (syslog.md) is configured in /usr/local/etc/circagraph/syslog.env
+with routes in /usr/local/etc/circagraph/syslog-routes.json; then
+`sysrc circagraph_syslog_enable=YES && service circagraph_syslog start`.
+It runs as its own user, circagraph-logs, which cannot read circagraph.env or log
+in to the database (#501): syslog.env is root:circagraph-logs, mode 0640, and so must
+be the routes file (`chown root:circagraph-logs FILE && chmod 0640 FILE`). See
 syslog.md, "Its own account".
 
-`och-import-logs` imports historic log files (log-import.md), with OCH_API_URL and
-OCH_API_KEY from the environment or syslog.env: `och-import-logs --help`.
+`cg-import-logs` imports historic log files (log-import.md), with OCH_API_URL and
+OCH_API_KEY from the environment or syslog.env: `cg-import-logs --help`.
 
 The GitHub receiver (github.md) mirrors issues and pull requests into timelines from
 GitHub's webhooks, on 127.0.0.1:5580 behind your HTTPS reverse proxy. It is configured in
-/usr/local/etc/openchronology/github.env (the API key and the webhook's secret) with routes
-in /usr/local/etc/openchronology/github-routes.json; then
-`sysrc openchronology_github_enable=YES && service openchronology_github start`.
-It runs as openchronology-logs too: github.env is root:openchronology-logs, mode 0640, and
-so must be the routes file. It keeps its state in /var/db/openchronology-github.
-`och-import-github` imports a repository's existing issues and pull requests (github.md),
+/usr/local/etc/circagraph/github.env (the API key and the webhook's secret) with routes
+in /usr/local/etc/circagraph/github-routes.json; then
+`sysrc circagraph_github_enable=YES && service circagraph_github start`.
+It runs as circagraph-logs too: github.env is root:circagraph-logs, mode 0640, and
+so must be the routes file. It keeps its state in /var/db/circagraph-github.
+`cg-import-github` imports a repository's existing issues and pull requests (github.md),
 with OCH_API_URL, OCH_API_KEY and GITHUB_TOKEN from the environment or github.env:
-`och-import-github --help`.
+`cg-import-github --help`.
 
 Upgrade
 -------
 
-Installing a newer package (`pkg install -y ./openchronology-server-...pkg`) stops the server
+Installing a newer package (`pkg install -y ./circagraph-server-...pkg`) stops the server
 and leaves the database and configuration as they are. It then lists:
 
   1. Settings this version's template has that the configuration lacks. Compare with:
-         diff -u /usr/local/etc/openchronology/openchronology.env \
-                 /usr/local/share/openchronology/openchronology.env.example
-  2. A backup:  su -l postgres -c 'pg_dump openchronology' > openchronology.sql
-  3. openchronology-migrate, which migrates the database and starts the server, and the mail
-     worker (openchronology_mail), the syslog receiver (openchronology_syslog) and the
-     GitHub receiver (openchronology_github), each if it is enabled. Disabled ones stay
+         diff -u /usr/local/etc/circagraph/circagraph.env \
+                 /usr/local/share/circagraph/circagraph.env.example
+  2. A backup:  su -l postgres -c 'pg_dump circagraph' > circagraph.sql
+  3. circagraph-migrate, which migrates the database and starts the server, and the mail
+     worker (circagraph_mail), the syslog receiver (circagraph_syslog) and the
+     GitHub receiver (circagraph_github), each if it is enabled. Disabled ones stay
      stopped.
 
-openchronology-migrate is safe to run more than once. `--no-restart` migrates only and starts
+circagraph-migrate is safe to run more than once. `--no-restart` migrates only and starts
 nothing. Releases up to 0.12.1 started only the server; after upgrading from one, start an
-enabled receiver with `service openchronology_syslog start` (#374).
+enabled receiver with `service circagraph_syslog start` (#374).
 
 Upgrading from a version before #501 moves syslog.env and the routes file it names
-(SYSLOG_ROUTES) from the openchronology user to openchronology-logs, keeping their modes:
-only regular files with one link, reached through no symbolic link, in folders only root
-can change. It lists what it moved and what it left for you to change.
+(SYSLOG_ROUTES) from the server's user to the log receivers' (circagraph-logs), keeping
+their modes: only regular files with one link, reached through no symbolic link, in folders
+only root can change. It lists what it moved and what it left for you to change.
+
+From openchronology-server
+--------------------------
+
+Until 0.30 the package was openchronology-server. Install circagraph-server over it as
+any upgrade, then follow what it lists:
+
+    pkg install -y ./circagraph-server-freebsd<release>-amd64.pkg
+    su -l postgres -c 'pg_dump openchronology' > openchronology.sql
+    circagraph-migrate
+
+Both packages have pgmp's files (and the old commands' names), so pkg removes
+openchronology-server as it installs circagraph-server; with -y it goes ahead. Its
+removal stops its services and prints what it left behind: ignore that note, for what it
+lists is now Circagraph's. If pkg stops instead, remove it first (its configuration,
+database and users stay) and install again:
+
+    pkg delete -y openchronology-server
+
+Then circagraph-server's installation (or circagraph-setup, if it could not) moves the
+installation:
+
+  - /usr/local/etc/openchronology becomes /usr/local/etc/circagraph, and
+    openchronology.env in it circagraph.env; links stay at the old names.
+  - The rc.conf settings openchronology_enable, openchronology_mail_enable,
+    openchronology_syslog_enable and openchronology_github_enable (and their _config)
+    become circagraph_enable, circagraph_mail_enable and so on, so the services that
+    ran before start again with circagraph-migrate and at boot.
+  - The installation keeps its system users, openchronology and openchronology-logs, its
+    `openchronology` database and role, /var/db/openchronology and
+    /var/db/openchronology-github: circagraph-setup sets circagraph_account=openchronology
+    in rc.conf, and the services run as that user (and the receivers as its -logs user).
+    circagraph-migrate and circagraph-reset-admin-password run as the configuration's
+    group.
+
+The commands are circagraph-setup, circagraph-migrate, circagraph-reset-admin-password,
+cg-import-logs and cg-import-github; the old names (openchronology-migrate,
+och-import-logs, ...) are links to them. The rc.d services have only the new names:
+`service circagraph restart`, `service circagraph_syslog status` and so on.
 
 Remove
 ------
 
-`pkg delete openchronology-server` stops and removes the server. The configuration
+`pkg delete circagraph-server` stops and removes the server. The configuration
 (including AUTH_ENCRYPTION_KEY), the database and the system users remain; delete them with:
 
-    sysrc -x openchronology_enable openchronology_mail_enable openchronology_syslog_enable \
-      openchronology_github_enable
-    rm -rf /usr/local/etc/openchronology /var/db/openchronology /var/db/openchronology-github
-    su -l postgres -c 'dropdb openchronology && dropuser openchronology'
-    pw userdel openchronology
-    pw userdel openchronology-logs
+    sysrc -x circagraph_enable circagraph_mail_enable circagraph_syslog_enable \
+      circagraph_github_enable
+    rm -rf /usr/local/etc/circagraph /var/db/circagraph /var/db/circagraph-github
+    su -l postgres -c 'dropdb circagraph && dropuser circagraph'
+    pw userdel circagraph
+    pw userdel circagraph-logs
+
+For an installation from openchronology-server, the removal names its users and database
+(openchronology), and also removes the link /usr/local/etc/openchronology and the
+circagraph_account setting.
 
 Layout
 ------
 
-  /usr/local/lib/openchronology           the application and och-convert
-  /usr/local/sbin/openchronology-migrate  database migration
-  /usr/local/sbin/openchronology-setup    first-time setup (run by the package)
-  /usr/local/sbin/openchronology-reset-admin-password   the administrator's password, from
+  /usr/local/lib/circagraph               the application and och-convert
+  /usr/local/sbin/circagraph-migrate      database migration
+  /usr/local/sbin/circagraph-setup        first-time setup, and the move from
+                                          openchronology-server
+  /usr/local/sbin/circagraph-reset-admin-password   the administrator's password, from
                                           the configuration
-  /usr/local/sbin/openchronology-reset-admin-password   the administrator's password, from
-                                          the configuration
-  /usr/local/etc/openchronology           configuration (created on first install)
-  /usr/local/share/openchronology         configuration templates of the installed version
-  /usr/local/etc/rc.d                     openchronology, openchronology_mail,
-                                          openchronology_syslog, openchronology_github
+  /usr/local/etc/circagraph               configuration (created on first install)
+  /usr/local/share/circagraph             configuration templates of the installed version
+  /usr/local/etc/rc.d                     circagraph, circagraph_mail,
+                                          circagraph_syslog, circagraph_github
   /usr/local/lib/postgresql, /usr/local/share/postgresql/extension   pgmp

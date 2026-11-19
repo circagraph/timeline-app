@@ -11,12 +11,12 @@ REPO=$(pwd)
 . "$REPO/server-artifacts/freebsd/build.env" # VERSION, PG_MAJOR, ASSET
 HERE=$REPO/deploy/freebsd-server
 SHARED=$REPO/deploy/debian-server
-WORK=$(mktemp -d /tmp/openchronology-pkg.XXXXXX)
+WORK=$(mktemp -d /tmp/circagraph-pkg.XXXXXX)
 STAGE=$WORK/stage
 PREFIX=/usr/local
 ROOT=$STAGE$PREFIX
-APP=$ROOT/lib/openchronology
-DOC=$ROOT/share/doc/openchronology-server
+APP=$ROOT/lib/circagraph
+DOC=$ROOT/share/doc/circagraph-server
 
 # Build tools, and what the package depends on (its runtime: Node.js, PostgreSQL, GMP, SQLite).
 RUNTIME="node24 postgresql${PG_MAJOR}-server postgresql${PG_MAJOR}-client gmp sqlite3"
@@ -41,45 +41,55 @@ tar -xzf "$WORK/pgmp.tar.gz" -C "$WORK/pgmp" --strip-components=1
 
 # The platform, its converter, documentation and configuration templates.
 mkdir -p "$ROOT/lib" "$ROOT/share/doc"
-tar -xzf "$REPO/server-artifacts/openchronology-server-platform.tar.gz" -C "$WORK"
-mv "$WORK/lib/openchronology" "$APP"
+tar -xzf "$REPO/server-artifacts/circagraph-server-platform.tar.gz" -C "$WORK"
+mv "$WORK/lib/circagraph" "$APP"
 mv "$WORK/doc" "$DOC"
 mkdir -p "$APP/bin" "$DOC/pgmp"
 install -m 0755 native-store/target/release/och-convert "$APP/bin/och-convert"
-install -m 0755 "$SHARED/openchronology-log-files" "$APP/bin/openchronology-log-files"
+install -m 0755 "$SHARED/circagraph-log-files" "$APP/bin/circagraph-log-files"
 install -m 0644 "$WORK/pgmp/COPYING" "$DOC/pgmp/COPYING"
 sed "s/@PG_MAJOR@/$PG_MAJOR/g" "$HERE/README.FreeBSD" >"$DOC/README.FreeBSD"
 # The Linux packages' templates, with FreeBSD's paths: configuration under /usr/local/etc,
 # PostgreSQL's socket in /tmp, and rc.d services. The database user is named: FreeBSD's su -m
-# keeps the caller's USER, which the PostgreSQL client would otherwise connect as.
+# keeps the caller's USER, which the PostgreSQL client would otherwise connect as. The
+# templates name circagraph's; circagraph-setup writes the installation's user instead.
 freebsd_paths() {
-  sed -e 's|/etc/openchronology|/usr/local/etc/openchronology|g' \
-    -e 's|/usr/lib/openchronology|/usr/local/lib/openchronology|g' \
-    -e 's|sudo systemctl restart openchronology|service openchronology restart|g' \
-    -e 's|systemctl enable --now openchronology-\([a-z]*\)|sysrc openchronology_\1_enable=YES \&\& service openchronology_\1 start|g' \
-    -e 's|postgresql:///openchronology?host=/var/run/postgresql|postgresql://openchronology@/openchronology?host=/tmp|' \
-    -e 's|/var/lib/openchronology-github|/var/db/openchronology-github|g' \
+  sed -e 's|/etc/circagraph|/usr/local/etc/circagraph|g' \
+    -e 's|/usr/lib/circagraph|/usr/local/lib/circagraph|g' \
+    -e 's|/usr/share/|/usr/local/share/|g' \
+    -e 's|sudo systemctl restart circagraph|service circagraph restart|g' \
+    -e 's|\(sudo \)\{0,1\}systemctl enable --now circagraph-\([a-z]*\)|sysrc circagraph_\2_enable=YES \&\& service circagraph_\2 start|g' \
+    -e 's|sudo circagraph-|circagraph-|g' \
+    -e 's|postgresql:///circagraph?host=/var/run/postgresql|postgresql://circagraph@/circagraph?host=/tmp|' \
+    -e 's|/var/lib/circagraph-github|/var/db/circagraph-github|g' \
     -e 's|README.Debian|README.FreeBSD|g' "$@"
 }
-mkdir -p "$ROOT/share/openchronology"
-freebsd_paths "$SHARED/openchronology.env" >"$ROOT/share/openchronology/openchronology.env.example"
-freebsd_paths "$SHARED/syslog.env" >"$ROOT/share/openchronology/syslog.env.example"
-freebsd_paths "$SHARED/github.env" >"$ROOT/share/openchronology/github.env.example"
+mkdir -p "$ROOT/share/circagraph"
+freebsd_paths "$SHARED/circagraph.env" >"$ROOT/share/circagraph/circagraph.env.example"
+freebsd_paths "$SHARED/syslog.env" >"$ROOT/share/circagraph/syslog.env.example"
+freebsd_paths "$SHARED/github.env" >"$ROOT/share/circagraph/github.env.example"
 mkdir -p "$ROOT/etc/rc.d" "$ROOT/sbin" "$ROOT/bin"
-for service in openchronology openchronology_mail openchronology_syslog openchronology_github; do
+for service in circagraph circagraph_mail circagraph_syslog circagraph_github; do
   install -m 0755 "$HERE/$service.rc" "$ROOT/etc/rc.d/$service"
 done
-sed "s/@PG_MAJOR@/$PG_MAJOR/g" "$HERE/openchronology-setup" >"$ROOT/sbin/openchronology-setup"
-chmod 0755 "$ROOT/sbin/openchronology-setup"
-install -m 0755 "$HERE/openchronology-migrate" "$ROOT/sbin/openchronology-migrate"
-install -m 0755 "$HERE/openchronology-reset-admin-password" \
-  "$ROOT/sbin/openchronology-reset-admin-password"
-freebsd_paths "$SHARED/och-import-logs" |
-  sed 's|"\$APP/node/bin/node"|/usr/local/bin/node|g' >"$ROOT/bin/och-import-logs"
-chmod 0755 "$ROOT/bin/och-import-logs"
-freebsd_paths "$SHARED/och-import-github" |
-  sed 's|"\$APP/node/bin/node"|/usr/local/bin/node|g' >"$ROOT/bin/och-import-github"
-chmod 0755 "$ROOT/bin/och-import-github"
+sed -e "s/@PG_MAJOR@/$PG_MAJOR/g" -e "s/@VERSION@/$VERSION/g" "$HERE/circagraph-setup" \
+  >"$ROOT/sbin/circagraph-setup"
+chmod 0755 "$ROOT/sbin/circagraph-setup"
+install -m 0755 "$HERE/circagraph-migrate" "$ROOT/sbin/circagraph-migrate"
+install -m 0755 "$HERE/circagraph-reset-admin-password" \
+  "$ROOT/sbin/circagraph-reset-admin-password"
+for tool in cg-import-logs cg-import-github; do
+  freebsd_paths "$SHARED/$tool" |
+    sed 's|"\$APP/node/bin/node"|/usr/local/bin/node|g' >"$ROOT/bin/$tool"
+  chmod 0755 "$ROOT/bin/$tool"
+done
+# The commands' names until 0.30. openchronology-server has these files, and pgmp's: pkg
+# removes it when installing this package, which is how this package replaces it.
+for command in setup migrate reset-admin-password; do
+  ln -s "circagraph-$command" "$ROOT/sbin/openchronology-$command"
+done
+ln -s cg-import-logs "$ROOT/bin/och-import-logs"
+ln -s cg-import-github "$ROOT/bin/och-import-github"
 find "$STAGE" -type d -exec chmod 0755 {} +
 
 # The package: its manifest, scripts and file list.
@@ -91,10 +101,10 @@ for dep in $RUNTIME; do
 "
 done
 cat >"$META/+MANIFEST" <<MANIFEST
-name: openchronology-server
+name: circagraph-server
 version: "$VERSION"
-origin: www/openchronology-server
-comment: "OpenChronology timeline platform server"
+origin: www/circagraph-server
+comment: "Circagraph timeline platform server"
 www: "https://github.com/circagraph/timeline-app"
 maintainer: "athan.clark@gmail.com"
 prefix: /usr/local
@@ -102,14 +112,15 @@ licenselogic: single
 licenses: [GPLv3]
 categories: [www, databases]
 desc: <<EOD
-The OpenChronology platform: accounts, shared and public timelines, collaboration, search
+The Circagraph platform: accounts, shared and public timelines, collaboration, search
 and live updates, served by Next.js with PostgreSQL storage. Times are exact rationals,
 stored with the bundled pgmp extension for PostgreSQL $PG_MAJOR.
 
 The first installation initializes PostgreSQL if it is not yet, creates a local database,
-migrates it and starts the openchronology service on 127.0.0.1:5173. Configuration is in
-/usr/local/etc/openchronology/openchronology.env. After an upgrade, run
-openchronology-migrate.
+migrates it and starts the circagraph service on 127.0.0.1:5173. Configuration is in
+/usr/local/etc/circagraph/circagraph.env. After an upgrade, run circagraph-migrate.
+It replaces openchronology-server, its name until 0.30, keeping that installation's
+configuration, database and system users.
 EOD
 deps: {
 $deps}
@@ -121,11 +132,11 @@ done
   cd "$ROOT"
   find . -type f -o -type l | sed 's|^\./||' | sort
   # Directories the package owns, removed with it when empty.
-  find lib/openchronology share/openchronology share/doc/openchronology-server \
+  find lib/circagraph share/circagraph share/doc/circagraph-server \
     -type d | sort -r | sed 's|^|@dir |'
 ) >"$WORK/plist"
 mkdir -p "$WORK/out"
 pkg create -m "$META" -r "$STAGE" -p "$WORK/plist" -o "$WORK/out"
-cp "$WORK/out/"openchronology-server-*.pkg "$REPO/server-artifacts/$ASSET"
+cp "$WORK/out/"circagraph-server-*.pkg "$REPO/server-artifacts/$ASSET"
 rm -rf "$WORK"
-echo "Wrote server-artifacts/$ASSET (openchronology-server $VERSION)"
+echo "Wrote server-artifacts/$ASSET (circagraph-server $VERSION)"
