@@ -75,11 +75,11 @@ jobs:
         run: node scripts/server-package.mjs "${{ matrix.target }}"
       - name: Install, run, upgrade and remove it in a fresh container
         timeout-minutes: 10
-        run: node "test/server-${{ matrix.format }}.mjs" "server-artifacts/openchronology-server-${{ matrix.target }}-amd64.${{ matrix.format }}"
+        run: node "test/server-${{ matrix.format }}.mjs" "server-artifacts/circagraph-server-${{ matrix.target }}-amd64.${{ matrix.format }}"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: server-${{ matrix.target }}
-          path: server-artifacts/openchronology-server-${{ matrix.target }}-amd64.${{ matrix.format }}
+          path: server-artifacts/circagraph-server-${{ matrix.target }}-amd64.${{ matrix.format }}
           if-no-files-found: error
   # The server's platform-independent part (deploy/platform), built once: FreeBSD's packages
   # and Homebrew's formula build from it, and releases attach it.
