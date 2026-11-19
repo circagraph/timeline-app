@@ -306,11 +306,13 @@ jobs:
         run: |
           $version = if ($env:RELEASE_TAG) { $env:RELEASE_TAG.TrimStart('v') } else { 'dev-' + (git rev-parse --short=7 HEAD) }
           ./deploy/windows-server/build.ps1 -Version $version
-      - name: Install, run, upgrade and remove it
-        timeout-minutes: 10
-        run: node test/server-windows.mjs server-artifacts/openchronology-server-windows-amd64-setup.exe
+      # Then installed over OpenChronology Server, its name until 0.30, downloaded and installed
+      # first.
+      - name: Install, run, upgrade and remove it, and install it over OpenChronology Server
+        timeout-minutes: 20
+        run: node test/server-windows.mjs server-artifacts/circagraph-server-windows-amd64-setup.exe
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: server-windows
-          path: server-artifacts/openchronology-server-windows-amd64-setup.exe
+          path: server-artifacts/circagraph-server-windows-amd64-setup.exe
           if-no-files-found: error
