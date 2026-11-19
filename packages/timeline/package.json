@@ -1,7 +1,7 @@
 {
-  "name": "@openchronology/timeline",
+  "name": "@circagraph/timeline",
   "version": "0.0.0",
-  "description": "The Circagraph timeline editor as an <och-timeline> element for any page, chat reply or artifact",
+  "description": "The Circagraph timeline editor as an <circagraph-timeline> element for any page, chat reply or artifact",
   "type": "module",
   "main": "dist/timeline.js",
   "browser": "dist/timeline.js",
@@ -20,7 +20,7 @@
     "chronology",
     "web-component",
     "custom-element",
-    "openchronology"
+    "circagraph"
   ],
   "homepage": "https://github.com/circagraph/timeline-app/tree/main/packages/timeline#readme",
   "repository": {

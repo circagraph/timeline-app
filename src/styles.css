@@ -2963,7 +2963,7 @@ body[data-embed] .legal-notices {
   font-size: 11px;
 }
 /*
- * A timeline written into the offline file's page (the <och-timeline> element, packages/timeline):
+ * A timeline written into the offline file's page (the <circagraph-timeline> element, packages/timeline):
  * a frame in someone else's page, often a chat reply, so the timeline and its controls only, with
  * Export to take it away.
  */

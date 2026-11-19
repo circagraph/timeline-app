@@ -106,7 +106,7 @@ export async function llmsText() {
     line(
       'Showing a timeline in a chat reply or a page',
       at('/help/sharing#in-other-pages-and-ai-chats'),
-      'the <och-timeline> element (npm @openchronology/timeline): a timeline written as JSON inside it opens in the editor, with no server',
+      'the <circagraph-timeline> element (npm @circagraph/timeline): a timeline written as JSON inside it opens in the editor, with no server',
     ),
     '',
   );

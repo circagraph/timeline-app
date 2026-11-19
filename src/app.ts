@@ -9740,7 +9740,7 @@ void (async () => {
 
 /**
  * A timeline written into the offline file's page, opened in place of a new one: how the
- * @openchronology/timeline element (packages/timeline) shows a timeline in another page.
+ * @circagraph/timeline element (packages/timeline) shows a timeline in another page.
  * `<script type="application/json" id="och-document" data-mode="view">` holds the .ochx;
  * data-mode="view" opens it in view mode, for this page only.
  */

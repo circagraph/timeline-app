@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-// The @openchronology/timeline element (packages/timeline, built by scripts/timeline-package.mjs)
+// The @circagraph/timeline element (packages/timeline, built by scripts/timeline-package.mjs)
 // in a page with a content security policy like an AI chat's artifacts: a timeline given inline
 // opens with its default view, in view mode when asked, in a sandboxed frame; one set by script
 // replaces it; one that is not a timeline says so.
@@ -29,7 +29,7 @@ const page = (body) => `<!doctype html><html><head><meta charset="utf-8">
 <script src="/timeline.js"></script></head><body>${body}</body></html>`;
 const pages = {
   '/inline': page(
-    `<och-timeline mode="view" theme="dark" height="500"><script type="application/json">${JSON.stringify(timeline).replace(/</g, '\\u003c')}</script></och-timeline>`,
+    `<circagraph-timeline mode="view" theme="dark" height="500"><script type="application/json">${JSON.stringify(timeline).replace(/</g, '\\u003c')}</script></circagraph-timeline>`,
   ),
   '/broken': page(
     `<och-timeline><script type="application/json">{ not json</script></och-timeline>`,
@@ -46,7 +46,9 @@ const server = createServer((request, response) => {
 });
 await new Promise((done) => server.listen(0, '127.0.0.1', done));
 const origin = `http://127.0.0.1:${server.address().port}`;
-const browser = await { chromium, firefox, webkit }[engine].launch();
+const browser = await { chromium, firefox, webkit }[engine].launch(
+  process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE } : {},
+);
 try {
   const tab = await browser.newPage({ viewport: { width: 1100, height: 800 } });
   const errors = [];
@@ -55,7 +57,7 @@ try {
     if (!/lacks the "allow-same-origin" flag/.test(error.message)) errors.push(error.message);
   });
   await tab.goto(`${origin}/inline`);
-  const frame = tab.frameLocator('och-timeline iframe');
+  const frame = tab.frameLocator('circagraph-timeline iframe');
   await frame.locator('#timeline-title').waitFor();
   const inner = () => tab.frames().find((f) => f !== tab.mainFrame());
   await inner().waitForFunction(
@@ -73,12 +75,13 @@ try {
     /19[67]0/.test(document.getElementById('timeline-stage').textContent),
   );
   assert.equal(await inner().evaluate(() => document.documentElement.dataset.theme), 'dark');
-  assert.equal((await tab.locator('och-timeline').boundingBox()).height, 500);
+  assert.equal((await tab.locator('circagraph-timeline').boundingBox()).height, 500);
   // Sandboxed in an origin of its own: the page around it is out of its reach.
   assert.equal(
     await tab.evaluate(
       () =>
-        document.querySelector('och-timeline').shadowRoot.querySelector('iframe').contentDocument,
+        document.querySelector('circagraph-timeline').shadowRoot.querySelector('iframe')
+          .contentDocument,
     ),
     null,
   );
@@ -93,13 +96,13 @@ try {
     false,
   );
   // Another timeline, set by script.
-  await tab.evaluate((doc) => (document.querySelector('och-timeline').timeline = doc), {
+  await tab.evaluate((doc) => (document.querySelector('circagraph-timeline').timeline = doc), {
     ...timeline,
     title: 'Mars landings',
     view: undefined,
   });
   await tab.waitForFunction(() => {
-    const f = document.querySelector('och-timeline').shadowRoot.querySelector('iframe');
+    const f = document.querySelector('circagraph-timeline').shadowRoot.querySelector('iframe');
     return f && f.title === 'Mars landings';
   });
   const mars = tab.frames().find((f) => f !== tab.mainFrame());
@@ -107,7 +110,7 @@ try {
     () => document.getElementById('timeline-title')?.value === 'Mars landings',
   );
   assert.deepEqual(errors, []);
-  // Not a timeline: said in place of the frame.
+  // Not a timeline: said in place of the frame, by the element under its first name too.
   await tab.goto(`${origin}/broken`);
   await tab.locator('och-timeline p').waitFor();
   assert.match(await tab.locator('och-timeline p').textContent(), /could not be opened/);
@@ -116,5 +119,5 @@ try {
   server.close();
 }
 console.log(
-  'PASS timeline package: an inline timeline opened with its default view in view mode, in a sandboxed frame under an artifact-like policy; replaced by script; a broken one reported.',
+  'PASS timeline package: an inline timeline opened with its default view in view mode, in a sandboxed frame under an artifact-like policy; replaced by script; a broken one reported, under the element’s first name.',
 );
