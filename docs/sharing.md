@@ -279,15 +279,16 @@ keep to https (HSTS), as every other page does.
 
 ### In other pages and AI chats
 
-A timeline doesn't need to be on a server to be shown elsewhere. The `<och-timeline>` element,
-published on npm as [`@openchronology/timeline`](https://github.com/circagraph/timeline-app/tree/main/packages/timeline#readme), is the
+A timeline doesn't need to be on a server to be shown elsewhere. The `<circagraph-timeline>` element,
+published on npm as [`@circagraph/timeline`](https://github.com/circagraph/timeline-app/tree/main/packages/timeline#readme), is the
 [offline editor](guide.md#the-desktop-app-and-the-offline-file) in a frame of its own, opened at a timeline written inside it as
 `.ochx` JSON. Pages, documentation sites and the HTML an AI chat writes into a reply or an
-artifact can use it, loading it from jsDelivr or unpkg:
+artifact can use it, loading it from jsDelivr or unpkg. (Until 0.30 it was `@openchronology/timeline`
+and `<och-timeline>`; pages that use those keep working.)
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@openchronology/timeline@<version>/dist/timeline.js"></script>
-<och-timeline mode="view" height="480">
+<script src="https://cdn.jsdelivr.net/npm/@circagraph/timeline@<version>/dist/timeline.js"></script>
+<circagraph-timeline mode="view" height="480">
   <script type="application/json">
     {
       "title": "Moon landings",
@@ -298,7 +299,7 @@ artifact can use it, loading it from jsDelivr or unpkg:
       ]
     }
   </script>
-</och-timeline>
+</circagraph-timeline>
 ```
 
 - **What it shows:** the timeline and its tools, without the editor's header. A timeline with a

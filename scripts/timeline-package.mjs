@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-// Builds the @openchronology/timeline package (packages/timeline): its element script with the
+// Builds the @circagraph/timeline package (packages/timeline): its element script with the
 // offline editor inside, dist/circagraph-offline.html (scripts/offline.mjs, built first), and
 // its license and notices. `--version <v>` sets the package's version, as the release does.
 import { build } from 'esbuild';

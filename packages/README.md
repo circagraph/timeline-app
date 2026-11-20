@@ -7,6 +7,6 @@ Packages published from this repository on their own, built from its editor by t
 
 ## Contents
 
-| File                              | What it is for                                                                                                        |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| [`timeline/`](timeline/README.md) | `@openchronology/timeline`: the `<och-timeline>` element, the offline editor in a frame of any page or AI chat reply. |
+| File                              | What it is for                                                                                                           |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| [`timeline/`](timeline/README.md) | `@circagraph/timeline`: the `<circagraph-timeline>` element, the offline editor in a frame of any page or AI chat reply. |

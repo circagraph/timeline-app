@@ -282,12 +282,12 @@ jobs:
               commit -m "${name} ${RELEASE_TAG#v}"
             git -C "repo-$name" push origin HEAD:master
           done
-  # Stable releases publish the <och-timeline> element, @openchronology/timeline
+  # Stable releases publish the <circagraph-timeline> element, @circagraph/timeline
   # (packages/timeline), to npm, where jsDelivr and unpkg serve it to pages and AI chats' artifacts,
   # built at the tag with provenance, once NPM_TOKEN holds an npm token that may publish it.
   # Without it the job says so and publishes nothing.
   npm:
-    name: Publish @openchronology/timeline to npm
+    name: Publish @circagraph/timeline to npm
     needs: publish
     if: ${{ !contains(github.event.release.tag_name || github.ref_name, '-') }}
     runs-on: ubuntu-24.04
@@ -321,7 +321,11 @@ jobs:
         working-directory: packages/timeline
         run: |
           if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::notice::NPM_TOKEN is not set: @openchronology/timeline was not published."
+            echo "::notice::NPM_TOKEN is not set: @circagraph/timeline was not published."
             exit 0
           fi
           npm publish --provenance --access public
+          # The package's first name points to this one (deprecating it again is harmless).
+          npm deprecate @openchronology/timeline \
+            "Renamed @circagraph/timeline, with the element <circagraph-timeline>." ||
+            echo "::warning::@openchronology/timeline could not be deprecated."
