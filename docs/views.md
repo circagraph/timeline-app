@@ -2,6 +2,8 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
+<!-- description: Saved views: named ways of showing a timeline, by separations, relationships or the whole timeline, shared and made the default. -->
+
 A **view** is a saved way of showing a timeline: a set of [separations](tags.md#separating-by-tags), with their disjoins and unions, an event's [relationships](relationships.md), or the whole timeline with nothing separated, under a title. One timeline can have many views, each telling a different story from the same events. A timeline's authors can make one its **default view**, which is how it opens for everyone.
 
 ## Saving and opening views
