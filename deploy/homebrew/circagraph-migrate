@@ -35,8 +35,16 @@ if launchctl print "$domain/$old" >/dev/null 2>&1 || [ -e "$agents/$old.plist" ]
     i=$((i + 1))
   done
   rm -f "$agents/$old.plist"
-  "$BREW" services restart circagraph-server >/dev/null
   moved=1
+elif [ -L "$PREFIX/etc/openchronology" ] && [ ! -e "$PREFIX/etc/circagraph/.service-moved" ] &&
+  ! "$BREW" services list 2>/dev/null | grep -q '^circagraph-server .*started'; then
+  # brew upgrade, migrating the formula to its new name, stops and removes the earlier
+  # service itself: the first run after it starts the server under the new one.
+  moved=1
+fi
+if [ -n "$moved" ]; then
+  "$BREW" services restart circagraph-server >/dev/null
+  : >"$PREFIX/etc/circagraph/.service-moved"
   echo "The openchronology-server service is now circagraph-server, and started."
 fi
 if [ -z "$moved" ] &&

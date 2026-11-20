@@ -241,11 +241,15 @@ await writeFile(
   `${oldData}\\syslog.env`,
   oldSyslog.replace(/^OCH_API_KEY=.*$/m, `OCH_API_KEY=och_key_${'0'.repeat(32)}_${'0'.repeat(64)}`),
 );
-// Routes of its own, without which the receiver stops as it starts.
-await writeFile(`${oldData}\\syslog-routes.json`, '{"routes": []}');
-await ps(
-  'Set-Service OpenChronologySyslog -StartupType Automatic; Start-Service OpenChronologySyslog',
-);
+// Setup carries over that it starts with Windows; running it as well is attempted, and its log
+// shown if it does not start (its fake API key may stop it).
+await ps('Set-Service OpenChronologySyslog -StartupType Automatic');
+await ps('Start-Service OpenChronologySyslog', { allowFailure: true });
+if ((await status('OpenChronologySyslog')) !== 'Running')
+  console.log(
+    'OpenChronologySyslog did not start:\n' +
+      (await ps(`Get-Content -Tail 40 '${oldData}\\logs\\*syslog*.log'`, { allowFailure: true })),
+  );
 
 const replaced = await install();
 assert.match(replaced, /OpenChronology Server is now Circagraph Server/, replaced.slice(-4000));
