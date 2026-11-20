@@ -11,6 +11,10 @@ import {
   sameSeparation,
   separationGroups,
   tagSeparation,
+  viewSeparations,
+  isWholeTimeline,
+  WHOLE_TIMELINE,
+  validateSeparations,
   draftSettings,
   draftDocument,
 } from '../dist/core.mjs';
@@ -202,4 +206,23 @@ test('a default view names a saved view, and files keep a list of views (#550)',
   const index = new TimelineIndex(document);
   assert.deepEqual(index.document().views, document.views);
   assert.deepEqual(index.document().view, { id: 'war', separation: { tags: ['war'] } });
+});
+
+test('no separations is a view of the whole timeline', () => {
+  const view = validateTimelineView({ id: 'all', separation: { separations: [] } });
+  assert.deepEqual(view, { id: 'all', separation: { separations: [] } });
+  assert.deepEqual(viewSeparations(view.separation), []);
+  assert.deepEqual(separationGroups(view.separation), []);
+  assert.ok(isWholeTimeline(view.separation));
+  assert.ok(!isWholeTimeline({ tags: ['war'] }));
+  assert.ok(!isWholeTimeline(null));
+  assert.deepEqual(tagSeparation([]), WHOLE_TIMELINE);
+  assert.ok(sameSeparation(view.separation, WHOLE_TIMELINE));
+  assert.ok(!sameSeparation(view.separation, { tags: ['war'] }));
+  assert.deepEqual(
+    validateSavedViews([{ id: 'all', title: 'Everything', separation: { separations: [] } }]),
+    [{ id: 'all', title: 'Everything', separation: { separations: [] } }],
+  );
+  // Separations elsewhere still need one at least.
+  assert.throws(() => validateSeparations([]), /one to 7/);
 });

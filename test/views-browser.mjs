@@ -107,12 +107,45 @@ export async function checkViews(page, restore) {
   );
   await dialog.locator('.dialog-actions [data-close]').click();
   assert.deepEqual((await exported()).view, { separation: both.separation });
+  // The whole timeline, with nothing separated, saved as a view and made the default; then
+  // the default removed from its card.
+  await page.locator('#views-button').click();
+  assert.match(await page.locator('#views-showing').textContent(), /whole timeline/);
+  assert.equal(await page.locator('#views-save').isDisabled(), false);
+  await page.locator('#views-save').click();
+  await page.locator('#view-title').fill('Everything');
+  await page.locator('#view-edit-submit').click();
+  await page.locator('#view-edit-dialog').waitFor({ state: 'hidden' });
+  const everything = dialog.locator('.view-card', { hasText: 'Everything' });
+  assert.match(await everything.textContent(), /The whole timeline, with nothing separated/);
+  await dialog.getByRole('button', { name: 'Make default: Everything' }).click();
+  await dialog.getByRole('button', { name: 'Remove default: Everything' }).waitFor();
+  await dialog.locator('.dialog-actions [data-close]').click();
+  const whole = await exported();
+  const saved = whole.views.find((v) => v.title === 'Everything');
+  assert.deepEqual(saved.separation, { separations: [] });
+  assert.deepEqual(whole.view, { id: saved.id, separation: { separations: [] } });
+  // Opening another view and then the whole one rejoins.
+  await page.locator('#views-button').click();
+  await dialog.getByRole('button', { name: 'Open: Trade', exact: true }).click();
+  await page.locator('#separation-rejoin').waitFor();
+  await page.locator('#views-button').click();
+  await dialog.getByRole('button', { name: 'Open: Everything' }).click();
+  await dialog.waitFor({ state: 'hidden' });
+  assert.equal(await page.locator('#separation-rejoin').isVisible(), false);
+  await page.locator('#views-button').click();
+  assert.match(await page.locator('#views-showing').textContent(), /“Everything”/);
+  await dialog.getByRole('button', { name: 'Remove default: Everything' }).click();
+  await dialog.getByRole('button', { name: 'Make default: Everything' }).waitFor();
+  assert.equal(await dialog.locator('.view-badge-default').count(), 0);
+  await dialog.locator('.dialog-actions [data-close]').click();
+  assert.equal('view' in (await exported()), false);
   await page
     .locator('#separation-rejoin')
     .click()
     .catch(() => {});
   await imported(restore);
   console.log(
-    'PASS views: a file’s views opened, saved from what is shown, made the default and followed, edited, duplicated, deleted, and kept by exports.',
+    'PASS views: a file’s views opened, saved from what is shown (the whole timeline too), made the default and followed, the default removed, edited, duplicated, deleted, and kept by exports.',
   );
 }
