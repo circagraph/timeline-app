@@ -241,6 +241,8 @@ await writeFile(
   `${oldData}\\syslog.env`,
   oldSyslog.replace(/^OCH_API_KEY=.*$/m, `OCH_API_KEY=och_key_${'0'.repeat(32)}_${'0'.repeat(64)}`),
 );
+// Routes of its own, without which the receiver stops as it starts.
+await writeFile(`${oldData}\\syslog-routes.json`, '{"routes": []}');
 await ps(
   'Set-Service OpenChronologySyslog -StartupType Automatic; Start-Service OpenChronologySyslog',
 );

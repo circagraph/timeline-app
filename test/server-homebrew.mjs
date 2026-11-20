@@ -226,7 +226,8 @@ await writeFile(
   `${tap}/Formula/circagraph-server.rb`,
   formula.replace(/^ {2}version ".*"$/m, '  version "0.31.0"'),
 );
-const upgraded = await sh('brew upgrade circagraph-server 2>&1');
+// Homebrew colours formula names in its output even when it is not a terminal.
+const upgraded = (await sh('brew upgrade circagraph-server 2>&1')).replace(/\x1b\[[0-9;]*m/g, '');
 assert.match(upgraded, /Migrating formula openchronology-server to circagraph-server/, upgraded);
 assert.match(await sh('brew list --versions circagraph-server'), /0\.31\.0/);
 // The configuration moved, with links from its old names, and still names the old database.

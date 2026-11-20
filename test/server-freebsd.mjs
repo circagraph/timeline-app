@@ -262,7 +262,8 @@ const movedMigrate = await sh('openchronology-migrate 2>&1');
 assert.match(movedMigrate, /Circagraph restarted\./, movedMigrate);
 assert.match(await sh('service circagraph status'), /is running/);
 assert.deepEqual(await healthy(), { status: 'ok', storage: 'postgresql' });
-assert.match(await sh('ps -U openchronology -o command='), /circagraph-server\.mjs/);
+// The server runs as the installation's user (Next.js names its process next-server).
+assert.match(await sh('ps -U openchronology -o command='), /next-server|circagraph-server\.mjs/);
 assert.equal(
   await psql("SELECT count(*) FROM oc_users WHERE username='kept'", 'openchronology'),
   '1',
