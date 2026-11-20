@@ -14,7 +14,10 @@ import type { EntityRef } from './relationships.js';
 export type ViewSeparation =
   | { tags: string[] }
   | { groups: string[][] }
-  /** Separations of which some disjoin at a time (#549). */
+  /**
+   * Separations of which some disjoin at a time (#549). None at all is the whole timeline: a
+   * saved view of it, named and shared like any other.
+   */
   | { separations: SeparationTrack[] }
   | { related: EntityRef; depth: 'direct' | 'all' };
 /** The most tag separations shown at once: each is a track, and a comparison has eight. */
@@ -29,6 +32,11 @@ export function viewSeparations(s: ViewSeparation | null | undefined): Separatio
   if ('separations' in s) return s.separations;
   return ('tags' in s ? [s.tags] : s.groups).map((tags) => ({ tags }));
 }
+/** The whole timeline as a view: no separations. */
+export const WHOLE_TIMELINE: ViewSeparation = { separations: [] };
+/** Whether a view shows the whole timeline: it has no separations. */
+export const isWholeTimeline = (s: ViewSeparation | null | undefined): boolean =>
+  !!s && !viewSeparations(s).length;
 /** A view's groups of tags: its separations by tags. */
 export const separationGroups = (s: ViewSeparation | null | undefined): string[][] =>
   viewSeparations(s).flatMap((t) => ('tags' in t ? [t.tags] : []));
@@ -41,6 +49,7 @@ export function tagSeparation(tracks: SeparationTrack[] | string[][]): ViewSepar
   const list: SeparationTrack[] = tracks.map((t) =>
     Array.isArray(t) ? { tags: [...t] } : 'tags' in t ? { ...t, tags: [...t.tags] } : { ...t },
   );
+  if (!list.length) return { separations: [] };
   const tagged = list.flatMap((t) => ('tags' in t ? [t.tags] : []));
   if (list.some((t) => t.disjoins?.length || t.unions?.length)) return { separations: list };
   if (tagged.length === list.length)
@@ -124,6 +133,9 @@ function validateViewSeparation(s: unknown): { separation: ViewSeparation } {
   if (object(s) && 'separations' in s) {
     if (Object.keys(s).length !== 1)
       throw new Error('A default separation with disjoins or unions has only its separations.');
+    // None is the whole timeline (a saved view of it); otherwise one to seven.
+    if (Array.isArray(s.separations) && !s.separations.length)
+      return { separation: { separations: [] } };
     return { separation: { separations: validateSeparations(s.separations) } };
   }
   if (object(s) && 'groups' in s) {
