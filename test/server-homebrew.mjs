@@ -257,15 +257,16 @@ assert.match(
 assert.match(renamedMigrate, /syslog receiver moved to org\.circagraph\.syslog/);
 const launchd = (label) =>
   sh(`launchctl print "gui/$(id -u)/${label}" >/dev/null 2>&1 && echo loaded || echo unloaded`);
+assert.match(await launchd('sh.brew.openchronology-server'), /^unloaded/);
 assert.match(await launchd('homebrew.mxcl.openchronology-server'), /^unloaded/);
 assert.match(await launchd('org.openchronology.syslog'), /^unloaded/);
 assert.match(await launchd('org.circagraph.syslog'), /^loaded/);
 assert.match(
   await sh(
-    `ls "${agents}/homebrew.mxcl.openchronology-server.plist" "${agents}/org.openchronology.syslog.plist" 2>&1`,
+    `ls "${agents}/sh.brew.openchronology-server.plist" "${agents}/homebrew.mxcl.openchronology-server.plist" "${agents}/org.openchronology.syslog.plist" 2>&1`,
     { allowFailure: true },
   ),
-  /No such file[\s\S]*No such file/,
+  /No such file[\s\S]*No such file[\s\S]*No such file/,
 );
 const renamedServices = (await sh('brew services list')).replace(/\x1B\[[0-9;]*m/g, '');
 assert.match(renamedServices, /^circagraph-server\s+started/m, renamedServices);

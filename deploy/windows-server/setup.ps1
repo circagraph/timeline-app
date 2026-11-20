@@ -414,8 +414,14 @@ try {
       Set-Service $worker.Name -StartupType Automatic
       Write-Host "$($worker.Name) starts with Windows, as its OpenChronology service did."
     }
+    # One that does not start (its configuration incomplete) is reported, and the rest of the
+    # installation goes on: the server runs without it.
     if ((Get-Service $worker.Name).StartType -eq 'Automatic') {
-      Restart-Service $worker.Name -Force
+      try {
+        Restart-Service $worker.Name -Force
+      } catch {
+        Write-Warning "$($worker.Name) did not start: see its log in $logs, fix its configuration, then Start-Service $($worker.Name)."
+      }
     }
   }
   Remove-Item -Force -LiteralPath $startAgain -ErrorAction SilentlyContinue

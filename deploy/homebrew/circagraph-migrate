@@ -25,18 +25,23 @@ agents="$HOME/Library/LaunchAgents"
 
 # The server's service under its earlier name: its definition is gone from Homebrew, so brew
 # services no longer manages it; launchd still runs it until it is unloaded.
-old="homebrew.mxcl.openchronology-server"
+# Its launchd label is sh.brew.openchronology-server, or homebrew.mxcl.openchronology-server
+# under a Homebrew from before 5.
 moved=
-if launchctl print "$domain/$old" >/dev/null 2>&1 || [ -e "$agents/$old.plist" ]; then
-  launchctl bootout "$domain/$old" >/dev/null 2>&1 || true
-  i=0
-  while launchctl print "$domain/$old" >/dev/null 2>&1 && [ $i -lt 30 ]; do
-    sleep 1
-    i=$((i + 1))
-  done
-  rm -f "$agents/$old.plist"
-  moved=1
-elif [ -L "$PREFIX/etc/openchronology" ] && [ ! -e "$PREFIX/etc/circagraph/.service-moved" ] &&
+for old in sh.brew.openchronology-server homebrew.mxcl.openchronology-server; do
+  if launchctl print "$domain/$old" >/dev/null 2>&1 || [ -e "$agents/$old.plist" ]; then
+    launchctl bootout "$domain/$old" >/dev/null 2>&1 || true
+    i=0
+    while launchctl print "$domain/$old" >/dev/null 2>&1 && [ $i -lt 30 ]; do
+      sleep 1
+      i=$((i + 1))
+    done
+    rm -f "$agents/$old.plist"
+    moved=1
+  fi
+done
+if [ -z "$moved" ] && [ -L "$PREFIX/etc/openchronology" ] &&
+  [ ! -e "$PREFIX/etc/circagraph/.service-moved" ] &&
   ! "$BREW" services list 2>/dev/null | grep -q '^circagraph-server .*started'; then
   # brew upgrade, migrating the formula to its new name, stops and removes the earlier
   # service itself: the first run after it starts the server under the new one.

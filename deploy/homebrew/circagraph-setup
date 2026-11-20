@@ -123,9 +123,12 @@ MSG
 MSG
   # What still runs under the names before the rename, until circagraph-migrate moves it.
   agents=$HOME/Library/LaunchAgents
-  old_agents=$(ls "$agents/homebrew.mxcl.openchronology-server.plist" \
+  # The server's label is sh.brew.openchronology-server (homebrew.mxcl. before Homebrew 5).
+  old_agents=$(ls "$agents/sh.brew.openchronology-server.plist" \
+    "$agents/homebrew.mxcl.openchronology-server.plist" \
     "$agents"/org.openchronology.*.plist 2>/dev/null || true)
   if [ -n "$old_agents" ] ||
+    launchctl print "gui/$(id -u)/sh.brew.openchronology-server" >/dev/null 2>&1 ||
     launchctl print "gui/$(id -u)/homebrew.mxcl.openchronology-server" >/dev/null 2>&1; then
     cat <<MSG
 

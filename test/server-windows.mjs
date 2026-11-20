@@ -241,8 +241,11 @@ await writeFile(
   `${oldData}\\syslog.env`,
   oldSyslog.replace(/^OCH_API_KEY=.*$/m, `OCH_API_KEY=och_key_${'0'.repeat(32)}_${'0'.repeat(64)}`),
 );
-// Setup carries over that it starts with Windows; running it as well is attempted, and its log
-// shown if it does not start (its fake API key may stop it).
+// A default timeline, without which the receiver stops as it starts.
+await writeFile(
+  `${oldData}\\syslog-routes.json`,
+  '{"routes": [], "default": "00000000-0000-4000-8000-000000000000"}',
+);
 await ps('Set-Service OpenChronologySyslog -StartupType Automatic');
 await ps('Start-Service OpenChronologySyslog', { allowFailure: true });
 if ((await status('OpenChronologySyslog')) !== 'Running')
