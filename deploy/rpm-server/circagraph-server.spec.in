@@ -1,0 +1,168 @@
+# Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
+# The Circagraph server for Rocky Linux, RHEL and Fedora (#116). deploy/rpm-server/Dockerfile
+# stages the files (as the Debian package lays them out) and builds this with --define staged.
+Name:           circagraph-server
+Version:        @VERSION@
+Release:        @RELEASE@
+Summary:        Circagraph timeline platform server
+License:        GPL-3.0-only
+URL:            https://github.com/circagraph/timeline-app
+ExclusiveArch:  x86_64
+# The package's name until 0.30: installing this one replaces it, and keeps its installation.
+Obsoletes:      openchronology-server < 0.31
+Provides:       openchronology-server = %{version}-%{release}
+# The pgmp extension is built for this PostgreSQL major version.
+Requires:       postgresql-server(:MODULE_COMPAT_@PG_MAJOR@)
+Requires:       postgresql
+Requires:       gmp
+Requires:       sqlite-libs
+Requires:       util-linux
+Requires:       ca-certificates
+Requires(pre):  shadow-utils
+Recommends:     systemd
+
+# The files are built already: no stripping, debug packages or byte compilation, and the
+# bundled Node.js runtime and its modules bring their own dependencies.
+%global debug_package %{nil}
+%global __os_install_post %{nil}
+%define _build_id_links none
+%global __requires_exclude_from ^/usr/lib/circagraph/.*$
+%global __provides_exclude_from ^/usr/lib/circagraph/.*$
+# What the scriptlets pass on to each other within one transaction.
+%global rpmstate %{_localstatedir}/lib/rpm-state/circagraph-server
+
+%description
+The Circagraph platform: accounts, shared and public timelines, collaboration, search
+and live updates, served by Next.js with PostgreSQL storage. Times are exact rationals,
+stored with the bundled pgmp extension for PostgreSQL @PG_MAJOR@.
+
+The first installation initializes PostgreSQL if it is not yet, creates a local database,
+migrates it and starts the circagraph service on 127.0.0.1:5173. Configuration is in
+/etc/circagraph/circagraph.env. After an upgrade, run circagraph-migrate.
+
+Installed in place of openchronology-server (its name until 0.30), it keeps that
+installation's system users and database, and moves its configuration from
+/etc/openchronology to /etc/circagraph.
+
+This package bundles the Node.js @NODE_VERSION@ runtime it is tested with.
+
+%install
+cp -a %{staged}/. %{buildroot}/
+
+%pre
+# The system users: circagraph and circagraph-logs for a new installation; one from before the
+# rename keeps openchronology and openchronology-logs (circagraph-setup chooses the same way).
+if [ -e /etc/circagraph/circagraph.env ]; then
+  user=$(stat -c %G /etc/circagraph/circagraph.env)
+elif [ -e /etc/openchronology/openchronology.env ]; then
+  user=$(stat -c %G /etc/openchronology/openchronology.env)
+elif getent passwd openchronology >/dev/null && ! getent passwd circagraph >/dev/null; then
+  user=openchronology
+else
+  user=circagraph
+fi
+getent group "$user" >/dev/null || groupadd -r "$user"
+getent passwd "$user" >/dev/null ||
+  useradd -r -g "$user" -d "/var/lib/$user" -s /sbin/nologin -c "Circagraph server" "$user"
+# The log receivers' own user (#501): it reads their configuration, not the server's, and has
+# no database role.
+getent group "$user-logs" >/dev/null || groupadd -r "$user-logs"
+getent passwd "$user-logs" >/dev/null ||
+  useradd -r -M -g "$user-logs" -d / -s /sbin/nologin -c "Circagraph log receivers" "$user-logs"
+# In place of openchronology-server, whose removal later in this transaction disables its
+# services: which of them are enabled now, to enable again under their new names.
+rm -rf %{rpmstate}
+if [ -e /usr/lib/systemd/system/openchronology.service ] && [ -d /run/systemd/system ]; then
+  mkdir -p %{rpmstate}
+  for unit in openchronology openchronology-mail openchronology-syslog openchronology-github \
+    openchronology-journald; do
+    if systemctl is-enabled --quiet "$unit.service" 2>/dev/null; then
+      echo "circagraph${unit#openchronology}" >>%{rpmstate}/enabled
+    fi
+  done
+fi
+# An upgrade stops the server; it starts again once circagraph-migrate has run.
+if [ "$1" -ge 2 ] && [ -d /run/systemd/system ]; then
+  systemctl stop circagraph.service circagraph-mail.service circagraph-syslog.service \
+    circagraph-github.service circagraph-journald.service >/dev/null 2>&1 || true
+fi
+exit 0
+
+%post
+# In place of openchronology-server, which is still installed: its removal comes next and
+# disables its services (by their old names, which are the new units' aliases), so the setup
+# waits for the end of the transaction.
+if [ -e /usr/lib/systemd/system/openchronology.service ]; then
+  mkdir -p %{rpmstate}
+  touch %{rpmstate}/rename
+  exit 0
+fi
+/usr/sbin/circagraph-setup "$([ "$1" -ge 2 ] && echo upgrade || echo install)" || true
+
+%posttrans
+if [ -e %{rpmstate}/rename ]; then
+  /usr/sbin/circagraph-setup rename %{rpmstate}/enabled || true
+fi
+rm -rf %{rpmstate}
+exit 0
+
+%preun
+if [ "$1" -eq 0 ] && [ -d /run/systemd/system ]; then
+  systemctl disable --now circagraph.service circagraph-mail.service \
+    circagraph-syslog.service circagraph-github.service \
+    circagraph-journald.service >/dev/null 2>&1 || true
+fi
+exit 0
+
+%postun
+if [ "$1" -eq 0 ]; then
+  # The server's user, and with it the database's name: circagraph, or openchronology for an
+  # installation from before the rename.
+  user=circagraph
+  [ -e /etc/circagraph/circagraph.env ] && user=$(stat -c %G /etc/circagraph/circagraph.env)
+  # The services' drop-ins (circagraph-units) go with the services.
+  for unit in circagraph circagraph-mail circagraph-syslog circagraph-github circagraph-journald; do
+    rm -f "/etc/systemd/system/$unit.service.d/50-users.conf"
+    rmdir "/etc/systemd/system/$unit.service.d" 2>/dev/null || true
+  done
+  links=
+  [ -L /etc/openchronology ] && links=" /etc/openchronology"
+  cat <<MSG
+
+Circagraph was removed. Its configuration (/etc/circagraph, including AUTH_ENCRYPTION_KEY),
+the PostgreSQL database and the $user and $user-logs system users remain.
+To delete them as well:
+
+  sudo rm -rf /etc/circagraph$links /var/lib/$user /var/cache/$user
+  sudo -u postgres dropdb $user
+  sudo -u postgres dropuser $user
+  sudo userdel $user
+  sudo userdel $user-logs
+
+MSG
+fi
+[ -d /run/systemd/system ] && systemctl daemon-reload >/dev/null 2>&1
+exit 0
+
+%files
+/usr/lib/circagraph
+/usr/lib64/pgsql/pgmp.so
+/usr/share/pgsql/extension/pgmp*
+/usr/share/pgsql/pgmp
+/usr/lib/systemd/system/circagraph.service
+/usr/lib/systemd/system/circagraph-mail.service
+/usr/lib/systemd/system/circagraph-syslog.service
+/usr/lib/systemd/system/circagraph-github.service
+/usr/lib/systemd/system/circagraph-journald.service
+/usr/sbin/circagraph-migrate
+/usr/sbin/circagraph-reset-admin-password
+/usr/sbin/circagraph-setup
+/usr/sbin/openchronology-migrate
+/usr/sbin/openchronology-reset-admin-password
+/usr/sbin/openchronology-setup
+/usr/bin/cg-import-logs
+/usr/bin/cg-import-github
+/usr/bin/och-import-logs
+/usr/bin/och-import-github
+/usr/share/circagraph
+%doc /usr/share/doc/circagraph-server

@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 // Builds the server packages with Docker, into server-artifacts/ as
-// openchronology-server-<target>-amd64.<deb|rpm>: .deb from deploy/debian-server, .rpm from
+// circagraph-server-<target>-amd64.<deb|rpm>: .deb from deploy/debian-server, .rpm from
 // deploy/rpm-server (#116). FreeBSD and macOS build from the platform-independent part,
-// server-artifacts/openchronology-server-platform.tar.gz (deploy/platform), made here: on
+// server-artifacts/circagraph-server-platform.tar.gz (deploy/platform), made here: on
 // FreeBSD, deploy/freebsd-server/build.sh makes the .pkg; on macOS, Homebrew's formula
 // (deploy/homebrew, scripts/homebrew-formula.mjs) builds and installs it.
 // Usage: node scripts/server-package.mjs [platform|debian13|ubuntu24.04|rocky10|fedora44|
@@ -98,7 +98,7 @@ for (const name of chosen.length ? chosen : Object.keys(serverTargets)) {
           '--build-arg',
           `DEB_VERSION=${upstream}-1~${target.suffix}`,
         ];
-  console.log(`Building openchronology-server ${upstream} for ${name} (${target.base})`);
+  console.log(`Building circagraph-server ${upstream} for ${name} (${target.base})`);
   // The published images of its tools stages, when they match the Dockerfile (#605).
   const toolArgs = await prebuiltToolArgs(name);
   if (nodeTarball) console.log(`With Node.js from ${nodeTarball}`);
@@ -147,7 +147,7 @@ async function platformTarball() {
     return file;
   }
   const out = await mkdtemp(join('server-artifacts', '.build-'));
-  console.log(`Building the platform for openchronology-server ${upstream}`);
+  console.log(`Building the platform for circagraph-server ${upstream}`);
   await new Promise((done, fail) => {
     const build = spawn(
       'docker',

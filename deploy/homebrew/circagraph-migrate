@@ -1,0 +1,70 @@
+#!/bin/sh
+# Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
+# Brings the Circagraph database up to this version's schema, then restarts the
+# circagraph-server service when it runs, and the mail worker's, the syslog receiver's and the
+# GitHub receiver's launchd agents, each when it is started (circagraph-agent), so that they
+# run this version too (#371, #374). Safe to run more than once.
+# The first time after openchronology-server became circagraph-server, it moves what still
+# runs under the earlier names: the openchronology-server service and the
+# org.openchronology.* agents stop, and circagraph-server and the org.circagraph.* agents
+# start in their place.
+# Usage: circagraph-migrate [--no-restart]   (--no-restart restarts nothing)
+set -eu
+PREFIX=@HOMEBREW_PREFIX@
+CONFIG=$PREFIX/etc/circagraph/circagraph.env
+if [ ! -r "$CONFIG" ]; then
+  echo "$CONFIG is missing: run circagraph-setup." >&2
+  exit 1
+fi
+# The configuration is read as systemd reads it (OCH_CONFIG, #118).
+OCH_CONFIG="$CONFIG" "@NODE@" "@LIBEXEC@/server/migrate.mjs"
+[ "${1:-}" = "--no-restart" ] && exit 0
+BREW=$PREFIX/bin/brew
+domain="gui/$(id -u)"
+agents="$HOME/Library/LaunchAgents"
+
+# The server's service under its earlier name: its definition is gone from Homebrew, so brew
+# services no longer manages it; launchd still runs it until it is unloaded.
+# Its launchd label is sh.brew.openchronology-server, or homebrew.mxcl.openchronology-server
+# under a Homebrew from before 5.
+moved=
+for old in sh.brew.openchronology-server homebrew.mxcl.openchronology-server; do
+  if launchctl print "$domain/$old" >/dev/null 2>&1 || [ -e "$agents/$old.plist" ]; then
+    launchctl bootout "$domain/$old" >/dev/null 2>&1 || true
+    i=0
+    while launchctl print "$domain/$old" >/dev/null 2>&1 && [ $i -lt 30 ]; do
+      sleep 1
+      i=$((i + 1))
+    done
+    rm -f "$agents/$old.plist"
+    moved=1
+  fi
+done
+if [ -z "$moved" ] && [ -L "$PREFIX/etc/openchronology" ] &&
+  [ ! -e "$PREFIX/etc/circagraph/.service-moved" ] &&
+  ! "$BREW" services list 2>/dev/null | grep -q '^circagraph-server .*started'; then
+  # brew upgrade, migrating the formula to its new name, stops and removes the earlier
+  # service itself: the first run after it starts the server under the new one.
+  moved=1
+fi
+if [ -n "$moved" ]; then
+  "$BREW" services restart circagraph-server >/dev/null
+  : >"$PREFIX/etc/circagraph/.service-moved"
+  echo "The openchronology-server service is now circagraph-server, and started."
+fi
+if [ -z "$moved" ] &&
+  "$BREW" services list 2>/dev/null | grep -q '^circagraph-server .*started'; then
+  "$BREW" services restart circagraph-server >/dev/null
+  echo "Circagraph restarted."
+fi
+for worker in "mail:mail worker" "syslog:syslog receiver" "github:GitHub receiver"; do
+  name=${worker%%:*}
+  if launchctl print "$domain/org.circagraph.$name" >/dev/null 2>&1; then
+    "$PREFIX/bin/circagraph-agent" restart "$name" >/dev/null
+    echo "Circagraph ${worker#*:} restarted."
+  elif launchctl print "$domain/org.openchronology.$name" >/dev/null 2>&1 ||
+    [ -e "$agents/org.openchronology.$name.plist" ]; then
+    "$PREFIX/bin/circagraph-agent" start "$name" >/dev/null
+    echo "Circagraph ${worker#*:} moved to org.circagraph.$name, and started."
+  fi
+done

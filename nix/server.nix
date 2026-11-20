@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 # The OpenChronology server (#461): the editor and the Next.js platform built from source, laid
 # out as the Debian package installs them (deploy/debian-server/Dockerfile) under
-# lib/openchronology, with och-convert beside them, the source archive the site's footer
+# lib/circagraph, with och-convert beside them, the source archive the site's footer
 # links to, and commands in bin. The NixOS module (module.nix) runs them as services.
 {
   lib,
@@ -18,7 +18,7 @@
 }:
 
 buildNpmPackage {
-  pname = "openchronology-server";
+  pname = "circagraph-server";
   version = (lib.importJSON ../package.json).version;
   inherit src;
   nodejs = nodejs_24;
@@ -55,40 +55,46 @@ buildNpmPackage {
 
   installPhase = ''
     runHook preInstall
-    app=$out/lib/openchronology
+    app=$out/lib/circagraph
     mkdir -p $app/platform/.next $app/bin $out/bin
     cp -r platform/.next/standalone/. $app/
     cp -r platform/.next/static $app/platform/.next/static
     rm -rf $app/platform/public
     cp -r platform/public $app/platform/public
     cp -r dist server legal package.json $app/
-    cp deploy/debian-server/openchronology-server.mjs $app/
+    cp deploy/debian-server/circagraph-server.mjs $app/
     ln -s ${lib.getExe och-convert} $app/bin/och-convert
 
     # The commands. The server reads OCH_CONFIG (an environment file) if given; the module
     # passes its settings in the environment instead.
-    makeWrapper ${lib.getExe nodejs_24} $out/bin/openchronology-server \
-      --add-flags $app/openchronology-server.mjs --chdir $app \
+    makeWrapper ${lib.getExe nodejs_24} $out/bin/circagraph-server \
+      --add-flags $app/circagraph-server.mjs --chdir $app \
       --set-default OCH_CONFIG /dev/null
     for command in migrate:migrate reset-admin-password:reset-admin-password \
         mail:mail-worker syslog:syslog-receiver github:github-receiver journald:journald-receiver; do
-      makeWrapper ${lib.getExe nodejs_24} $out/bin/openchronology-''${command%%:*} \
+      makeWrapper ${lib.getExe nodejs_24} $out/bin/circagraph-''${command%%:*} \
         --add-flags $app/server/''${command#*:}.mjs --chdir $app --set NODE_ENV production
     done
-    makeWrapper ${lib.getExe nodejs_24} $out/bin/och-import-logs \
+    makeWrapper ${lib.getExe nodejs_24} $out/bin/cg-import-logs \
       --add-flags $app/server/import-logs.mjs
-    makeWrapper ${lib.getExe nodejs_24} $out/bin/och-import-github \
+    makeWrapper ${lib.getExe nodejs_24} $out/bin/cg-import-github \
       --add-flags $app/server/import-github.mjs
+    # The commands' names before the rename to Circagraph.
+    for command in server migrate reset-admin-password mail syslog github journald; do
+      ln -s circagraph-$command $out/bin/openchronology-$command
+    done
+    ln -s cg-import-logs $out/bin/och-import-logs
+    ln -s cg-import-github $out/bin/och-import-github
     runHook postInstall
   '';
 
   passthru = { inherit och-convert; };
 
   meta = {
-    description = "OpenChronology, the exact timeline platform: its web server";
+    description = "Circagraph, the exact timeline platform: its web server";
     homepage = "https://github.com/circagraph/timeline-app";
     license = lib.licenses.gpl3Only;
-    mainProgram = "openchronology-server";
+    mainProgram = "circagraph-server";
     platforms = lib.platforms.linux;
   };
 }

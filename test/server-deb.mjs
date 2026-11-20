@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 // Installs a server .deb (scripts/server-package.mjs) in a fresh container of its distribution and
-// checks the first install, the running server, an upgrade and a purge.
-// Usage: node test/server-deb.mjs server-artifacts/openchronology-server-<target>-amd64.deb
+// checks the first install, the running server, an upgrade and a purge; then its installation
+// over the last openchronology-server release, which it replaces.
+// Usage: node test/server-deb.mjs server-artifacts/circagraph-server-<target>-amd64.deb
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { basename, resolve } from 'node:path';
@@ -11,6 +12,8 @@ import { checkSystemdServices } from './server-syslog.mjs';
 import { checkServicesUpgrade } from './server-upgrade-services.mjs';
 
 const run = promisify(execFile);
+/** The last release of openchronology-server, which this package replaces. */
+const PREVIOUS = 'v0.30.2';
 const deb = resolve(process.argv[2] ?? '');
 const target = Object.keys(serverTargets).find((t) => basename(deb) === serverPackage(t));
 const base = target && serverTargets[target].format === 'deb' && serverTargets[target].base;
@@ -27,7 +30,7 @@ const sh = async (script, { allowFailure = false } = {}) => {
     throw new Error(`${script}\n${error.stdout ?? ''}${error.stderr ?? ''}`);
   }
 };
-const psql = (sql, db = 'openchronology') =>
+const psql = (sql, db = 'circagraph') =>
   sh(`runuser -u postgres -- psql -X -Atq -d ${db} -c "${sql}"`).then((s) => s.trim());
 
 await run('docker', ['run', '-d', '--rm', '--name', name, base, 'sleep', 'infinity']);
@@ -41,31 +44,28 @@ try {
   const install = await sh(
     `export DEBIAN_FRONTEND=noninteractive; apt-get update -qq && apt-get install -y -qq /tmp/${basename(deb)} curl 2>&1`,
   );
-  assert.match(install, /OpenChronology is installed and ready/, install.slice(-3000));
+  assert.match(install, /Circagraph is installed and ready/, install.slice(-3000));
   assert.match(install, /Circagraph schema installed\./);
 
   // The database, its pgmp extension and the configuration.
   assert.equal(
-    await psql("SELECT rolname FROM pg_roles WHERE rolname='openchronology'", 'postgres'),
-    'openchronology',
+    await psql("SELECT rolname FROM pg_roles WHERE rolname='circagraph'", 'postgres'),
+    'circagraph',
   );
   assert.equal(await psql("SELECT extname FROM pg_extension WHERE extname='pgmp'"), 'pgmp');
   assert.equal(await psql("SELECT '1/3'::mpq + '1/6'::mpq"), '1/2');
   assert.equal(await psql("SELECT to_regclass('oc_timelines') IS NOT NULL"), 't');
   const config = await sh(
-    'stat -c "%a %U %G" /etc/openchronology/openchronology.env && cat /etc/openchronology/openchronology.env',
+    'stat -c "%a %U %G" /etc/circagraph/circagraph.env && cat /etc/circagraph/circagraph.env',
   );
-  assert.match(config, /^640 root openchronology/);
+  assert.match(config, /^640 root circagraph/);
   assert.match(config, /^AUTH_ENCRYPTION_KEY=[a-f0-9]{64}$/m);
-  assert.match(
-    config,
-    /^DATABASE_URL=postgresql:\/\/\/openchronology\?host=\/var\/run\/postgresql$/m,
-  );
+  assert.match(config, /^DATABASE_URL=postgresql:\/\/\/circagraph\?host=\/var\/run\/postgresql$/m);
 
   // The server runs as its service would (no systemd here), and answers.
   // The launcher reads the configuration itself when not started by systemd.
   await sh(
-    'runuser -u openchronology -- /usr/lib/openchronology/node/bin/node /usr/lib/openchronology/openchronology-server.mjs > /tmp/server.log 2>&1 & echo $! > /tmp/server.pid',
+    'runuser -u circagraph -- /usr/lib/circagraph/node/bin/node /usr/lib/circagraph/circagraph-server.mjs > /tmp/server.log 2>&1 & echo $! > /tmp/server.pid',
   );
   let health = '';
   for (let i = 0; i < 60 && !health.includes('200'); i++) {
@@ -88,39 +88,39 @@ try {
   );
   assert.match(await sh('curl -s http://127.0.0.1:5173/'), /<html/i);
   // The SQLite converter finds its libraries on this distribution.
-  assert.doesNotMatch(await sh('ldd /usr/lib/openchronology/bin/och-convert'), /not found/);
+  assert.doesNotMatch(await sh('ldd /usr/lib/circagraph/bin/och-convert'), /not found/);
   // The log importer runs as a command with the bundled Node.js.
-  assert.match(await sh('och-import-logs --help'), /^Usage: och-import-logs/);
+  assert.match(await sh('cg-import-logs --help'), /^Usage: cg-import-logs/);
   // The GitHub importer too (docs/github.md).
-  assert.match(await sh('och-import-github --help'), /^Usage: och-import-github/);
+  assert.match(await sh('cg-import-github --help'), /^Usage: cg-import-github/);
   // The GitHub receiver is installed, with its configuration template, and loads with the
   // bundled Node.js; it refuses to start without the webhook's secret.
   assert.match(
     await sh(
-      'test -f /usr/lib/systemd/system/openchronology-github.service && test -f /usr/share/openchronology/github.env.example && echo installed',
+      'test -f /usr/lib/systemd/system/circagraph-github.service && test -f /usr/share/circagraph/github.env.example && echo installed',
     ),
     /installed/,
   );
   assert.match(
     await sh(
-      `cd /usr/lib/openchronology && GITHUB_ROUTES_JSON='{"default":"00000000-0000-0000-0000-000000000000"}' node/bin/node server/github-receiver.mjs 2>&1; true`,
+      `cd /usr/lib/circagraph && GITHUB_ROUTES_JSON='{"default":"00000000-0000-0000-0000-000000000000"}' node/bin/node server/github-receiver.mjs 2>&1; true`,
     ),
     /GITHUB_WEBHOOK_SECRET/,
   );
   // The journald follower is installed, and loads with the bundled Node.js (#151).
   assert.match(
     await sh(
-      'test -f /usr/lib/systemd/system/openchronology-journald.service && test -f /usr/share/openchronology/journald.env.example && echo installed',
+      'test -f /usr/lib/systemd/system/circagraph-journald.service && test -f /usr/share/circagraph/journald.env.example && echo installed',
     ),
     /installed/,
   );
   assert.match(
-    await sh('cd /usr/lib/openchronology && node/bin/node server/journald-receiver.mjs 2>&1; true'),
+    await sh('cd /usr/lib/circagraph && node/bin/node server/journald-receiver.mjs 2>&1; true'),
     /Set JOURNALD_TIMELINE/,
   );
   const dry = JSON.parse(
     await sh(
-      "printf 'Oct  9 08:15:01 host sshd[1]: Accepted\\n' > /tmp/syslog && och-import-logs --format syslog --timezone UTC --year 2026 --dry-run --quiet /tmp/syslog 2>/dev/null",
+      "printf 'Oct  9 08:15:01 host sshd[1]: Accepted\\n' > /tmp/syslog && cg-import-logs --format syslog --timezone UTC --year 2026 --dry-run --quiet /tmp/syslog 2>/dev/null",
     ),
   );
   assert.equal(dry.entries, 1);
@@ -136,22 +136,22 @@ try {
   await sh('kill "$(cat /tmp/server.pid)" || true');
 
   // The administrator (#118): its password is read whole from the configuration, # and
-  // all, and openchronology-reset-admin-password sets it again.
+  // all, and circagraph-reset-admin-password sets it again.
   const adminPassword = 'Abc!def#ghi@jkl-mno';
   await sh(
-    `sed -i -e 's/^ADMIN_USERNAME=.*/ADMIN_USERNAME=admin/' -e 's/^ADMIN_INITIAL_PASSWORD=.*/ADMIN_INITIAL_PASSWORD=${adminPassword}/' /etc/openchronology/openchronology.env`,
+    `sed -i -e 's/^ADMIN_USERNAME=.*/ADMIN_USERNAME=admin/' -e 's/^ADMIN_INITIAL_PASSWORD=.*/ADMIN_INITIAL_PASSWORD=${adminPassword}/' /etc/circagraph/circagraph.env`,
   );
-  await sh('openchronology-migrate --no-restart');
+  await sh('circagraph-migrate --no-restart');
   const adminMatches = async () =>
     (
       await sh(
-        `cd / && /usr/lib/openchronology/node/bin/node --input-type=module -e "import { passwordMatches } from '/usr/lib/openchronology/server/auth.mjs'; console.log(await passwordMatches(process.argv[1], process.argv[2]))" '${adminPassword}' "$(runuser -u postgres -- psql -X -Atq -d openchronology -c "SELECT password_hash FROM oc_users WHERE username='admin'")"`,
+        `cd / && /usr/lib/circagraph/node/bin/node --input-type=module -e "import { passwordMatches } from '/usr/lib/circagraph/server/auth.mjs'; console.log(await passwordMatches(process.argv[1], process.argv[2]))" '${adminPassword}' "$(runuser -u postgres -- psql -X -Atq -d circagraph -c "SELECT password_hash FROM oc_users WHERE username='admin'")"`,
       )
     ).trim();
   assert.equal(await adminMatches(), 'true', 'the administrator has the whole password');
   await psql("UPDATE oc_users SET password_hash=NULL WHERE username='admin'");
   assert.equal(await adminMatches(), 'false');
-  const reset = await sh('openchronology-reset-admin-password 2>&1');
+  const reset = await sh('circagraph-reset-admin-password 2>&1');
   assert.match(
     reset,
     /The password of admin \(administrator\) is now ADMIN_INITIAL_PASSWORD/,
@@ -160,34 +160,102 @@ try {
   assert.equal(await adminMatches(), 'true');
 
   // Reinstalling takes the upgrade path: configuration and database are kept, and the
-  // administrator is told what to review and to run openchronology-migrate.
+  // administrator is told what to review and to run circagraph-migrate.
   await psql(
     "INSERT INTO oc_users(id,username,email_verified_at,terms_version) VALUES(gen_random_uuid(),'kept',now(),oc_policy_version())",
   );
   const key = /^AUTH_ENCRYPTION_KEY=.*$/m.exec(config)[0];
   // The mail worker and the log importers, enabled and running, are stopped by the upgrade
-  // and started again by openchronology-migrate (#371, #374).
+  // and started again by circagraph-migrate (#371, #374).
   const { upgrade, migrate } = await checkServicesUpgrade({
     sh,
     upgrade: () => sh(`dpkg -i /tmp/${basename(deb)} 2>&1`),
   });
   assert.match(upgrade, /is installed over/, upgrade);
-  assert.match(upgrade, /sudo openchronology-migrate/);
-  assert.match(upgrade, /diff -u \/etc\/openchronology\/openchronology\.env/);
-  assert.match(
-    await sh('cat /etc/openchronology/openchronology.env'),
-    new RegExp('^' + key + '$', 'm'),
-  );
+  assert.match(upgrade, /sudo circagraph-migrate/);
+  assert.match(upgrade, /diff -u \/etc\/circagraph\/circagraph\.env/);
+  assert.match(await sh('cat /etc/circagraph/circagraph.env'), new RegExp('^' + key + '$', 'm'));
   assert.equal(await psql("SELECT count(*) FROM oc_users WHERE username='kept'"), '1');
   assert.match(migrate, /Circagraph schema installed\./);
 
   // Purging removes the configuration and keeps the database.
-  const purge = await sh('apt-get purge -y -qq openchronology-server 2>&1');
-  assert.match(purge, /never dropped automatically|database and the openchronology/i);
-  assert.match(await sh('test -e /etc/openchronology && echo present || echo gone'), /gone/);
+  const purge = await sh('apt-get purge -y -qq circagraph-server 2>&1');
+  assert.match(purge, /never dropped automatically|database and the circagraph/i);
+  assert.match(await sh('test -e /etc/circagraph && echo present || echo gone'), /gone/);
   assert.equal(await psql("SELECT count(*) FROM oc_users WHERE username='kept'"), '1');
+} finally {
+  await run('docker', ['rm', '-f', name]).catch(() => {});
+}
+
+// Installed over openchronology-server, the package's name until 0.30: it replaces it, moves the
+// configuration to /etc/circagraph and keeps the installation's users and database.
+const previous = `https://github.com/circagraph/timeline-app/releases/download/${PREVIOUS}/openchronology-server-${target}-amd64.deb`;
+await run('docker', ['run', '-d', '--rm', '--name', name, base, 'sleep', 'infinity']);
+try {
+  await run('docker', ['cp', deb, `${name}:/tmp/${basename(deb)}`]);
+  await sh(
+    `printf 'Acquire::Retries "3";\\nAcquire::http::Timeout "30";\\nAcquire::https::Timeout "30";\\n' > /etc/apt/apt.conf.d/80-retries`,
+  );
+  const old = await sh(
+    `export DEBIAN_FRONTEND=noninteractive; apt-get update -qq && apt-get install -y -qq curl ca-certificates >/dev/null && curl -fsSL --retry 3 -o /tmp/old.deb ${previous} && apt-get install -y -qq /tmp/old.deb 2>&1`,
+  );
+  assert.match(old, /OpenChronology is installed and ready/, old.slice(-3000));
+  await psql(
+    "INSERT INTO oc_users(id,username,email_verified_at,terms_version) VALUES(gen_random_uuid(),'kept',now(),oc_policy_version())",
+    'openchronology',
+  );
+  const key = /^AUTH_ENCRYPTION_KEY=.*$/m.exec(
+    await sh('cat /etc/openchronology/openchronology.env'),
+  )[0];
+  const replaced = await sh(
+    `export DEBIAN_FRONTEND=noninteractive; apt-get install -y -qq /tmp/${basename(deb)} 2>&1`,
+  );
+  assert.match(replaced, /is installed over openchronology-server/, replaced.slice(-3000));
+  assert.match(replaced, /OpenChronology is now Circagraph/);
+  assert.match(replaced, /sudo -u postgres pg_dump -p \d+ openchronology > openchronology\.sql/);
+  assert.doesNotMatch(replaced, /Circagraph is installed and/);
+  assert.match(
+    await sh("dpkg-query -W -f='${db:Status-Abbrev} ' openchronology-server 2>&1; true"),
+    /^(un|rc) |no packages found/,
+  );
+  // The configuration, moved, with links under its old names; the users and database kept.
+  assert.equal(
+    (await sh('readlink /etc/openchronology; readlink /etc/circagraph/openchronology.env')).trim(),
+    'circagraph\ncircagraph.env',
+  );
+  const config = await sh(
+    'stat -c "%a %U %G" /etc/circagraph/circagraph.env && cat /etc/circagraph/circagraph.env',
+  );
+  assert.match(config, /^640 root openchronology/);
+  assert.match(config, new RegExp('^' + key + '$', 'm'));
+  assert.match(config, /^DATABASE_URL=postgresql:\/\/\/openchronology\?/m);
+  assert.equal((await sh('getent passwd circagraph circagraph-logs; true')).trim(), '');
+  assert.match(
+    await sh('cat /etc/systemd/system/circagraph.service.d/50-users.conf'),
+    /^User=openchronology\nGroup=openchronology$/m,
+  );
+  assert.match(
+    await sh('cat /etc/systemd/system/circagraph-github.service.d/50-users.conf'),
+    /^User=openchronology-logs\n[^]*^StateDirectory=openchronology-github$/m,
+  );
+  // The commands, under both names, as the installation's user.
+  const migrated = await sh('openchronology-migrate --no-restart 2>&1');
+  assert.match(migrated, /Circagraph schema (installed|is current)|migrat/i, migrated);
+  assert.equal(
+    await psql("SELECT count(*) FROM oc_users WHERE username='kept'", 'openchronology'),
+    '1',
+  );
+  assert.match(await sh('och-import-logs --help'), /^Usage: cg-import-logs/);
+  // Purging removes the moved configuration and its link, and names the users it keeps.
+  const purge = await sh('apt-get purge -y -qq circagraph-server 2>&1');
+  assert.match(purge, /dropdb openchronology/);
+  assert.match(
+    await sh('ls -d /etc/openchronology /etc/circagraph 2>&1; true'),
+    /No such file[^]*No such file/,
+  );
+  assert.match(await sh('ls /etc/systemd/system/circagraph.service.d 2>&1; true'), /No such file/);
   console.log(
-    `PASS server package on ${base}: install, database with pgmp, server, upgrade, purge.`,
+    `PASS server package on ${base}: install, database with pgmp, server, upgrade, purge, and in place of openchronology-server ${PREVIOUS}.`,
   );
 } finally {
   await run('docker', ['rm', '-f', name]).catch(() => {});

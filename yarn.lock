@@ -983,6 +983,8 @@ __metadata:
     tinybench: "npm:6.2.1"
     typescript: "npm:5.9.3"
   bin:
+    cg-import-github: server/import-github.mjs
+    cg-import-logs: server/import-logs.mjs
     och-import-github: server/import-github.mjs
     och-import-logs: server/import-logs.mjs
   languageName: unknown

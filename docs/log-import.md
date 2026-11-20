@@ -2,18 +2,18 @@
 
 <!-- description: Import log files into timelines: syslog, Apache, nginx, JSON lines and journald exports, one moment per entry at its exact time, with its fields kept. -->
 
-`och-import-logs` (`server/import-logs.mjs`) imports historic logs into timelines: one moment per log entry, at the entry's exact time, with its fields as metadata. It runs beside the [syslog receiver](syslog.md) and the [journald follower](journald.md), which handle live streams, and uses the same API key, variables and routing rules.
+`cg-import-logs` (`server/import-logs.mjs`) imports historic logs into timelines: one moment per log entry, at the entry's exact time, with its fields as metadata. It runs beside the [syslog receiver](syslog.md) and the [journald follower](journald.md), which handle live streams, and uses the same API key, variables and routing rules.
 
 ```sh
 export OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_...
 
-och-import-logs --format nginx-combined --timeline 6f1c… /var/log/nginx/access.log*
-och-import-logs --format syslog --timezone +02:00 --dry-run /var/log/syslog.2.gz
-journalctl -o json --since yesterday | och-import-logs --format journald --timeline 0b7e… -
-och-import-logs --config import.json --format myapp app.log
+cg-import-logs --format nginx-combined --timeline 6f1c… /var/log/nginx/access.log*
+cg-import-logs --format syslog --timezone +02:00 --dry-run /var/log/syslog.2.gz
+journalctl -o json --since yesterday | cg-import-logs --format journald --timeline 0b7e… -
+cg-import-logs --config import.json --format myapp app.log
 ```
 
-Set up the timelines and an API key as for the [syslog receiver](syslog.md#set-up): **Gregorian** time display, and a **read/write** key of an account that can write them. `npm run import:logs -- …` runs it from a checkout; packages and images install the `och-import-logs` command ([below](#packages)).
+Set up the timelines and an API key as for the [syslog receiver](syslog.md#set-up): **Gregorian** time display, and a **read/write** key of an account that can write them. `npm run import:logs -- …` runs it from a checkout; packages and images install the `cg-import-logs` command ([below](#packages)).
 
 ## Options
 
@@ -125,11 +125,11 @@ A progress line on standard error shows bytes read of the total (a spinner for s
 
 ## Packages
 
-- **Checkout:** `npm run import:logs -- --help`, or the `och-import-logs` command from `npm link`.
+- **Checkout:** `npm run import:logs -- --help`, or the `cg-import-logs` command from `npm link`.
 - **Docker:** the web image includes the command, so it runs beside the Compose `syslog` service with its variables:
 
   ```sh
-  docker compose run --rm -v /var/log:/logs:ro syslog och-import-logs --format syslog /logs/syslog.1
+  docker compose run --rm -v /var/log:/logs:ro syslog cg-import-logs --format syslog /logs/syslog.1
   ```
 
-- **Debian and Ubuntu package:** `/usr/bin/och-import-logs`, using `OCH_API_URL` and `OCH_API_KEY` from the environment or, when unset and readable, `/etc/openchronology/syslog.env`.
+- **Debian and Ubuntu package:** `/usr/bin/cg-import-logs`, using `OCH_API_URL` and `OCH_API_KEY` from the environment or, when unset and readable, `/etc/circagraph/syslog.env`.

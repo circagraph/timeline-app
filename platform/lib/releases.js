@@ -78,7 +78,7 @@ export const SERVERS = [
     key: 'windows',
     name: 'Windows',
     // A self-contained installer: its own PostgreSQL 17, run as Windows services.
-    asset: 'openchronology-server-windows-amd64-setup.exe',
+    asset: 'circagraph-server-windows-amd64-setup.exe',
     installer: 'exe',
     guide: 'deploy/windows-server/README.Windows.txt',
   },
@@ -86,49 +86,49 @@ export const SERVERS = [
     key: 'macos',
     name: 'macOS (Homebrew)',
     // Homebrew builds it from this release's platform archive; there is no file to download.
-    asset: 'openchronology-server-platform.tar.gz',
+    asset: 'circagraph-server-platform.tar.gz',
     installer: 'brew',
     guide: 'deploy/homebrew/README.Homebrew',
   },
   {
     key: 'debian13',
     name: 'Debian 13 (trixie)',
-    asset: 'openchronology-server-debian13-amd64.deb',
+    asset: 'circagraph-server-debian13-amd64.deb',
     installer: 'apt',
     guide: 'deploy/debian-server/README.Debian',
   },
   {
     key: 'ubuntu24.04',
     name: 'Ubuntu 24.04 LTS',
-    asset: 'openchronology-server-ubuntu24.04-amd64.deb',
+    asset: 'circagraph-server-ubuntu24.04-amd64.deb',
     installer: 'apt',
     guide: 'deploy/debian-server/README.Debian',
   },
   {
     key: 'rocky10',
     name: 'Rocky Linux and RHEL 10',
-    asset: 'openchronology-server-rocky10-amd64.rpm',
+    asset: 'circagraph-server-rocky10-amd64.rpm',
     installer: 'dnf',
     guide: 'deploy/rpm-server/README.RPM',
   },
   {
     key: 'fedora44',
     name: 'Fedora 44',
-    asset: 'openchronology-server-fedora44-amd64.rpm',
+    asset: 'circagraph-server-fedora44-amd64.rpm',
     installer: 'dnf',
     guide: 'deploy/rpm-server/README.RPM',
   },
   {
     key: 'freebsd15',
     name: 'FreeBSD 15',
-    asset: 'openchronology-server-freebsd15-amd64.pkg',
+    asset: 'circagraph-server-freebsd15-amd64.pkg',
     installer: 'pkg',
     guide: 'deploy/freebsd-server/README.FreeBSD',
   },
   {
     key: 'freebsd14',
     name: 'FreeBSD 14',
-    asset: 'openchronology-server-freebsd14-amd64.pkg',
+    asset: 'circagraph-server-freebsd14-amd64.pkg',
     installer: 'pkg',
     guide: 'deploy/freebsd-server/README.FreeBSD',
   },
@@ -182,13 +182,14 @@ export function releaseFrom(json) {
   };
 }
 /**
- * A release's asset by name, or by its name before the rename for releases made before then
- * (v0.30.0 and earlier name the offline files openchronology-offline*.html).
+ * A release's asset by name, or by its name before the rename for releases made before then:
+ * v0.30.0 and earlier name the offline files openchronology-offline*.html, and v0.30.x the
+ * server packages openchronology-server-*.
  */
 function releaseAsset(release, asset) {
   return (
     release?.assets[asset] ??
-    release?.assets[asset.replace(/^circagraph-offline/, 'openchronology-offline')]
+    release?.assets[asset.replace(/^circagraph-(offline|server-)/, 'openchronology-$1')]
   );
 }
 /** Where an asset downloads from: the release's own address, or the latest release's. */
@@ -204,17 +205,17 @@ export function assetSize(release, asset) {
 }
 /**
  * The one line that downloads a server package and installs it: with curl and sudo apt or
- * dnf, or on FreeBSD (run as root) with its own fetch and pkg, then openchronology-setup
+ * dnf, or on FreeBSD (run as root) with its own fetch and pkg, then circagraph-setup
  * (FreeBSD packages start nothing themselves).
  */
 export function installCommand(release, server) {
   if (server.installer === 'brew')
-    return 'brew install circagraph/tap/openchronology-server && openchronology-setup';
+    return 'brew install circagraph/tap/circagraph-server && circagraph-setup';
   if (server.installer === 'exe')
     return `Invoke-WebRequest ${assetLink(release, server.asset)} -OutFile "$env:TEMP\\${server.asset}"; Start-Process -Wait -Verb RunAs "$env:TEMP\\${server.asset}"`;
   const url = assetLink(release, server.asset);
   return server.installer === 'pkg'
-    ? `fetch ${url} && pkg install -y ./${server.asset} && openchronology-setup`
+    ? `fetch ${url} && pkg install -y ./${server.asset} && circagraph-setup`
     : `curl -fLO ${url} && sudo ${server.installer} install ./${server.asset}`;
 }
 
@@ -244,7 +245,7 @@ export function detectLinux(userAgent = '') {
  */
 export const AUR = {
   desktop: 'openchronology-desktop-bin',
-  server: 'openchronology-server',
+  server: 'circagraph-server',
   page: (name) => `https://aur.archlinux.org/packages/${name}`,
 };
 /** Installing an AUR package: with a helper such as yay, or by hand with makepkg. */
@@ -400,7 +401,7 @@ export function serverGuides(release, first = null) {
   };
   const guide = (key) => ({ href: `${DOCS}/${server(key).guide}`, label: 'Setup guide' });
   const intro =
-    'Run your own Circagraph server for your organization or community. The package installs PostgreSQL, sets up the database and starts the service on port 5173; put an HTTPS proxy in front of it and set your address in /etc/openchronology/openchronology.env.';
+    'Run your own Circagraph server for your organization or community. The package installs PostgreSQL, sets up the database and starts the service on port 5173; put an HTTPS proxy in front of it and set your address in /etc/circagraph/circagraph.env.';
   const docker = {
     text: 'Then build and run the server and its database from the source:',
     command: DOCKER_COMMAND,
@@ -454,12 +455,12 @@ export function serverGuides(release, first = null) {
     'linux/arch': {
       heading: 'Server for Arch',
       intro:
-        'The AUR package builds the server for this system; like Arch packages, it leaves PostgreSQL and the database to openchronology-setup.',
+        'The AUR package builds the server for this system; like Arch packages, it leaves PostgreSQL and the database to circagraph-setup.',
       steps: [
         ...aurSteps(AUR.server),
         {
           text: 'Then set up PostgreSQL and the database, and start the server:',
-          command: 'sudo openchronology-setup',
+          command: 'sudo circagraph-setup',
           label: 'Set up the server on Arch',
         },
       ],
@@ -481,7 +482,7 @@ export function serverGuides(release, first = null) {
     freebsd: {
       heading: 'Server for FreeBSD',
       intro:
-        'The package installs PostgreSQL; openchronology-setup sets up the database and starts the service.',
+        'The package installs PostgreSQL; circagraph-setup sets up the database and starts the service.',
       steps: order(['freebsd15', 'freebsd14']).map((key) =>
         install(key, `${server(key).name}, as root:`),
       ),

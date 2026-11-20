@@ -19,7 +19,7 @@ const github = createServer((req, res) => {
       assets: [
         'openchronology-desktop-windows-amd64-setup.exe',
         'openchronology-desktop-macos-arm64.dmg',
-        'openchronology-server-ubuntu24.04-amd64.deb',
+        'circagraph-server-ubuntu24.04-amd64.deb',
       ].map((name) => ({ name, browser_download_url: assetBase + name, size: 12 * 1048576 })),
     }),
   );
@@ -112,7 +112,7 @@ try {
   assert.match(
     ubuntu,
     new RegExp(
-      `curl -fLO ${assetBase}openchronology-server-ubuntu24\\.04-amd64\\.deb &amp;&amp; sudo apt install \\./openchronology-server-ubuntu24\\.04-amd64\\.deb`,
+      `curl -fLO ${assetBase}circagraph-server-ubuntu24\\.04-amd64\\.deb &amp;&amp; sudo apt install \\./circagraph-server-ubuntu24\\.04-amd64\\.deb`,
     ),
   );
   assert.match(ubuntu, /docker compose up --build --wait/);
@@ -130,7 +130,7 @@ try {
   );
   assert.match(arch, /data-system="linux" data-variant="arch"/);
   assert.match(arch, /yay -S openchronology-desktop-bin/);
-  assert.match(arch, /yay -S openchronology-server/);
+  assert.match(arch, /yay -S circagraph-server/);
   assert.match(arch, /data-server="arch"/);
   assert.match(arch, /Server for Arch/);
   const linux = await download('Mozilla/5.0 (X11; Linux x86_64; rv:143.0) Firefox/143.0');

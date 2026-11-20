@@ -1,11 +1,14 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-// Renders the AUR packages (#331) from deploy/arch: openchronology-server, built from a platform
+// Renders the AUR packages (#331) from deploy/arch: circagraph-server, built from a platform
 // archive, and openchronology-desktop-bin, unpacked from a desktop .deb. Each goes in its own
 // folder of `--out` with the files its PKGBUILD names, ready for `makepkg --printsrcinfo` and
 // a push to aur.archlinux.org. Releases render them for their assets; CI builds and installs
-// the server's from local files.
+// the server's from local files. `--transitional` also renders openchronology-server, the
+// server's name until 0.30: an empty package that depends on circagraph-server, so that AUR
+// helpers move its installations over.
 // Usage: node scripts/aur-packages.mjs --out <dir> [--version <version>]
 //          [--platform <tarball> [--platform-url <url>]] [--desktop <deb> [--desktop-url <url>]]
+//          [--transitional]
 // A file without its URL is copied beside the PKGBUILD and named as a local source. Without
 // --version: the release tag's (RELEASE_TAG), or this checkout's development version.
 import { createHash } from 'node:crypto';
@@ -15,31 +18,33 @@ import { join } from 'node:path';
 import { parseArgs, promisify } from 'node:util';
 import { freebsdVersion, upstreamVersion } from './server-targets.mjs';
 
-/** The files openchronology-server's PKGBUILD names beside it, by where they come from. */
+/** The files circagraph-server's PKGBUILD names beside it, by where they come from. */
 export const SERVER_FILES = {
   'deploy/debian-server': [
-    'openchronology.service',
-    'openchronology-mail.service',
-    'openchronology-syslog.service',
-    'openchronology-github.service',
-    'openchronology-journald.service',
-    'openchronology.env',
+    'circagraph.service',
+    'circagraph-mail.service',
+    'circagraph-syslog.service',
+    'circagraph-github.service',
+    'circagraph-journald.service',
+    'circagraph.env',
     'syslog.env',
     'github.env',
     'journald.env',
-    'openchronology-migrate',
-    'openchronology-reset-admin-password',
-    'och-import-logs',
-    'och-import-github',
-    'openchronology-log-files',
+    'circagraph-migrate',
+    'circagraph-reset-admin-password',
+    'cg-import-logs',
+    'cg-import-github',
+    'circagraph-log-files',
+    'circagraph-units',
   ],
-  'deploy/arch': [
-    'openchronology-setup',
-    'openchronology-server.sysusers',
-    'openchronology-server.tmpfiles',
-    'README.Arch',
-  ],
+  'deploy/arch': ['circagraph-setup', 'circagraph-server.sysusers', 'README.Arch'],
 };
+/**
+ * The first version named circagraph-server, which conflicts with the openchronology-server
+ * packages before it (circagraph-server.PKGBUILD.in): the transitional openchronology-server
+ * must not be one of them.
+ */
+export const RENAMED_IN = '0.31';
 // The pinned pgmp source's checksum, which the Windows build checks the same download against:
 // a release never takes it from whatever the download returns that day.
 const PGMP_SHA256 = 'deploy/windows-server/pgmp.sha256';
@@ -47,23 +52,40 @@ const PGMP_SHA256 = 'deploy/windows-server/pgmp.sha256';
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 /** An AUR version: pacman compares dotted parts, so a suffix becomes more of them. */
 export const aurVersion = (upstream) => freebsdVersion(upstream);
+/**
+ * Whether AUR version `a` sorts before `b` for pacman, by their dotted parts: numbers compare
+ * as numbers, and a part that is not a number (a pre-release's) sorts before any number.
+ */
+export const olderThan = (a, b) => {
+  const parts = (v) => v.split('.').map((part) => (/^[0-9]+$/.test(part) ? Number(part) : -1));
+  const [x, y] = [parts(a), parts(b)];
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    const [p, q] = [x[i] ?? 0, y[i] ?? 0];
+    if (p !== q) return p < q;
+  }
+  return false;
+};
 
 /**
  * Renders the packages into `out`. `platform` and `desktop` are { file, url? }; either may be
- * left out, and its package is not rendered.
+ * left out, and its package is not rendered. `transitional` renders openchronology-server too.
  * @returns {Promise<string[]>} the folders written
  */
-export async function renderAur({ out, version, platform, desktop }) {
+export async function renderAur({ out, version, platform, desktop, transitional = false }) {
   if (!/^[0-9][0-9A-Za-z.]*$/.test(version))
     throw new Error('An AUR version is dotted letters and digits.');
+  if (transitional && olderThan(version, RENAMED_IN))
+    throw new Error(
+      `openchronology-server ${version} would conflict with circagraph-server, which replaces the versions before ${RENAMED_IN}.`,
+    );
   const written = [];
   if (platform) {
-    const dir = join(out, 'openchronology-server');
+    const dir = join(out, 'circagraph-server');
     await mkdir(dir, { recursive: true });
     const local = Object.entries(SERVER_FILES).flatMap(([from, names]) =>
       names.map((name) => ({ from: join(from, name), name })),
     );
-    const archive = `openchronology-server-platform-${version}.tar.gz`;
+    const archive = `circagraph-server-platform-${version}.tar.gz`;
     if (!platform.url) await copyFile(platform.file, join(dir, archive));
     const pgmp = (await readFile(PGMP_SHA256, 'utf8')).trim();
     if (!/^[0-9a-f]{64}$/.test(pgmp)) throw new Error(`${PGMP_SHA256} is not a SHA-256 checksum.`);
@@ -73,20 +95,26 @@ export async function renderAur({ out, version, platform, desktop }) {
       await writeFile(join(dir, name), bytes);
       sums.push(sha256(bytes));
     }
-    await copyFile(
-      'deploy/arch/openchronology-server.install',
-      join(dir, 'openchronology-server.install'),
-    );
-    const pkgbuild = (await readFile('deploy/arch/openchronology-server.PKGBUILD.in', 'utf8'))
+    await copyFile('deploy/arch/circagraph-server.install', join(dir, 'circagraph-server.install'));
+    const pkgbuild = (await readFile('deploy/arch/circagraph-server.PKGBUILD.in', 'utf8'))
       .replace('@VERSION@', version)
       .replace(
-        '"openchronology-server-platform-$pkgver.tar.gz::@PLATFORM_URL@"',
+        '"circagraph-server-platform-$pkgver.tar.gz::@PLATFORM_URL@"',
         platform.url
-          ? `"openchronology-server-platform-$pkgver.tar.gz::${platform.url}"`
-          : '"openchronology-server-platform-$pkgver.tar.gz"',
+          ? `"circagraph-server-platform-$pkgver.tar.gz::${platform.url}"`
+          : '"circagraph-server-platform-$pkgver.tar.gz"',
       )
       .replace('@LOCAL_SOURCES@', local.map(({ name }) => `        '${name}'`).join('\n'))
       .replace('@SHA256SUMS@', sums.map((sum) => `'${sum}'`).join('\n            '));
+    await writeFile(join(dir, 'PKGBUILD'), pkgbuild);
+    written.push(dir);
+  }
+  if (transitional) {
+    const dir = join(out, 'openchronology-server');
+    await mkdir(dir, { recursive: true });
+    const pkgbuild = (
+      await readFile('deploy/arch/openchronology-server.PKGBUILD.in', 'utf8')
+    ).replace('@VERSION@', version);
     await writeFile(join(dir, 'PKGBUILD'), pkgbuild);
     written.push(dir);
   }
@@ -118,10 +146,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       'platform-url': { type: 'string' },
       desktop: { type: 'string' },
       'desktop-url': { type: 'string' },
+      transitional: { type: 'boolean', default: false },
     },
   });
-  if (!values.out || (!values.platform && !values.desktop))
-    throw new Error('Supply --out and --platform or --desktop.');
+  if (!values.out || (!values.platform && !values.desktop && !values.transitional))
+    throw new Error('Supply --out and --platform, --desktop or --transitional.');
   let version = values.version;
   if (!version) {
     const exec = promisify(execFile);
@@ -139,6 +168,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     version,
     platform: values.platform && { file: values.platform, url: values['platform-url'] },
     desktop: values.desktop && { file: values.desktop, url: values['desktop-url'] },
+    transitional: values.transitional,
   });
   for (const dir of dirs) console.log(dir);
 }

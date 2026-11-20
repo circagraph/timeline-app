@@ -289,7 +289,7 @@ export default async function Download() {
               Build and install from the AUR, then set up PostgreSQL and the database:
             </p>
             <CopyCommand
-              command={`yay -S ${AUR.server} && sudo openchronology-setup`}
+              command={`yay -S ${AUR.server} && sudo circagraph-setup`}
               label="Install on Arch Linux"
             />
             <a className="download-file" href={AUR.page(AUR.server)}>

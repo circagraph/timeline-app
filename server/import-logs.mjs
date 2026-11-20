@@ -6,7 +6,7 @@
  * is dropped, and with IDs from each entry's text so that importing again overwrites.
  *
  *   OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... \
- *     och-import-logs --format nginx-combined --timeline <uuid> /var/log/nginx/access.log*
+ *     cg-import-logs --format nginx-combined --timeline <uuid> /var/log/nginx/access.log*
  */
 import { createReadStream, realpathSync } from 'node:fs';
 import { open, readFile, stat, mkdtemp, rm } from 'node:fs/promises';
@@ -36,7 +36,7 @@ const VERSION_RATIO = 1.1;
 const sleep = (ms) => new Promise((resume) => setTimeout(resume, ms));
 
 /** The --help text. */
-export const HELP = `Usage: och-import-logs [options] <file | file.gz | -> ...
+export const HELP = `Usage: cg-import-logs [options] <file | file.gz | -> ...
 
 Imports log files into Circagraph timelines, one moment per log entry. Files are read
 in the order given; "-" reads standard input. Importing the same logs again overwrites the
@@ -450,7 +450,7 @@ export async function main(
   try {
     settings = await options(argv, env);
   } catch (error) {
-    stderr.write(`och-import-logs: ${error.message}\nTry --help.\n`);
+    stderr.write(`cg-import-logs: ${error.message}\nTry --help.\n`);
     return EXIT.usage;
   }
   if (settings.help) {
@@ -462,7 +462,7 @@ export async function main(
   let spool = null;
   try {
     if (settings.inputs.includes('-')) {
-      spool = await mkdtemp(join(tmpdir(), 'och-import-'));
+      spool = await mkdtemp(join(tmpdir(), 'cg-import-'));
       const path = join(spool, 'stdin');
       await pipeline(stdin, createWriteStream(path));
       settings.inputs = settings.inputs.map((p) => (p === '-' ? path : p));
@@ -471,7 +471,7 @@ export async function main(
       try {
         await stat(path);
       } catch {
-        stderr.write(`och-import-logs: cannot read ${path}.\n`);
+        stderr.write(`cg-import-logs: cannot read ${path}.\n`);
         return EXIT.usage;
       }
     const total = (await Promise.all(settings.inputs.map((p) => stat(p)))).reduce(
@@ -561,7 +561,7 @@ export async function main(
       settings.problems = [];
       if (usage.usedBytes + estimate > usage.quotaBytes) {
         stderr.write(
-          `och-import-logs: the import needs about ${bytesText(estimate)} but the account has ${bytesText(Math.max(0, usage.quotaBytes - usage.usedBytes))} of its ${bytesText(usage.quotaBytes)} left. Nothing was written.\n`,
+          `cg-import-logs: the import needs about ${bytesText(estimate)} but the account has ${bytesText(Math.max(0, usage.quotaBytes - usage.usedBytes))} of its ${bytesText(usage.quotaBytes)} left. Nothing was written.\n`,
         );
         return EXIT.quota;
       }
@@ -608,14 +608,14 @@ async function importAll(settings, { stderr, total }) {
               : Math.min(60000, 1000 * 2 ** attempt);
           if (!settings.quiet)
             stderr.write(
-              `${clear()}och-import-logs: timeline ${timeline} unavailable (${error.status ?? error.message}); retrying in ${duration(wait / 1000)}.\n`,
+              `${clear()}cg-import-logs: timeline ${timeline} unavailable (${error.status ?? error.message}); retrying in ${duration(wait / 1000)}.\n`,
             );
           await sleep(wait);
           continue;
         }
         failed += batch.moments.length;
         stderr.write(
-          `${clear()}och-import-logs: timeline ${timeline} refused ${batch.moments.length} moments (${error.status ?? 'unreachable'}: ${error.value?.error ?? error.message}).\n`,
+          `${clear()}cg-import-logs: timeline ${timeline} refused ${batch.moments.length} moments (${error.status ?? 'unreachable'}: ${error.value?.error ?? error.message}).\n`,
         );
         return;
       }
@@ -668,12 +668,12 @@ const invoked = (() => {
   }
 })();
 if (import.meta.url === invoked) {
-  // och-import-logs passes syslog.env as OCH_CONFIG when the environment has no API key.
+  // cg-import-logs passes syslog.env as OCH_CONFIG when the environment has no API key.
   loadConfiguration();
   main().then(
     (code) => process.exit(code),
     (error) => {
-      process.stderr.write(`och-import-logs: ${error.message}\n`);
+      process.stderr.write(`cg-import-logs: ${error.message}\n`);
       process.exit(EXIT.usage);
     },
   );

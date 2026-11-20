@@ -50,7 +50,7 @@
         in
         {
           inherit och-convert;
-          openchronology-server = pkgs.callPackage ./nix/server.nix {
+          circagraph-server = pkgs.callPackage ./nix/server.nix {
             inherit src och-convert npmDeps;
             rev = self.rev or "";
           };
@@ -64,12 +64,18 @@
         let
           packages = packagesFor pkgs;
         in
-        packages // { default = packages.openchronology-server; }
+        packages
+        // {
+          default = packages.circagraph-server;
+          # The server package's name before the rename to Circagraph.
+          openchronology-server = packages.circagraph-server;
+        }
       );
 
       # The packages, for systems that add this overlay.
       overlays.default = final: prev: {
-        inherit (packagesFor final) och-convert openchronology-server openchronology-desktop;
+        inherit (packagesFor final) och-convert circagraph-server openchronology-desktop;
+        openchronology-server = final.circagraph-server;
       };
 
       # services.circagraph (nix/module.nix; docs/nix.md).

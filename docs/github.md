@@ -11,7 +11,7 @@ Circagraph can aggregate the work your tools already record, from GitHub, from F
 What happens to them becomes **moments**: labels, milestones, assignments, reviews, mentions, moves on a project board and more. So do **commits**, branches, forks and releases. Items that name each other are **linked**. Two tools write them, and both use the same IDs:
 
 - **The webhook receiver** (`server/github-receiver.mjs`) keeps timelines in step as things happen.
-- **The importer** (`och-import-github`, `server/import-github.mjs`) brings in what already exists, and can run again at any time to bring timelines up to date.
+- **The importer** (`cg-import-github`, `server/import-github.mjs`) brings in what already exists, and can run again at any time to bring timelines up to date.
 
 Each tool only reads from GitHub. Nothing is written back.
 
@@ -174,10 +174,10 @@ IDs come from the source: `gh:<owner>:<repo>:<number>` for an item, and `gh:<own
 ```sh
 export OCH_API_URL=https://circagraph.org OCH_API_KEY=cg_key_... GITHUB_TOKEN=github_pat_...
 
-och-import-github --repo acme/app --timeline 6f1c… --dry-run
-och-import-github --repo acme/app --timeline 6f1c… --only commits
-och-import-github --repo acme/app --timeline 6f1c… --except forks,branches --since 2026-11-01
-FORGEJO_TOKEN=… och-import-github --repo forgejo:codeberg.org/acme/app --timeline 0b7e…
+cg-import-github --repo acme/app --timeline 6f1c… --dry-run
+cg-import-github --repo acme/app --timeline 6f1c… --only commits
+cg-import-github --repo acme/app --timeline 6f1c… --except forks,branches --since 2026-11-01
+FORGEJO_TOKEN=… cg-import-github --repo forgejo:codeberg.org/acme/app --timeline 0b7e…
 ```
 
 `npm run import:github -- …` runs it from a checkout.
@@ -321,23 +321,23 @@ Merge requests are numbered apart from issues, so they are written `!7`, and tag
 
 Every [server package](install.md#server-packages) installs the receiver as a service of its system, stopped until you configure it. Set `OCH_API_KEY` and `GITHUB_WEBHOOK_SECRET` in its `github.env`, write the routes to `github-routes.json` beside it, then start it:
 
-| Installed with                      | Configuration                                    | Start it, and at every boot or login                                                          | Its log                                              |
-| ----------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Debian, Ubuntu, Rocky, RHEL, Fedora | `/etc/openchronology/github.env`                 | `sudo systemctl enable --now openchronology-github` (systemd)                                 | `journalctl -u openchronology-github`                |
-| Arch Linux                          | `/etc/openchronology/github.env`                 | `sudo systemctl enable --now openchronology-github` (systemd)                                 | `journalctl -u openchronology-github`                |
-| FreeBSD                             | `/usr/local/etc/openchronology/github.env`       | `sysrc openchronology_github_enable=YES && service openchronology_github start` (rc.d)        | `/var/log/messages`                                  |
-| macOS (Homebrew)                    | `$(brew --prefix)/etc/openchronology/github.env` | `openchronology-agent start github` (a launchd agent, as `brew services` runs the server)     | `$(brew --prefix)/var/log/openchronology-github.log` |
-| Windows                             | `C:\ProgramData\OpenChronology\github.env`       | `Set-Service OpenChronologyGitHub -StartupType Automatic; Start-Service OpenChronologyGitHub` | `C:\ProgramData\OpenChronology\logs`                 |
-| NixOS                               | `services.openchronology.github`                 | `services.openchronology.github.enable = true;` ([NixOS](nix.md#log-importers))               | `journalctl -u openchronology-github`                |
-| Docker Compose                      | `GITHUB_RECEIVER_API_KEY`, `GITHUB_ROUTES_FILE`  | `docker compose --profile github up -d github`                                                | `docker compose logs github`                         |
+| Installed with                      | Configuration                                   | Start it, and at every boot or login                                                  | Its log                                          |
+| ----------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Debian, Ubuntu, Rocky, RHEL, Fedora | `/etc/circagraph/github.env`                    | `sudo systemctl enable --now circagraph-github` (systemd)                             | `journalctl -u circagraph-github`                |
+| Arch Linux                          | `/etc/circagraph/github.env`                    | `sudo systemctl enable --now circagraph-github` (systemd)                             | `journalctl -u circagraph-github`                |
+| FreeBSD                             | `/usr/local/etc/circagraph/github.env`          | `sysrc circagraph_github_enable=YES && service circagraph_github start` (rc.d)        | `/var/log/messages`                              |
+| macOS (Homebrew)                    | `$(brew --prefix)/etc/circagraph/github.env`    | `circagraph-agent start github` (a launchd agent, as `brew services` runs the server) | `$(brew --prefix)/var/log/circagraph-github.log` |
+| Windows                             | `C:\ProgramData\Circagraph\github.env`          | `Set-Service CircagraphGitHub -StartupType Automatic; Start-Service CircagraphGitHub` | `C:\ProgramData\Circagraph\logs`                 |
+| NixOS                               | `services.circagraph.github`                    | `services.circagraph.github.enable = true;` ([NixOS](nix.md#log-importers))           | `journalctl -u circagraph-github`                |
+| Docker Compose                      | `GITHUB_RECEIVER_API_KEY`, `GITHUB_ROUTES_FILE` | `docker compose --profile github up -d github`                                        | `docker compose logs github`                     |
 
-Each listens on `127.0.0.1:5580`, for your HTTPS reverse proxy to forward GitHub's deliveries to. Each runs it as an unprivileged account (`openchronology-logs`, Local Service on Windows, or you on macOS), restarts it if it fails, and stops it cleanly: on `SIGTERM` (Ctrl+C on Windows) the receiver saves what is queued first. Restart the service after editing its configuration. An upgrade stops it, and `openchronology-migrate` starts it again if it is enabled.
+Each listens on `127.0.0.1:5580`, for your HTTPS reverse proxy to forward GitHub's deliveries to. Each runs it as an unprivileged account (`circagraph-logs`, Local Service on Windows, or you on macOS), restarts it if it fails, and stops it cleanly: on `SIGTERM` (Ctrl+C on Windows) the receiver saves what is queued first. Restart the service after editing its configuration. An upgrade stops it, and `circagraph-migrate` starts it again if it is enabled.
 
-- **Its own account:** as the [syslog receiver](syslog.md#its-own-account) does, it runs as `openchronology-logs`, which cannot read the server's configuration and has no role in its database. `github.env` is owned by `root:openchronology-logs`, mode 0640; give the routes file the same owner and mode: `sudo chown root:openchronology-logs github-routes.json && sudo chmod 0640 github-routes.json`.
-- **Its state:** `GITHUB_STATE` names a file in a folder only the receiver writes: `/var/lib/openchronology-github` (systemd's `StateDirectory`), `/var/db/openchronology-github` on FreeBSD, `$(brew --prefix)/var/openchronology` on macOS, `C:\ProgramData\OpenChronology\github-state` on Windows, and the `github-state` volume in Compose.
-- **The importer:** each package also installs `och-import-github`. Without `OCH_API_KEY` in the environment, it reads `OCH_API_URL`, `OCH_API_KEY`, `GITHUB_TOKEN` and `GITHUB_ROUTES` from the package's `github.env`, so `sudo och-import-github --repo acme/app --since 2026-11-01` catches up with what the receiver missed.
+- **Its own account:** as the [syslog receiver](syslog.md#its-own-account) does, it runs as `circagraph-logs`, which cannot read the server's configuration and has no role in its database. `github.env` is owned by `root:circagraph-logs`, mode 0640; give the routes file the same owner and mode: `sudo chown root:circagraph-logs github-routes.json && sudo chmod 0640 github-routes.json`.
+- **Its state:** `GITHUB_STATE` names a file in a folder only the receiver writes: `/var/lib/circagraph-github` (systemd's `StateDirectory`), `/var/db/circagraph-github` on FreeBSD, `$(brew --prefix)/var/circagraph` on macOS (an installation from before the rename keeps `var/openchronology`), `C:\ProgramData\Circagraph\github-state` on Windows, and the `github-state` volume in Compose.
+- **The importer:** each package also installs `cg-import-github`. Without `OCH_API_KEY` in the environment, it reads `OCH_API_URL`, `OCH_API_KEY`, `GITHUB_TOKEN` and `GITHUB_ROUTES` from the package's `github.env`, so `sudo cg-import-github --repo acme/app --since 2026-11-01` catches up with what the receiver missed.
 
-To run it as a service elsewhere, such as from a checkout, start from the package's definition for your system: [the systemd unit](../deploy/debian-server/openchronology-github.service), [the rc.d script](../deploy/freebsd-server/openchronology_github.rc), [the launchd agent](../deploy/homebrew/openchronology-agent) or [the WinSW service](../deploy/windows-server/openchronology-github-service.xml). Point it at `node server/github-receiver.mjs` in your copy, with `OCH_CONFIG` naming a configuration file like [`github.env`](../deploy/debian-server/github.env) (or the variables above set directly).
+To run it as a service elsewhere, such as from a checkout, start from the package's definition for your system: [the systemd unit](../deploy/debian-server/circagraph-github.service), [the rc.d script](../deploy/freebsd-server/circagraph_github.rc), [the launchd agent](../deploy/homebrew/circagraph-agent) or [the WinSW service](../deploy/windows-server/circagraph-github-service.xml). Point it at `node server/github-receiver.mjs` in your copy, with `OCH_CONFIG` naming a configuration file like [`github.env`](../deploy/debian-server/github.env) (or the variables above set directly).
 
 ## Privacy
 

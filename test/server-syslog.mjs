@@ -33,7 +33,7 @@ export const fetchApi = async (path, token, body) => {
 /**
  * Checks the receiver's service end to end. Returns the timeline the message reached.
  * @param {object} system
- * @param {(sql: string) => Promise<string>} system.psql runs SQL in the openchronology
+ * @param {(sql: string) => Promise<string>} system.psql runs SQL in the circagraph
  *   database as a superuser, returning its output (no double quotes in the SQL)
  * @param {(path: string, token: string, body?: object) =>
  *   Promise<{status: number, value: any}>} system.api requests the running server
@@ -143,9 +143,9 @@ export function unitCommand(unit, log, pidFile) {
 export async function checkSystemdServices({ sh, psql, name, installSystemd }) {
   await sh(`command -v systemd-analyze >/dev/null || { ${installSystemd}; } >/dev/null 2>&1`);
   await sh(
-    'cd /usr/lib/systemd/system && systemd-analyze verify openchronology.service openchronology-mail.service openchronology-syslog.service openchronology-github.service openchronology-journald.service',
+    'cd /usr/lib/systemd/system && systemd-analyze verify circagraph.service circagraph-mail.service circagraph-syslog.service circagraph-github.service circagraph-journald.service',
   );
-  const unit = await sh('cat /usr/lib/systemd/system/openchronology-syslog.service');
+  const unit = await sh('cat /usr/lib/systemd/system/circagraph-syslog.service');
   const pid = '/tmp/syslog.pid';
   await checkSyslogService({
     name,
@@ -153,7 +153,7 @@ export async function checkSystemdServices({ sh, psql, name, installSystemd }) {
     api: curlApi(sh),
     configure: (key, routes) =>
       sh(
-        `sed -i 's|^OCH_API_KEY=.*|OCH_API_KEY=${key}|' /etc/openchronology/syslog.env && printf '%s' '${routes}' > /etc/openchronology/syslog-routes.json`,
+        `sed -i 's|^OCH_API_KEY=.*|OCH_API_KEY=${key}|' /etc/circagraph/syslog.env && printf '%s' '${routes}' > /etc/circagraph/syslog-routes.json`,
       ),
     start: () => sh(unitCommand(unit, '/tmp/syslog.log', pid)),
     // As systemd stops it: SIGTERM, then it saves what is queued and exits.

@@ -8,18 +8,18 @@ The repository is a Nix flake ([#461](https://github.com/circagraph/timeline-app
 
 ## Packages
 
-| Package                  | What it is                                                                                         |
-| ------------------------ | -------------------------------------------------------------------------------------------------- |
-| `openchronology-server`  | The server and the website, with its commands (the default package)                                |
-| `openchronology-desktop` | The desktop app, for Linux                                                                         |
-| `och-convert`            | The `.och` file converter, which the server uses for desktop files                                 |
-| `pgmp`                   | The PostgreSQL extension that stores exact times, built for the PostgreSQL of the package set used |
+| Package                  | What it is                                                                                                              |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `circagraph-server`      | The server and the website, with its commands (the default package; `openchronology-server` until 0.30, still an alias) |
+| `openchronology-desktop` | The desktop app, for Linux                                                                                              |
+| `och-convert`            | The `.och` file converter, which the server uses for desktop files                                                      |
+| `pgmp`                   | The PostgreSQL extension that stores exact times, built for the PostgreSQL of the package set used                      |
 
 They build for `x86_64-linux` and `aarch64-linux`. To try the desktop app, or the server's commands:
 
 ```sh
 nix run github:circagraph/timeline-app#openchronology-desktop
-nix profile install github:circagraph/timeline-app#openchronology-server
+nix profile install github:circagraph/timeline-app#circagraph-server
 ```
 
 A release's packages are at its tag: `github:circagraph/timeline-app/<tag>`. Without one, they are `main`'s.
@@ -30,8 +30,8 @@ Without flakes, `default.nix` gives `nix-env` and `nix-build` the same packages,
 nix-env -f https://github.com/circagraph/timeline-app/archive/<tag>.tar.gz -iA openchronology-desktop
 ``` The server's commands are the Debian package's:
 
-- `openchronology-server`, `openchronology-migrate` and `openchronology-reset-admin-password`;
-- the workers: `openchronology-mail`, `openchronology-syslog`, `openchronology-github` and `openchronology-journald`;
+- `circagraph-server`, `circagraph-migrate` and `circagraph-reset-admin-password`;
+- the workers: `circagraph-mail`, `circagraph-syslog`, `circagraph-github` and `circagraph-journald`;
 - `och-import-logs` and `och-import-github`.
 
 They read their settings from the environment, or from a file named by `OCH_CONFIG`.
@@ -45,21 +45,21 @@ Add the flake to your system's flake, then turn the service on:
 ```nix
 {
   # A release's tag after the repository's name pins that release.
-  inputs.openchronology.url = "github:circagraph/timeline-app";
+  inputs.circagraph.url = "github:circagraph/timeline-app";
 
   outputs =
-    { nixpkgs, openchronology, ... }:
+    { nixpkgs, circagraph, ... }:
     {
       nixosConfigurations.timelines = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          openchronology.nixosModules.default
+          circagraph.nixosModules.default
           {
             services.circagraph = {
               enable = true;
               origin = "https://timelines.example.org";
               nginx.enable = true;
-              environmentFile = "/run/secrets/openchronology.env";
+              environmentFile = "/run/secrets/circagraph.env";
               settings.PLATFORM_NAME = "Our timelines";
             };
             services.nginx.virtualHosts."timelines.example.org" = {
@@ -83,28 +83,29 @@ Add the flake to your system's flake, then turn the service on:
 
 What the module sets up:
 
-- **A system user**, `openchronology`.
-- **PostgreSQL**, with `pgmp`, and the `openchronology` database and role. The server reaches it over the Unix socket, by peer authentication.
-- **An encryption key**, `AUTH_ENCRYPTION_KEY`, generated on first start in `/var/lib/openchronology/generated.env`. It encrypts authenticator secrets: back it up apart from the database. To give your own, put it in the environment file instead.
-- **`openchronology.service`**, which migrates the database each time it starts, then runs the server, with the Debian unit's hardening. Upgrading the flake input and switching migrates and restarts it.
+- **A system user**, `circagraph`.
+- **PostgreSQL**, with `pgmp`, and the `circagraph` database and role. The server reaches it over the Unix socket, by peer authentication.
+- **An encryption key**, `AUTH_ENCRYPTION_KEY`, generated on first start in `/var/lib/circagraph/generated.env`. It encrypts authenticator secrets: back it up apart from the database. To give your own, put it in the environment file instead.
+- **`circagraph.service`** (also reachable as `openchronology.service`), which migrates the database each time it starts, then runs the server, with the Debian unit's hardening. Upgrading the flake input and switching migrates and restarts it.
 - **With `nginx.enable`, a virtual host** for the origin's host. It sets `TRUST_PROXY`, since nginx replaces `X-Forwarded-For` with the client's address. Its location sets its own proxy headers and turns off `services.nginx.recommendedProxySettings` there, which would send `X-Forwarded-For` a second time and make every client look like nginx. Add `enableACME` and `forceSSL` for HTTPS, as above.
 
 ### Options
 
-| Option                                             | Default                | What it does                                                                                             |
-| -------------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------- |
-| `enable`                                           | `false`                | Runs Circagraph                                                                                          |
-| `origin`                                           | (required)             | The public origin, exactly as people reach it (`APP_ORIGIN`)                                             |
-| `host`, `port`                                     | `127.0.0.1`, 5173      | Where the server listens                                                                                 |
-| `settings`                                         | `{ }`                  | Any other setting of `openchronology.env`, such as `PLATFORM_NAME` or `TIMELINE_LINK_LIMIT`              |
-| `environmentFile`                                  | `null`                 | A file of `KEY=value` secrets, read by every service, overriding `settings`                              |
-| `database.createLocally`                           | `true`                 | Runs PostgreSQL here. Otherwise set `DATABASE_URL`, to a database that has `pgmp`                        |
-| `mail.enable`                                      | `false`                | The account email worker (Resend)                                                                        |
-| `syslog.enable`, `.settings`, `.environmentFile`   | `false`, `{ }`, `null` | The [syslog receiver](syslog.md), and a file of its own secrets (`OCH_API_KEY`)                          |
-| `github.enable`, `.settings`, `.environmentFile`   | `false`, `{ }`, `null` | The [GitHub receiver](github.md), and a file of its own secrets (`OCH_API_KEY`, `GITHUB_WEBHOOK_SECRET`) |
-| `journald.enable`, `.settings`, `.environmentFile` | `false`, `{ }`, `null` | The [journald follower](journald.md), and a file of its own secrets (`OCH_API_KEY`)                      |
-| `nginx.enable`, `.hostName`                        | `false`, origin's      | An nginx virtual host in front of the server                                                             |
-| `package`                                          | the flake's server     | The server package to run                                                                                |
+| Option                                             | Default                     | What it does                                                                                                                      |
+| -------------------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `enable`                                           | `false`                     | Runs Circagraph                                                                                                                   |
+| `origin`                                           | (required)                  | The public origin, exactly as people reach it (`APP_ORIGIN`)                                                                      |
+| `host`, `port`                                     | `127.0.0.1`, 5173           | Where the server listens                                                                                                          |
+| `settings`                                         | `{ }`                       | Any other setting of `circagraph.env`, such as `PLATFORM_NAME` or `TIMELINE_LINK_LIMIT`                                           |
+| `environmentFile`                                  | `null`                      | A file of `KEY=value` secrets, read by every service, overriding `settings`                                                       |
+| `database.createLocally`                           | `true`                      | Runs PostgreSQL here. Otherwise set `DATABASE_URL`, to a database that has `pgmp`                                                 |
+| `mail.enable`                                      | `false`                     | The account email worker (Resend)                                                                                                 |
+| `syslog.enable`, `.settings`, `.environmentFile`   | `false`, `{ }`, `null`      | The [syslog receiver](syslog.md), and a file of its own secrets (`OCH_API_KEY`)                                                   |
+| `github.enable`, `.settings`, `.environmentFile`   | `false`, `{ }`, `null`      | The [GitHub receiver](github.md), and a file of its own secrets (`OCH_API_KEY`, `GITHUB_WEBHOOK_SECRET`)                          |
+| `journald.enable`, `.settings`, `.environmentFile` | `false`, `{ }`, `null`      | The [journald follower](journald.md), and a file of its own secrets (`OCH_API_KEY`)                                               |
+| `nginx.enable`, `.hostName`                        | `false`, origin's           | An nginx virtual host in front of the server                                                                                      |
+| `package`                                          | the flake's server          | The server package to run                                                                                                         |
+| `legacyNames`                                      | `stateVersion` before 26.11 | Keeps the `openchronology` users, database and state folders of a system set up before the rename ([below](#from-openchronology)) |
 
 **Keep secrets out of `settings`:** it is written to the Nix store, which every user of the machine can read. Secrets include `RESEND_API_KEY`, `ADMIN_INITIAL_PASSWORD`, sign-in providers' client secrets, and the log importers' `OCH_API_KEY`. Put them in `environmentFile` (the log importers' key in their own, below), for example with [sops-nix](https://github.com/Mic92/sops-nix) or [agenix](https://github.com/ryantm/agenix).
 
@@ -119,35 +120,39 @@ The syslog receiver and the journald follower post to the server's API with an A
 ```nix
 services.circagraph.syslog = {
   enable = true;
-  environmentFile = "/run/secrets/openchronology-syslog.env";
+  environmentFile = "/run/secrets/circagraph-syslog.env";
   settings = {
     SYSLOG_HOST = "0.0.0.0";
-    SYSLOG_ROUTES = "/etc/openchronology/syslog-routes.json";
+    SYSLOG_ROUTES = "/etc/circagraph/syslog-routes.json";
   };
 };
 ```
 
 `SYSLOG_HOST = "0.0.0.0"` receives from other machines. The receiver has no TLS or sender authentication, so anyone who can reach its port can add messages to the routed timelines: open the port (5514, UDP and TCP, by default) only to the machines that send, for example on their interface with `networking.firewall.interfaces.<name>.allowedUDPPorts` and `.allowedTCPPorts`, not in `networking.firewall.allowedUDPPorts` for every network. NixOS's firewall blocks it until you open it.
 
-Both run as their own system user, `openchronology-logs`, not as `openchronology` (#501). They read only their own `settings` and `environmentFile`, not the server's settings, `environmentFile` or generated key, and have no role in the database. Make the files their settings name (`SYSLOG_ROUTES`, `JOURNALD_ROUTES`, `JOURNALD_SSH_KEY`, `JOURNALD_KNOWN_HOSTS`) readable by that user, for example with sops-nix's or agenix's `owner` or `group`. Before #501 they read the server's `environmentFile`: move their `OCH_API_KEY` to `syslog.environmentFile` and `journald.environmentFile`. The module warns while either is unset.
+Both run as their own system user, `circagraph-logs`, not as `circagraph` (#501). They read only their own `settings` and `environmentFile`, not the server's settings, `environmentFile` or generated key, and have no role in the database. Make the files their settings name (`SYSLOG_ROUTES`, `JOURNALD_ROUTES`, `JOURNALD_SSH_KEY`, `JOURNALD_KNOWN_HOSTS`) readable by that user, for example with sops-nix's or agenix's `owner` or `group`. Before #501 they read the server's `environmentFile`: move their `OCH_API_KEY` to `syslog.environmentFile` and `journald.environmentFile`. The module warns while either is unset.
 
-The journald follower runs with the `systemd-journal` group, so it can read the journal, and keeps its cursor in `/var/lib/openchronology-journald`.
+The journald follower runs with the `systemd-journal` group, so it can read the journal, and keeps its cursor in `/var/lib/circagraph-journald`.
 
-The [GitHub receiver](github.md) runs the same way, as `openchronology-logs` with its own `settings` and `environmentFile`. Give it `OCH_API_KEY` and `GITHUB_WEBHOOK_SECRET` (and `GITHUB_TOKEN`, for project boards) in that file:
+The [GitHub receiver](github.md) runs the same way, as `circagraph-logs` with its own `settings` and `environmentFile`. Give it `OCH_API_KEY` and `GITHUB_WEBHOOK_SECRET` (and `GITHUB_TOKEN`, for project boards) in that file:
 
 ```nix
 services.circagraph.github = {
   enable = true;
-  environmentFile = "/run/secrets/openchronology-github.env";
-  settings.GITHUB_ROUTES = "/etc/openchronology/github-routes.json";
+  environmentFile = "/run/secrets/circagraph-github.env";
+  settings.GITHUB_ROUTES = "/etc/circagraph/github-routes.json";
 };
 ```
 
-It listens on `127.0.0.1:5580`; put it behind the nginx virtual host, or another reverse proxy that provides HTTPS, for GitHub to reach it. It keeps each item's board column in `/var/lib/openchronology-github` (`GITHUB_STATE`).
+It listens on `127.0.0.1:5580`; put it behind the nginx virtual host, or another reverse proxy that provides HTTPS, for GitHub to reach it. It keeps each item's board column in `/var/lib/circagraph-github` (`GITHUB_STATE`).
 
 ### Backups and upgrades
 
-The database is PostgreSQL's, in its usual place: back it up with `pg_dump openchronology` as the `postgres` user, or with `services.postgresqlBackup`. Keep `/var/lib/openchronology/generated.env` with it. An upgrade migrates the database as the server starts. Back up before switching to a new release, as there is no going back from a migration.
+The database is PostgreSQL's, in its usual place: back it up with `pg_dump circagraph` as the `postgres` user, or with `services.postgresqlBackup`. Keep `/var/lib/circagraph/generated.env` with it. An upgrade migrates the database as the server starts. Back up before switching to a new release, as there is no going back from a migration.
+
+### From OpenChronology
+
+The package was `openchronology-server` until 0.30, and the module ran `openchronology.service` as the `openchronology` user with an `openchronology` database. A system whose `system.stateVersion` is older than 26.11 keeps those users, that database and role, and its `/var/lib/openchronology*` folders (`services.circagraph.legacyNames`, on by default there), so switching to this version changes only the units' and commands' names: `circagraph.service` and `circagraph-migrate`, with `openchronology.service` and `openchronology-migrate` still working. A new system uses `circagraph` throughout. Set `legacyNames` yourself only to override that: on a new system that had run an older version of the module, set it to `true`.
 
 ## Binary cache
 

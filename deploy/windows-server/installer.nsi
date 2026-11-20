@@ -1,25 +1,26 @@
 ; Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-; The OpenChronology server installer for Windows (#116), built by build.ps1:
+; The Circagraph server installer for Windows (#116), built by build.ps1:
 ;   makensis /DVERSION=<version> /DSTAGE=<staged files> /DOUT=<installer.exe> installer.nsi
 ; It installs into Program Files and runs setup.ps1, which sets up the bundled PostgreSQL, the
 ; database and the services; the configuration and database live in ProgramData. Installed in
 ; another folder, setup gives it Program Files' access (users read and run, administrators
-; change). Silent
-; installs (/S) exit with 2 when setup does not finish.
+; change). Silent installs (/S) exit with 2 when setup does not finish. Where OpenChronology
+; Server (this installer's name until 0.30) is installed, setup takes its place, keeping its
+; configuration and database (setup.ps1).
 Unicode true
 !include "MUI2.nsh"
 !include "x64.nsh"
 
-Name "OpenChronology Server"
+Name "Circagraph Server"
 OutFile "${OUT}"
-InstallDir "$PROGRAMFILES64\OpenChronology Server"
-InstallDirRegKey HKLM "Software\OpenChronology Server" "InstallDir"
+InstallDir "$PROGRAMFILES64\Circagraph Server"
+InstallDirRegKey HKLM "Software\Circagraph Server" "InstallDir"
 RequestExecutionLevel admin
 SetCompressor /SOLID lzma
 VIProductVersion "0.0.0.0"
-VIAddVersionKey "ProductName" "OpenChronology Server"
+VIAddVersionKey "ProductName" "Circagraph Server"
 VIAddVersionKey "ProductVersion" "${VERSION}"
-VIAddVersionKey "FileDescription" "OpenChronology Server installer"
+VIAddVersionKey "FileDescription" "Circagraph Server installer"
 VIAddVersionKey "LegalCopyright" "Copyright (c) 2026 Athan Clark. GPL-3.0-only"
 VIAddVersionKey "FileVersion" "${VERSION}"
 
@@ -33,27 +34,28 @@ VIAddVersionKey "FileVersion" "${VERSION}"
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_LANGUAGE "English"
 
-!define UNINSTALL "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenChronologyServer"
+!define UNINSTALL "Software\Microsoft\Windows\CurrentVersion\Uninstall\CircagraphServer"
 
 Function .onInit
   ${IfNot} ${RunningX64}
-    MessageBox MB_ICONSTOP|MB_OK "OpenChronology Server needs 64-bit Windows." /SD IDOK
+    MessageBox MB_ICONSTOP|MB_OK "Circagraph Server needs 64-bit Windows." /SD IDOK
     Abort
   ${EndIf}
   SetRegView 64
 FunctionEnd
 
-Section "OpenChronology Server"
-  ; An upgrade stops the services before replacing the files they run.
-  nsExec::ExecToLog 'powershell -NoProfile -Command "Stop-Service OpenChronologySyslog, OpenChronologyGitHub, OpenChronologyMail, OpenChronology, OpenChronologyPostgreSQL -Force -ErrorAction SilentlyContinue"'
+Section "Circagraph Server"
+  ; An upgrade stops the services before replacing the files they run, OpenChronology Server's
+  ; too, which may be installed in this folder.
+  nsExec::ExecToLog 'powershell -NoProfile -Command "Stop-Service CircagraphSyslog, CircagraphGitHub, CircagraphMail, Circagraph, CircagraphPostgreSQL, OpenChronologySyslog, OpenChronologyGitHub, OpenChronologyMail, OpenChronology, OpenChronologyPostgreSQL -Force -ErrorAction SilentlyContinue"'
   Pop $0
   SetOutPath "$INSTDIR"
   File /r "${STAGE}\*.*"
   WriteUninstaller "$INSTDIR\uninstall.exe"
-  WriteRegStr HKLM "Software\OpenChronology Server" "InstallDir" "$INSTDIR"
-  WriteRegStr HKLM "${UNINSTALL}" "DisplayName" "OpenChronology Server"
+  WriteRegStr HKLM "Software\Circagraph Server" "InstallDir" "$INSTDIR"
+  WriteRegStr HKLM "${UNINSTALL}" "DisplayName" "Circagraph Server"
   WriteRegStr HKLM "${UNINSTALL}" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKLM "${UNINSTALL}" "Publisher" "OpenChronology"
+  WriteRegStr HKLM "${UNINSTALL}" "Publisher" "Circagraph"
   WriteRegStr HKLM "${UNINSTALL}" "URLInfoAbout" "https://github.com/circagraph/timeline-app"
   WriteRegStr HKLM "${UNINSTALL}" "InstallLocation" "$INSTDIR"
   WriteRegStr HKLM "${UNINSTALL}" "UninstallString" '"$INSTDIR\uninstall.exe"'
@@ -65,7 +67,7 @@ Section "OpenChronology Server"
   Pop $0
   ${If} $0 != 0
     SetErrorLevel 2
-    MessageBox MB_ICONEXCLAMATION|MB_OK "Setup did not finish. See the details above and C:\ProgramData\OpenChronology\setup.log, then run setup.ps1 in $INSTDIR as an administrator." /SD IDOK
+    MessageBox MB_ICONEXCLAMATION|MB_OK "Setup did not finish. See the details above and C:\ProgramData\Circagraph\setup.log, then run setup.ps1 in $INSTDIR as an administrator." /SD IDOK
   ${EndIf}
 SectionEnd
 
@@ -75,5 +77,5 @@ Section "Uninstall"
   Pop $0
   RMDir /r "$INSTDIR"
   DeleteRegKey HKLM "${UNINSTALL}"
-  DeleteRegKey HKLM "Software\OpenChronology Server"
+  DeleteRegKey HKLM "Software\Circagraph Server"
 SectionEnd

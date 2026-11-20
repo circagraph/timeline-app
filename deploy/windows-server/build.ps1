@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-# Builds the Windows server installer (#116), openchronology-server-windows-amd64-setup.exe:
-# the platform (server-artifacts\openchronology-server-platform.tar.gz, deploy/platform), with
+# Builds the Windows server installer (#116), circagraph-server-windows-amd64-setup.exe:
+# the platform (server-artifacts\circagraph-server-platform.tar.gz, deploy/platform), with
 # its own PostgreSQL 17 (EDB's Windows binaries), pgmp built for it with MSVC, och-convert,
 # Node.js 24 and WinSW for the server's Windows service, in an NSIS installer.
 # Needs MSVC, Rust, Python 3, NSIS, and GMP and SQLite from vcpkg (OCH_NATIVE_PREFIX, as
@@ -37,11 +37,11 @@ $pgmpSource = Get-Pinned 'https://codeload.github.com/dvarrazzo/pgmp/tar.gz/1849
   (Get-Content "$here\pgmp.sha256").Trim() 'pgmp.tar.gz'
 
 # The platform, as the other packages lay it out.
-tar -xzf "$repo\server-artifacts\openchronology-server-platform.tar.gz" -C $work lib doc
+tar -xzf "$repo\server-artifacts\circagraph-server-platform.tar.gz" -C $work lib doc
 if ($LASTEXITCODE -ne 0) { throw 'Unpacking the platform failed' }
-Move-Item "$work\lib\openchronology" "$stage\app"
+Move-Item "$work\lib\circagraph" "$stage\app"
 Move-Item "$work\doc" "$stage\doc"
-Copy-Item "$repo\deploy\debian-server\openchronology-server.mjs" "$stage\app\openchronology-server.mjs" -Force
+Copy-Item "$repo\deploy\debian-server\circagraph-server.mjs" "$stage\app\circagraph-server.mjs" -Force
 
 # Node.js: node.exe and its license.
 Expand-Archive $node -DestinationPath $work -Force
@@ -103,22 +103,22 @@ Copy-Item "$repo\native-store\target\release\och-convert.exe" "$stage\app\bin\"
 # The Windows services (WinSW: one copy of the wrapper per service, named as its settings
 # file), the commands, templates and documentation.
 New-Item -ItemType Directory -Force -Path "$stage\service" | Out-Null
-foreach ($name in 'openchronology-service', 'openchronology-syslog-service', 'openchronology-github-service', 'openchronology-mail-service') {
+foreach ($name in 'circagraph-service', 'circagraph-syslog-service', 'circagraph-github-service', 'circagraph-mail-service') {
   Copy-Item $winsw "$stage\service\$name.exe"
   Copy-Item "$here\$name.xml" "$stage\service\"
 }
 Copy-Item "$here\setup.ps1", "$here\remove.ps1", "$here\*.cmd" "$stage\"
 New-Item -ItemType Directory -Force -Path "$stage\templates" | Out-Null
-foreach ($name in 'openchronology.env', 'syslog.env', 'github.env') {
+foreach ($name in 'circagraph.env', 'syslog.env', 'github.env') {
   # Windows paths for the Linux packages' templates.
   (Get-Content "$repo\deploy\debian-server\$name" -Raw) `
-    -replace '/etc/openchronology', 'C:\ProgramData\OpenChronology' `
-    -replace '/var/lib/openchronology-github', 'C:\ProgramData\OpenChronology\github-state' `
-    -replace 'sudo systemctl restart openchronology', 'Restart-Service OpenChronology' `
-    -replace 'sudo systemctl enable --now openchronology-syslog', 'Set-Service OpenChronologySyslog -StartupType Automatic; Start-Service OpenChronologySyslog' `
-    -replace 'sudo systemctl enable --now openchronology-github', 'Set-Service OpenChronologyGitHub -StartupType Automatic; Start-Service OpenChronologyGitHub' `
-    -replace 'sudo systemctl enable --now openchronology-mail', 'Set-Service OpenChronologyMail -StartupType Automatic; Start-Service OpenChronologyMail' `
-    -replace 'sudo openchronology-', 'openchronology-' |
+    -replace '/etc/circagraph', 'C:\ProgramData\Circagraph' `
+    -replace '/var/lib/circagraph-github', 'C:\ProgramData\Circagraph\github-state' `
+    -replace 'sudo systemctl restart circagraph', 'Restart-Service Circagraph' `
+    -replace 'sudo systemctl enable --now circagraph-syslog', 'Set-Service CircagraphSyslog -StartupType Automatic; Start-Service CircagraphSyslog' `
+    -replace 'sudo systemctl enable --now circagraph-github', 'Set-Service CircagraphGitHub -StartupType Automatic; Start-Service CircagraphGitHub' `
+    -replace 'sudo systemctl enable --now circagraph-mail', 'Set-Service CircagraphMail -StartupType Automatic; Start-Service CircagraphMail' `
+    -replace 'sudo circagraph-', 'circagraph-' |
     Set-Content -Encoding utf8NoBOM "$stage\templates\$name.example"
 }
 Copy-Item "$here\README.Windows.txt" "$stage\"
@@ -127,6 +127,6 @@ Copy-Item "$repo\LICENSE" "$stage\LICENSE.txt"
 # The installer.
 $makensis = (Get-Command makensis -ErrorAction SilentlyContinue).Source
 if (-not $makensis) { $makensis = "${env:ProgramFiles(x86)}\NSIS\makensis.exe" }
-& $makensis /V2 "/DVERSION=$Version" "/DSTAGE=$stage" "/DOUT=$repo\server-artifacts\openchronology-server-windows-amd64-setup.exe" "$here\installer.nsi"
+& $makensis /V2 "/DVERSION=$Version" "/DSTAGE=$stage" "/DOUT=$repo\server-artifacts\circagraph-server-windows-amd64-setup.exe" "$here\installer.nsi"
 if ($LASTEXITCODE -ne 0) { throw 'Building the installer failed' }
-Write-Host "Wrote server-artifacts\openchronology-server-windows-amd64-setup.exe ($Version)"
+Write-Host "Wrote server-artifacts\circagraph-server-windows-amd64-setup.exe ($Version)"
