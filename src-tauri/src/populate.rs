@@ -8,8 +8,8 @@
 //! and documents (`local_file`), anything else in its folder.
 //! refuse. Media dates come from the files' own metadata with nom-exif (EXIF for photos, the
 //! track's creation date for video and audio), read without running anything.
-use nom_exif::{ExifTag, MediaKind, MediaParser, MediaSource, TrackInfoTag};
 use circagraph_store::{Document, Event};
+use nom_exif::{ExifTag, MediaKind, MediaParser, MediaSource, TrackInfoTag};
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map};

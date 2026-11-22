@@ -43,8 +43,7 @@ fn desktop_open_image(url: String) -> Result<(), String> {
     server::open_image(&url)
 }
 /// Where the latest release is read (#601): GitHub's API for the project's releases.
-const LATEST_RELEASE: &str =
-    "https://api.github.com/repos/circagraph/timeline-app/releases/latest";
+const LATEST_RELEASE: &str = "https://api.github.com/repos/circagraph/timeline-app/releases/latest";
 /// The running release and, when `ask`, the latest published one (#601), for the editor's
 /// update banner: `{"current": tag, "latest": tag, "notes": url}`. A build that is not a
 /// release (no OCH_BUILD_VERSION when it was compiled) has `current` null and asks nothing.

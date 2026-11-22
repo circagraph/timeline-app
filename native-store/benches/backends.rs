@@ -4,8 +4,8 @@
 //! native-store/Cargo.toml --bench backends`. BENCH_SIZES and BENCH_DATA_DIR match the
 //! Node harness; BENCH_TIME is the measurement time per benchmark in milliseconds.
 //! Results land in target/criterion/<operation>/sqlite/<size>/new/estimates.json.
-use criterion::{BenchmarkId, Criterion};
 use circagraph_store::{Header, Patch, Query, Snapshot};
+use criterion::{BenchmarkId, Criterion};
 use serde_json::{json, Value};
 use std::{
     path::PathBuf,
