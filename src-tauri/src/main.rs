@@ -28,7 +28,7 @@ mod populate;
 mod server;
 mod system_thumbnails;
 mod thumbnails;
-use openchronology_store::{Document, Header, Patch, Query, Snapshot};
+use circagraph_store::{Document, Header, Patch, Query, Snapshot};
 use std::{
     path::PathBuf,
     sync::{atomic::AtomicBool, Arc, Mutex},
@@ -964,7 +964,7 @@ async fn desktop_save(
                 .ok_or("No timeline file is open")?
                 .save_patch(&path, &patch)?,
             (Some(document), None) => {
-                openchronology_store::save(&path, &document)?;
+                circagraph_store::save(&path, &document)?;
                 Snapshot::open(&path)?
             }
             _ => return Err("Supply either a document or sparse changes".into()),

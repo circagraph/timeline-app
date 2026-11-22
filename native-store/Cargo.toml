@@ -1,7 +1,7 @@
 # The native store's crate: SQLite timeline files (.och) with exact rational times, used by the
-# desktop app (src-tauri) and the server's och-convert.
+# desktop app (src-tauri) and the server's cg-convert.
 [package]
-name = "openchronology-store"
+name = "circagraph-store"
 version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0-only"

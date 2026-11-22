@@ -275,7 +275,7 @@ try {
       await cache.idle();
       assert.deepEqual(await bytes(await get(base, `/api/timelines/${t.id}/file`)), och);
       assert((await rows(t.id)).some((r) => r.format === 'och'));
-    } else console.log('SKIP .och: no och-convert (set OCH_CONVERTER).');
+    } else console.log('SKIP .och: no cg-convert (set OCH_CONVERTER).');
 
     // Eviction: with room for about one file, the least recently downloaded goes.
     await pool.query('DELETE FROM oc_export_cache');

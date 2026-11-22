@@ -109,7 +109,7 @@ jobs:
       - name: SQLite converter and file contracts
         if: runner.os == 'Linux'
         run: |
-          cargo build --manifest-path native-store/Cargo.toml --locked --release --bin och-convert
+          cargo build --manifest-path native-store/Cargo.toml --locked --release --bin cg-convert
           node test/files.mjs
       - name: Build and stage native package
         env:
@@ -121,7 +121,7 @@ jobs:
           name: desktop-${{ matrix.target }}
           path: desktop-artifacts/
           if-no-files-found: error
-  # Arch Linux (#331): the AUR's openchronology-desktop-bin, rendered for the .deb, built with
+  # Arch Linux (#331): the AUR's circagraph-desktop-bin, rendered for the .deb, built with
   # makepkg and installed in a fresh Arch container.
   arch:
     name: Desktop / arch
@@ -144,10 +144,10 @@ jobs:
           name: desktop-linux-deb
           path: desktop-artifacts/
       - name: Render the AUR package
-        run: node scripts/aur-packages.mjs --out aur --desktop desktop-artifacts/openchronology-desktop-linux-amd64.deb
+        run: node scripts/aur-packages.mjs --out aur --desktop desktop-artifacts/circagraph-desktop-linux-amd64.deb
       - name: Build and install it on Arch Linux
         timeout-minutes: 20
-        run: node test/desktop-arch.mjs aur/openchronology-desktop-bin
+        run: node test/desktop-arch.mjs aur/circagraph-desktop-bin
   rocky:
     name: Desktop / Rocky Linux 10 / RHEL 10 RPM
     runs-on: ubuntu-24.04
@@ -189,7 +189,7 @@ jobs:
       - name: Validate RPM installs on its Rocky baseline
         run: |
           dnf install -y desktop-artifacts/*.rpm
-          ldd /usr/bin/openchronology-desktop | tee /tmp/och-ldd.txt
+          ldd /usr/bin/circagraph-desktop | tee /tmp/och-ldd.txt
           ! grep -q 'not found' /tmp/och-ldd.txt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

@@ -19,7 +19,7 @@ try {
     driver.url,
     resolve(
       process.env.UI_DESKTOP_APP ??
-        `${process.env.CARGO_TARGET_DIR ?? 'src-tauri/target'}/debug/openchronology-desktop`,
+        `${process.env.CARGO_TARGET_DIR ?? 'src-tauri/target'}/debug/circagraph-desktop`,
     ),
     { logs: driver.logs },
   );

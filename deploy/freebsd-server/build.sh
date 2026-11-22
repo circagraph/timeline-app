@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 # Makes the FreeBSD server package (#116) from the platform built on Linux
 # (node scripts/server-package.mjs freebsd14, into server-artifacts/): builds
-# och-convert and pgmp against FreeBSD's own libraries and PostgreSQL, lays the server out
+# cg-convert and pgmp against FreeBSD's own libraries and PostgreSQL, lays the server out
 # under /usr/local with rc.d services, and writes server-artifacts/<asset>.pkg.
 # Usage, as root on FreeBSD, from the repository: sh deploy/freebsd-server/build.sh
 set -eu
@@ -22,9 +22,9 @@ DOC=$ROOT/share/doc/circagraph-server
 RUNTIME="node24 postgresql${PG_MAJOR}-server postgresql${PG_MAJOR}-client gmp sqlite3"
 env ASSUME_ALWAYS_YES=yes pkg install -y $RUNTIME rust gmake python3 pkgconf cmake-core
 
-# och-convert, against FreeBSD's GMP and SQLite in /usr/local.
+# cg-convert, against FreeBSD's GMP and SQLite in /usr/local.
 CFLAGS=-I/usr/local/include LDFLAGS=-L/usr/local/lib RUSTFLAGS="-L native=/usr/local/lib" \
-  cargo build --manifest-path native-store/Cargo.toml --release --locked --bin och-convert
+  cargo build --manifest-path native-store/Cargo.toml --release --locked --bin cg-convert
 
 # The same pinned pgmp as deploy/Dockerfile.postgres, for FreeBSD's PostgreSQL.
 PGMP_COMMIT=1849585416f2bc3d070bf8cef6a659907687ec7f
@@ -45,7 +45,9 @@ tar -xzf "$REPO/server-artifacts/circagraph-server-platform.tar.gz" -C "$WORK"
 mv "$WORK/lib/circagraph" "$APP"
 mv "$WORK/doc" "$DOC"
 mkdir -p "$APP/bin" "$DOC/pgmp"
-install -m 0755 native-store/target/release/och-convert "$APP/bin/och-convert"
+install -m 0755 native-store/target/release/cg-convert "$APP/bin/cg-convert"
+# och-convert is the converter's name before the rename, which a configuration may name.
+ln -s cg-convert "$APP/bin/och-convert"
 install -m 0755 "$SHARED/circagraph-log-files" "$APP/bin/circagraph-log-files"
 install -m 0644 "$WORK/pgmp/COPYING" "$DOC/pgmp/COPYING"
 sed "s/@PG_MAJOR@/$PG_MAJOR/g" "$HERE/README.FreeBSD" >"$DOC/README.FreeBSD"

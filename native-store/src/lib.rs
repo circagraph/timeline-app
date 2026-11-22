@@ -581,7 +581,7 @@ pub fn save(path: &Path, doc: &Document) -> Result<(), String> {
     write(path, doc, doc.events.iter().map(|e| Ok(Cow::Borrowed(e))))
 }
 /// `save` with the moments supplied one at a time instead of in `settings.events` (which is
-/// ignored), so a large document need not be held whole: och-convert parses each moment's
+/// ignored), so a large document need not be held whole: cg-convert parses each moment's
 /// metadata only as it is written (#202). The settings are checked first; each moment as it
 /// comes, legacy links converted; the durations and relationships last. A problem anywhere
 /// rolls the save back, leaving an existing file as it was (a new one stays empty).
@@ -708,7 +708,7 @@ fn write<'a>(
         // Overview groups join back to events by time (workspace.rs) to show single moments.
         // The emptied index takes the buckets appended, unlinked, and builds its tree once from
         // them sorted, writing each node once (#199); inserting them one by one walked and
-        // rebalanced the tree for each, too slow for och-convert's CPU limit on large files.
+        // rebalanced the tree for each, too slow for cg-convert's CPU limit on large files.
         // Appended a range of 5000 times per statement, so each stays well within the
         // instruction budget (a statement for 200,000 came within 6% of it).
         let times = db.query(
@@ -767,7 +767,7 @@ fn write<'a>(
     result
 }
 /// Reads a whole timeline file (every moment, duration and relationship) as a document,
-/// validated as on save. Used by `och-convert read`, the desktop app's full-document reads
+/// validated as on save. Used by `cg-convert read`, the desktop app's full-document reads
 /// and the tests. Errors when the file is not a valid timeline.
 pub fn open(path: &Path) -> Result<Document, String> {
     read_document(path, true)
@@ -1482,7 +1482,7 @@ mod tests {
     }
     #[test]
     fn streamed_saves_check_each_moment_and_match_whole_ones() {
-        // The moments one at a time (och-convert, #202): the same file as a whole save.
+        // The moments one at a time (cg-convert, #202): the same file as a whole save.
         let (whole, streamed) = (file("whole"), file("streamed"));
         let mut document = doc();
         document.events[2].metadata.insert(

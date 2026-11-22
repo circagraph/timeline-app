@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 # The OpenChronology server (#461): the editor and the Next.js platform built from source, laid
 # out as the Debian package installs them (deploy/debian-server/Dockerfile) under
-# lib/circagraph, with och-convert beside them, the source archive the site's footer
+# lib/circagraph, with cg-convert beside them, the source archive the site's footer
 # links to, and commands in bin. The NixOS module (module.nix) runs them as services.
 {
   lib,
@@ -11,7 +11,7 @@
   importNpmLock,
   nodejs_24,
   makeWrapper,
-  och-convert,
+  cg-convert,
   src,
   npmDeps,
   rev ? "",
@@ -47,9 +47,9 @@ buildNpmPackage {
     npm run build
     # The corresponding source, with the converter's crates, which the footer offers.
     # (copied out of the store first, as the archive's temporary copy must be removable).
-    cp -rL --no-preserve=mode ${och-convert.cargoDeps} rust-dependencies
+    cp -rL --no-preserve=mode ${cg-convert.cargoDeps} rust-dependencies
     node scripts/source.mjs --rust-vendor rust-dependencies
-    cp dist/openchronology-web-source.tar.gz platform/public/
+    cp dist/circagraph-web-source.tar.gz platform/public/
     runHook postBuild
   '';
 
@@ -63,7 +63,9 @@ buildNpmPackage {
     cp -r platform/public $app/platform/public
     cp -r dist server legal package.json $app/
     cp deploy/debian-server/circagraph-server.mjs $app/
-    ln -s ${lib.getExe och-convert} $app/bin/och-convert
+    ln -s ${lib.getExe cg-convert} $app/bin/cg-convert
+    # Its name before the rename, which a configuration may name.
+    ln -s cg-convert $app/bin/och-convert
 
     # The commands. The server reads OCH_CONFIG (an environment file) if given; the module
     # passes its settings in the environment instead.
@@ -88,7 +90,7 @@ buildNpmPackage {
     runHook postInstall
   '';
 
-  passthru = { inherit och-convert; };
+  passthru = { inherit cg-convert; };
 
   meta = {
     description = "Circagraph, the exact timeline platform: its web server";

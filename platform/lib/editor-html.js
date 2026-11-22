@@ -33,7 +33,7 @@ export async function editorHtml(heading) {
     .replace('src="./app.js"', 'src="/app.js"')
     .replace('href="legal.html"', 'href="/legal"')
     .replace('id="timelines-link" href="/"', `id="timelines-link" href="${browserPath()}"`)
-    .replace('href="openchronology-web-source.tar.gz"', 'href="/openchronology-web-source.tar.gz"');
+    .replace('href="circagraph-web-source.tar.gz"', 'href="/circagraph-web-source.tar.gz"');
   if (!heading) return html;
   const description = heading.description.trim() ? markdownHtml(heading.description) : '';
   html = html

@@ -39,7 +39,7 @@
       packagesFor =
         pkgs:
         let
-          och-convert = pkgs.callPackage ./nix/och-convert.nix { inherit src; };
+          cg-convert = pkgs.callPackage ./nix/cg-convert.nix { inherit src; };
           # The npm packages, as package-lock.json pins them; the vendored tarball given
           # directly, as importNpmLock would look for it under its lockfile path.
           npmDeps = pkgs.importNpmLock {
@@ -49,12 +49,12 @@
           };
         in
         {
-          inherit och-convert;
+          inherit cg-convert;
           circagraph-server = pkgs.callPackage ./nix/server.nix {
-            inherit src och-convert npmDeps;
+            inherit src cg-convert npmDeps;
             rev = self.rev or "";
           };
-          openchronology-desktop = pkgs.callPackage ./nix/desktop.nix { inherit src npmDeps; };
+          circagraph-desktop = pkgs.callPackage ./nix/desktop.nix { inherit src npmDeps; };
           pgmp = pkgs.postgresql.pkgs.callPackage ./nix/pgmp.nix { };
         };
     in
@@ -67,15 +67,19 @@
         packages
         // {
           default = packages.circagraph-server;
-          # The server package's name before the rename to Circagraph.
+          # The packages' names before the rename to Circagraph.
           openchronology-server = packages.circagraph-server;
+          openchronology-desktop = packages.circagraph-desktop;
+          och-convert = packages.cg-convert;
         }
       );
 
       # The packages, for systems that add this overlay.
       overlays.default = final: prev: {
-        inherit (packagesFor final) och-convert circagraph-server openchronology-desktop;
+        inherit (packagesFor final) cg-convert circagraph-server circagraph-desktop;
         openchronology-server = final.circagraph-server;
+        openchronology-desktop = final.circagraph-desktop;
+        och-convert = final.cg-convert;
       };
 
       # services.circagraph (nix/module.nix; docs/nix.md).

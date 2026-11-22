@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-# och-convert, the server's .och file converter (#461): native-store's binary, with the
+# cg-convert, the server's .och file converter (#461): native-store's binary, with the
 # vendored SQLite rational extension (vendor/sqlite-rational) built by its build script.
 {
   lib,
@@ -12,7 +12,7 @@
 }:
 
 rustPlatform.buildRustPackage {
-  pname = "och-convert";
+  pname = "cg-convert";
   version = "0.1.0";
   inherit src;
 
@@ -22,7 +22,7 @@ rustPlatform.buildRustPackage {
   cargoLock.lockFile = ../native-store/Cargo.lock;
   cargoBuildFlags = [
     "--bin"
-    "och-convert"
+    "cg-convert"
   ];
   # build.rs runs CMake itself; the hook would configure the repository instead.
   dontUseCmakeConfigure = true;
@@ -42,6 +42,6 @@ rustPlatform.buildRustPackage {
     description = "Converts OpenChronology timelines to and from .och files";
     homepage = "https://github.com/circagraph/timeline-app";
     license = lib.licenses.gpl3Only;
-    mainProgram = "och-convert";
+    mainProgram = "cg-convert";
   };
 }

@@ -1,11 +1,12 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 // Renders the AUR packages (#331) from deploy/arch: circagraph-server, built from a platform
-// archive, and openchronology-desktop-bin, unpacked from a desktop .deb. Each goes in its own
+// archive, and circagraph-desktop-bin, unpacked from a desktop .deb. Each goes in its own
 // folder of `--out` with the files its PKGBUILD names, ready for `makepkg --printsrcinfo` and
 // a push to aur.archlinux.org. Releases render them for their assets; CI builds and installs
-// the server's from local files. `--transitional` also renders openchronology-server, the
-// server's name until 0.30: an empty package that depends on circagraph-server, so that AUR
-// helpers move its installations over.
+// the server's from local files. `--transitional` also renders openchronology-server and
+// openchronology-desktop-bin, the packages' names until 0.30: empty packages that depend on
+// circagraph-server and circagraph-desktop-bin, so that AUR helpers move their installations
+// over.
 // Usage: node scripts/aur-packages.mjs --out <dir> [--version <version>]
 //          [--platform <tarball> [--platform-url <url>]] [--desktop <deb> [--desktop-url <url>]]
 //          [--transitional]
@@ -40,11 +41,13 @@ export const SERVER_FILES = {
   'deploy/arch': ['circagraph-setup', 'circagraph-server.sysusers', 'README.Arch'],
 };
 /**
- * The first version named circagraph-server, which conflicts with the openchronology-server
- * packages before it (circagraph-server.PKGBUILD.in): the transitional openchronology-server
- * must not be one of them.
+ * The first version named circagraph-server and circagraph-desktop-bin, which conflict with
+ * the openchronology-server and openchronology-desktop-bin packages before it (their
+ * PKGBUILD.in): the transitional packages must not be one of them.
  */
 export const RENAMED_IN = '0.31';
+/** The packages' names until 0.30, rendered by `transitional` from deploy/arch/<name>.PKGBUILD.in. */
+export const TRANSITIONAL = ['openchronology-server', 'openchronology-desktop-bin'];
 // The pinned pgmp source's checksum, which the Windows build checks the same download against:
 // a release never takes it from whatever the download returns that day.
 const PGMP_SHA256 = 'deploy/windows-server/pgmp.sha256';
@@ -68,7 +71,8 @@ export const olderThan = (a, b) => {
 
 /**
  * Renders the packages into `out`. `platform` and `desktop` are { file, url? }; either may be
- * left out, and its package is not rendered. `transitional` renders openchronology-server too.
+ * left out, and its package is not rendered. `transitional` renders the TRANSITIONAL packages
+ * too.
  * @returns {Promise<string[]>} the folders written
  */
 export async function renderAur({ out, version, platform, desktop, transitional = false }) {
@@ -76,7 +80,7 @@ export async function renderAur({ out, version, platform, desktop, transitional 
     throw new Error('An AUR version is dotted letters and digits.');
   if (transitional && olderThan(version, RENAMED_IN))
     throw new Error(
-      `openchronology-server ${version} would conflict with circagraph-server, which replaces the versions before ${RENAMED_IN}.`,
+      `A transitional package at ${version} would conflict with the package renamed from it, which replaces the versions before ${RENAMED_IN}.`,
     );
   const written = [];
   if (platform) {
@@ -109,27 +113,28 @@ export async function renderAur({ out, version, platform, desktop, transitional 
     await writeFile(join(dir, 'PKGBUILD'), pkgbuild);
     written.push(dir);
   }
-  if (transitional) {
-    const dir = join(out, 'openchronology-server');
+  for (const name of transitional ? TRANSITIONAL : []) {
+    const dir = join(out, name);
     await mkdir(dir, { recursive: true });
-    const pkgbuild = (
-      await readFile('deploy/arch/openchronology-server.PKGBUILD.in', 'utf8')
-    ).replace('@VERSION@', version);
+    const pkgbuild = (await readFile(`deploy/arch/${name}.PKGBUILD.in`, 'utf8')).replace(
+      '@VERSION@',
+      version,
+    );
     await writeFile(join(dir, 'PKGBUILD'), pkgbuild);
     written.push(dir);
   }
   if (desktop) {
-    const dir = join(out, 'openchronology-desktop-bin');
+    const dir = join(out, 'circagraph-desktop-bin');
     await mkdir(dir, { recursive: true });
-    const deb = `openchronology-desktop-${version}.deb`;
+    const deb = `circagraph-desktop-${version}.deb`;
     if (!desktop.url) await copyFile(desktop.file, join(dir, deb));
-    const pkgbuild = (await readFile('deploy/arch/openchronology-desktop-bin.PKGBUILD.in', 'utf8'))
+    const pkgbuild = (await readFile('deploy/arch/circagraph-desktop-bin.PKGBUILD.in', 'utf8'))
       .replace('@VERSION@', version)
       .replace(
-        '"openchronology-desktop-$pkgver.deb::@DESKTOP_URL@"',
+        '"circagraph-desktop-$pkgver.deb::@DESKTOP_URL@"',
         desktop.url
-          ? `"openchronology-desktop-$pkgver.deb::${desktop.url}"`
-          : '"openchronology-desktop-$pkgver.deb"',
+          ? `"circagraph-desktop-$pkgver.deb::${desktop.url}"`
+          : '"circagraph-desktop-$pkgver.deb"',
       )
       .replace('@DESKTOP_SHA256@', sha256(await readFile(desktop.file)));
     await writeFile(join(dir, 'PKGBUILD'), pkgbuild);

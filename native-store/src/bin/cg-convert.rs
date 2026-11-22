@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-//! Converts SQLite timeline files for the server (server/files.mjs): `och-convert read FILE`
-//! prints a file's document as JSON, and `och-convert write FILE` saves one from standard input.
+//! Converts SQLite timeline files for the server (server/files.mjs): `cg-convert read FILE`
+//! prints a file's document as JSON, and `cg-convert write FILE` saves one from standard input.
 //! Each conversion runs in its own process, under memory and CPU limits on Linux.
-use openchronology_store::{Document, Duration, Event, Relationship};
+use circagraph_store::{Document, Duration, Event, Relationship};
 use serde::Deserialize;
 use serde_json::{value::RawValue, Map, Value};
 use std::{
@@ -59,7 +59,7 @@ fn run() -> Result<(), String> {
     resource_limits()?;
     let args: Vec<String> = std::env::args().collect();
     if args.len() != 3 {
-        return Err("Usage: och-convert read|write FILE".into());
+        return Err("Usage: cg-convert read|write FILE".into());
     }
     // Makes every SQLite connection this process opens apply size limits and an instruction
     // budget (sqlite.rs Connection::open), since the file is untrusted.
@@ -68,7 +68,7 @@ fn run() -> Result<(), String> {
         // Opens and validates the whole document (events, durations, relationships) and
         // writes it to standard output as JSON in the editor's document shape.
         "read" => {
-            let document = openchronology_store::open(Path::new(&args[2]))?;
+            let document = circagraph_store::open(Path::new(&args[2]))?;
             serde_json::to_writer(io::stdout(), &document).map_err(|e| e.to_string())?;
         }
         // Reads at most file_bytes() plus one byte of JSON, so an oversized body is detected
@@ -111,7 +111,7 @@ fn run() -> Result<(), String> {
                     metadata,
                 })
             });
-            openchronology_store::save_streamed(Path::new(&args[2]), &settings, events)?;
+            circagraph_store::save_streamed(Path::new(&args[2]), &settings, events)?;
         }
         _ => return Err("Unknown conversion operation".into()),
     }

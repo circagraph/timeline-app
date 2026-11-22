@@ -22,4 +22,14 @@ export default {
     ],
   },
   experimental: { proxyClientMaxBodySize: '40mb' },
+  // The source archive's name until 0.31, which pages and links made before then still ask for.
+  async redirects() {
+    return [
+      {
+        source: '/openchronology-web-source.tar.gz',
+        destination: '/circagraph-web-source.tar.gz',
+        permanent: true,
+      },
+    ];
+  },
 };

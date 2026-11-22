@@ -481,7 +481,7 @@ export function createRequestHandler({
     chunks: store.revisionChunks(id, savedId, userId, { documentOnly: true }),
     matches: () => true,
   });
-  // A SQLite file is made whole in memory (och-convert); rate-limited per address, as
+  // A SQLite file is made whole in memory (cg-convert); rate-limited per address, as
   // without the cache.
   const sqliteFile = (req, id, userId, revision) => {
     let read;
@@ -2404,9 +2404,15 @@ export function createRequestHandler({
       }
       // The static app: only the files named here, so no path from the request reaches the
       // file system beyond this list.
-      const file = pathname === '/' ? 'index.html' : pathname.slice(1);
+      // The source archive is also asked for by its name until 0.31.
+      const file =
+        pathname === '/'
+          ? 'index.html'
+          : pathname === '/openchronology-web-source.tar.gz'
+            ? 'circagraph-web-source.tar.gz'
+            : pathname.slice(1);
       if (
-        !/^(index\.html|legal\.html|openchronology-web-source\.tar\.gz|app\.(js|css)(\.map)?|core\.mjs(\.map)?|(?:THIRD_PARTY|LICENSE|NOTICE)\.txt)$/.test(
+        !/^(index\.html|legal\.html|circagraph-web-source\.tar\.gz|app\.(js|css)(\.map)?|core\.mjs(\.map)?|(?:THIRD_PARTY|LICENSE|NOTICE)\.txt)$/.test(
           file,
         )
       )

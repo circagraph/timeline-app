@@ -151,7 +151,7 @@ OpenChronology". The message dnf shows names them.)
 Layout
 ------
 
-  /usr/lib/circagraph            the application, its Node.js runtime and och-convert
+  /usr/lib/circagraph            the application, its Node.js runtime and cg-convert
   /usr/sbin/circagraph-migrate   database migration
   /usr/sbin/circagraph-reset-admin-password   the administrator's password, from the configuration
   /usr/sbin/circagraph-setup     first-time setup (run by the package)

@@ -109,7 +109,7 @@ export function defaultQuota(env = process.env) {
 /**
  * The largest `.och` file exchanged with the server, in bytes, from TIMELINE_FILE_BYTES: a
  * storage size from 1 MiB to 1 GiB (such as `128MiB`). Unset or empty, 64 MiB (#202). It
- * bounds uploads, exports and och-convert's input and output, and sets its memory limit.
+ * bounds uploads, exports and cg-convert's input and output, and sets its memory limit.
  */
 export function timelineFileBytes(env = process.env) {
   const text = env.TIMELINE_FILE_BYTES?.trim();

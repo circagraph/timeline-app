@@ -11,7 +11,7 @@
   <arguments>"%BASE%\..\app\circagraph-server.mjs"</arguments>
   <workingdirectory>%BASE%\..\app</workingdirectory>
   <env name="OCH_CONFIG" value="%ProgramData%\Circagraph\circagraph.env"/>
-  <env name="OCH_CONVERTER" value="%BASE%\..\app\bin\och-convert.exe"/>
+  <env name="OCH_CONVERTER" value="%BASE%\..\app\bin\cg-convert.exe"/>
   <env name="NODE_ENV" value="production"/>
   <depend>CircagraphPostgreSQL</depend>
   <startmode>Automatic</startmode>

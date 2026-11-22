@@ -15,42 +15,42 @@ export const DESKTOP = [
     os: 'windows',
     name: 'Windows',
     detail: '64-bit installer (.exe)',
-    asset: 'openchronology-desktop-windows-amd64-setup.exe',
+    asset: 'circagraph-desktop-windows-amd64-setup.exe',
   },
   {
     key: 'macos-arm64',
     os: 'macos',
     name: 'macOS',
     detail: 'Apple silicon (.dmg)',
-    asset: 'openchronology-desktop-macos-arm64.dmg',
+    asset: 'circagraph-desktop-macos-arm64.dmg',
   },
   {
     key: 'macos-amd64',
     os: 'macos',
     name: 'macOS',
     detail: 'Intel (.dmg)',
-    asset: 'openchronology-desktop-macos-amd64.dmg',
+    asset: 'circagraph-desktop-macos-amd64.dmg',
   },
   {
     key: 'linux-deb',
     os: 'linux',
     name: 'Linux',
     detail: 'Debian and Ubuntu (.deb)',
-    asset: 'openchronology-desktop-linux-amd64.deb',
+    asset: 'circagraph-desktop-linux-amd64.deb',
   },
   {
     key: 'linux-appimage',
     os: 'linux',
     name: 'Linux',
     detail: 'Any distribution (.AppImage)',
-    asset: 'openchronology-desktop-linux-amd64.AppImage',
+    asset: 'circagraph-desktop-linux-amd64.AppImage',
   },
   {
     key: 'rocky-rpm',
     os: 'linux',
     name: 'Linux',
     detail: 'Rocky Linux and RHEL 10 (.rpm)',
-    asset: 'openchronology-desktop-rocky10-amd64.rpm',
+    asset: 'circagraph-desktop-rocky10-amd64.rpm',
   },
 ];
 /** The editor in one HTML file, for any browser and without a network. */
@@ -135,8 +135,8 @@ export const SERVERS = [
 ];
 export const OTHER_ASSETS = {
   checksums: 'SHA256SUMS.txt',
-  source: 'openchronology-web-source.tar.gz',
-  desktopSource: 'openchronology-desktop-source.tar.gz',
+  source: 'circagraph-web-source.tar.gz',
+  desktopSource: 'circagraph-desktop-source.tar.gz',
 };
 
 /** The visitor's operating system, from their browser's request headers. */
@@ -184,12 +184,15 @@ export function releaseFrom(json) {
 /**
  * A release's asset by name, or by its name before the rename for releases made before then:
  * v0.30.0 and earlier name the offline files openchronology-offline*.html, and v0.30.x the
- * server packages openchronology-server-*.
+ * server packages openchronology-server-*, and the desktop packages and source archives
+ * openchronology-desktop-* and openchronology-web-source.tar.gz.
  */
 function releaseAsset(release, asset) {
   return (
     release?.assets[asset] ??
-    release?.assets[asset.replace(/^circagraph-(offline|server-)/, 'openchronology-$1')]
+    release?.assets[
+      asset.replace(/^circagraph-(offline|server-|desktop-|web-source)/, 'openchronology-$1')
+    ]
   );
 }
 /** Where an asset downloads from: the release's own address, or the latest release's. */
@@ -244,7 +247,7 @@ export function detectLinux(userAgent = '') {
  * server built for the system. They update with the system through an AUR helper.
  */
 export const AUR = {
-  desktop: 'openchronology-desktop-bin',
+  desktop: 'circagraph-desktop-bin',
   server: 'circagraph-server',
   page: (name) => `https://aur.archlinux.org/packages/${name}`,
 };

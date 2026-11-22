@@ -5,7 +5,7 @@
 //! Node harness; BENCH_TIME is the measurement time per benchmark in milliseconds.
 //! Results land in target/criterion/<operation>/sqlite/<size>/new/estimates.json.
 use criterion::{BenchmarkId, Criterion};
-use openchronology_store::{Header, Patch, Query, Snapshot};
+use circagraph_store::{Header, Patch, Query, Snapshot};
 use serde_json::{json, Value};
 use std::{
     path::PathBuf,

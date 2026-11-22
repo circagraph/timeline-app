@@ -1012,8 +1012,7 @@ async function suite(label, platform, throttle, size, opened) {
 async function startDesktop() {
   const port = Number(env.UI_WEBDRIVER_PORT ?? 4444);
   const app = resolve(
-    env.UI_DESKTOP_APP ??
-      `${env.CARGO_TARGET_DIR ?? 'src-tauri/target'}/debug/openchronology-desktop`,
+    env.UI_DESKTOP_APP ?? `${env.CARGO_TARGET_DIR ?? 'src-tauri/target'}/debug/circagraph-desktop`,
   );
   const { url, logs, stop } = await startTauriDriver(port);
   return { url, app, logs, close: stop };

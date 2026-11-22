@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 # The flake (flake.nix) for Nix without flakes, such as nix-env and nix-build (#461;
 # docs/nix.md): this system's packages, with the NixOS module and overlay beside them.
-#   nix-env -f https://github.com/circagraph/timeline-app/archive/<tag>.tar.gz -iA openchronology-desktop
+#   nix-env -f https://github.com/circagraph/timeline-app/archive/<tag>.tar.gz -iA circagraph-desktop
 let
   flake =
     (import (fetchTarball {

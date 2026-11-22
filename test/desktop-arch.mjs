@@ -2,7 +2,7 @@
 // Builds the AUR desktop package (scripts/aur-packages.mjs) with makepkg in a fresh Arch Linux
 // container and installs it: the app, its launcher and icon, and every library it links found
 // among its dependencies (#331).
-// Usage: node test/desktop-arch.mjs <folder with the rendered openchronology-desktop-bin PKGBUILD>
+// Usage: node test/desktop-arch.mjs <folder with the rendered circagraph-desktop-bin PKGBUILD>
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -12,9 +12,7 @@ import { promisify } from 'node:util';
 const run = promisify(execFile);
 const folder = resolve(process.argv[2] ?? '');
 if (!existsSync(join(folder, 'PKGBUILD')))
-  throw new Error(
-    'Pass the folder scripts/aur-packages.mjs rendered openchronology-desktop-bin in.',
-  );
+  throw new Error('Pass the folder scripts/aur-packages.mjs rendered circagraph-desktop-bin in.');
 const name = 'och-desktop-arch-' + process.pid;
 const sh = async (script) => {
   try {
@@ -36,20 +34,20 @@ try {
   await run('docker', ['cp', folder, `${name}:/home/builder/desktop`]);
   await sh('chown -R builder:builder /home/builder/desktop');
   const build = (script) => sh(`cd /home/builder/desktop && runuser -u builder -- ${script}`);
-  assert.match(await build('makepkg --printsrcinfo'), /pkgbase = openchronology-desktop-bin/);
+  assert.match(await build('makepkg --printsrcinfo'), /pkgbase = circagraph-desktop-bin/);
   // Nothing is compiled: the dependencies are for running it, which pacman installs below.
   await build('makepkg --noconfirm --nodeps 2>&1');
-  const pkg = (await build('ls openchronology-desktop-bin-*.pkg.tar.zst')).trim();
+  const pkg = (await build('ls circagraph-desktop-bin-*.pkg.tar.zst')).trim();
   // pacman installs its dependencies from the repositories.
   await sh(`pacman -U --noconfirm /home/builder/desktop/${pkg} >/dev/null`);
-  assert.match(await sh('ls -l /usr/bin/openchronology-desktop'), /^-rwxr-xr-x/);
+  assert.match(await sh('ls -l /usr/bin/circagraph-desktop'), /^-rwxr-xr-x/);
   assert.match(
     await sh('cat /usr/share/applications/Circagraph.desktop'),
-    /^Exec=openchronology-desktop/m,
+    /^Exec=circagraph-desktop/m,
   );
-  await sh('test -f /usr/share/icons/hicolor/256x256/apps/openchronology-desktop.png');
-  await sh('test -f /usr/share/licenses/openchronology-desktop-bin/LICENSE');
-  const ldd = await sh('ldd /usr/bin/openchronology-desktop');
+  await sh('test -f /usr/share/icons/hicolor/256x256/apps/circagraph-desktop.png');
+  await sh('test -f /usr/share/licenses/circagraph-desktop-bin/LICENSE');
+  const ldd = await sh('ldd /usr/bin/circagraph-desktop');
   assert.doesNotMatch(ldd, /not found/, ldd);
   assert.match(ldd, /libwebkit2gtk-4\.1/);
   console.log(

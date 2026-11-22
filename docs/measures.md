@@ -162,6 +162,6 @@ The declarations are a timeline setting, like its title and time display. They'r
 
 - saves, forks, copies, merges, pull requests and saved history;
 - exports (`.ochx`) and imports;
-- desktop `.och` files, `och-convert`, the offline file and browser drafts.
+- desktop `.och` files, `cg-convert`, the offline file and browser drafts.
 
 The [API](api.md) returns them in a timeline's metadata and document.

@@ -44,9 +44,9 @@ function workloadFile(document) {
 }
 async function seedFiles(force) {
   await mkdir(DATA, { recursive: true });
-  const seeder = resolve('native-store/target/release/och-seed');
+  const seeder = resolve('native-store/target/release/cg-seed');
   if (!(await exists(seeder))) {
-    console.log('Building och-seed…');
+    console.log('Building cg-seed…');
     await exec(
       'cargo',
       [
@@ -56,7 +56,7 @@ async function seedFiles(force) {
         '--locked',
         '--release',
         '--bin',
-        'och-seed',
+        'cg-seed',
       ],
       {
         maxBuffer: 1 << 26,

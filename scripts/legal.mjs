@@ -30,7 +30,7 @@ export async function legalMarkup(source = false) {
     if (file === 'THIRD_PARTY.md') text += '\n\n' + (await dependencyLicenses()).join('\n\n');
     parts.push(`<details><summary>${title}</summary><pre>${escape(text)}</pre></details>`);
   }
-  return `<footer class="legal-notices"><details><summary>© 2026 Athan Clark · Circagraph · GPLv3 · No warranty · Terms &amp; privacy</summary>${source ? '<p><a href="openchronology-web-source.tar.gz" download>Download matching web source</a></p>' : ''}${parts.join('\n')}</details></footer>`;
+  return `<footer class="legal-notices"><details><summary>© 2026 Athan Clark · Circagraph · GPLv3 · No warranty · Terms &amp; privacy</summary>${source ? '<p><a href="circagraph-web-source.tar.gz" download>Download matching web source</a></p>' : ''}${parts.join('\n')}</details></footer>`;
 }
 export async function withLegal(html, source = true) {
   if (!html.includes('<!-- OPENCHRONOLOGY_LEGAL -->'))
@@ -38,7 +38,7 @@ export async function withLegal(html, source = true) {
   const info = await writeBuildInfo();
   const identity = `<span class="build-identity">Build: ${escape(info.label)}</span>`;
   const footer = source
-    ? '<footer class="legal-notices">© 2026 Athan Clark · GPLv3 · No warranty · <a href="legal.html" target="_top">Terms, privacy &amp; licenses</a> · <a href="openchronology-web-source.tar.gz" download>Source</a> · <!-- BUILD_IDENTITY --></footer>'
+    ? '<footer class="legal-notices">© 2026 Athan Clark · GPLv3 · No warranty · <a href="legal.html" target="_top">Terms, privacy &amp; licenses</a> · <a href="circagraph-web-source.tar.gz" download>Source</a> · <!-- BUILD_IDENTITY --></footer>'
     : await legalMarkup(false);
   return html.replace(
     '<!-- OPENCHRONOLOGY_LEGAL -->',

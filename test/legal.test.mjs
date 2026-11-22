@@ -24,19 +24,19 @@ test('legal notices survive all web builds and offline notices have no source do
     assert(html.includes('Copyright (c) 2026 Athan Clark'));
     assert(!html.includes('<!-- OPENCHRONOLOGY_LEGAL -->'));
   }
-  assert(web.includes('href="openchronology-web-source.tar.gz"'));
+  assert(web.includes('href="circagraph-web-source.tar.gz"'));
   assert(web.includes('href="legal.html"'));
   assert(!web.includes('<footer class="legal-notices"><details>'));
-  assert(!offline.includes('href="openchronology-web-source.tar.gz"'));
+  assert(!offline.includes('href="circagraph-web-source.tar.gz"'));
   const { stdout } = await promisify(execFile)('tar', [
     '-tzf',
-    'dist/openchronology-web-source.tar.gz',
+    'dist/circagraph-web-source.tar.gz',
   ]);
   const entries = stdout.trim().split('\n');
-  assert(entries.includes('openchronology/src/app.ts'));
-  assert(entries.includes('openchronology/third-party-source/rational-ordered-map/src/map.ts'));
-  assert(entries.includes('openchronology/third-party-source/fraction.js/src/fraction.js'));
-  assert(entries.includes('openchronology/legal/PRIVACY.md'));
+  assert(entries.includes('circagraph/src/app.ts'));
+  assert(entries.includes('circagraph/third-party-source/rational-ordered-map/src/map.ts'));
+  assert(entries.includes('circagraph/third-party-source/fraction.js/src/fraction.js'));
+  assert(entries.includes('circagraph/legal/PRIVACY.md'));
   assert(
     !entries.some((name) =>
       /(?:^|\/)(?:\.env(?!\.example$)|\.git\/|target\/|node_modules\/)|\.(?:och|ochx|sqlite)$/.test(
@@ -76,6 +76,8 @@ test('unauthenticated legal and source routes serve typed files but do not expos
     ['/legal.html', 'text/html'],
     ['/LICENSE.txt', 'text/plain'],
     ['/NOTICE.txt', 'text/plain'],
+    ['/circagraph-web-source.tar.gz', 'application/gzip'],
+    // Its name until 0.31.
     ['/openchronology-web-source.tar.gz', 'application/gzip'],
   ]) {
     const response = await get(url);

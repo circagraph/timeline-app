@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
-// The SQLite file converter (och-convert, set as OCH_CONVERTER) and the file import and export
+// The SQLite file converter (cg-convert, set as OCH_CONVERTER) and the file import and export
 // routes: exact round trips, bad uploads, CSRF, media types and size limits.
 import assert from 'node:assert/strict';
 import { TimelineFiles } from '../server/files.mjs';
@@ -18,7 +18,7 @@ import {
   UNBOUNDED_TIME_DIGITS,
 } from '../dist/core.mjs';
 const converter = new TimelineFiles();
-assert(converter.enabled, 'Build och-convert and set OCH_CONVERTER before running this test.');
+assert(converter.enabled, 'Build cg-convert and set OCH_CONVERTER before running this test.');
 const document = validateDocument({
   format: 'openchronology',
   version: 1,
@@ -188,7 +188,7 @@ if (generator) {
   );
 } else console.log('SKIP large generated timeline: bench/generate.mjs is not in this image.');
 assert.equal(converter.active, 0);
-const unavailable = new TimelineFiles('/nonexistent/och-convert');
+const unavailable = new TimelineFiles('/nonexistent/cg-convert');
 await assert.rejects(unavailable.convert('read', bytes), (error) => error.status === 503);
 console.log(
   'PASS SQLite server conversion: exact round-trips, presentation, coincident events, corrupt/oversized uploads, invalid rationals, cleanup.',

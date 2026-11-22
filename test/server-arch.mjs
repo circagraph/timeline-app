@@ -129,7 +129,9 @@ try {
   const session = JSON.parse(await sh('curl -s http://127.0.0.1:5173/api/session'));
   assert.equal(session.server, true, 'The server reaches its database.');
   assert.match(await sh('curl -s http://127.0.0.1:5173/'), /<html/i);
-  assert.doesNotMatch(await sh('ldd /usr/lib/circagraph/bin/och-convert'), /not found/);
+  assert.doesNotMatch(await sh('ldd /usr/lib/circagraph/bin/cg-convert'), /not found/);
+  // och-convert, its name before the rename.
+  assert.equal((await sh('readlink /usr/lib/circagraph/bin/och-convert')).trim(), 'cg-convert');
   assert.match(await sh('cg-import-logs --help'), /^Usage: cg-import-logs/);
   assert.match(await sh('cg-import-github --help'), /^Usage: cg-import-github/);
   // The commands' names before the rename.

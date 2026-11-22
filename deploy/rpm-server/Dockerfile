@@ -18,7 +18,7 @@ RUN sed -i '/^\[main\]/a retries=3\ntimeout=30' /etc/dnf/dnf.conf && grep -qx 'r
 # 1 kB/s for 30 s or takes over 3 minutes (#367).
 RUN printf 'retry = 3\nretry-all-errors\nconnect-timeout = 30\nspeed-limit = 1024\nspeed-time = 30\nmax-time = 180\n' > /root/.curlrc
 
-# The tools och-convert and pgmp are built with (scripts/build-images.mjs publishes this stage).
+# The tools cg-convert and pgmp are built with (scripts/build-images.mjs publishes this stage).
 FROM base AS native-tools
 # PostgreSQL's development files are in CodeReady Builder (CRB) on Rocky and RHEL. PGXS
 # builds with the distribution's compiler settings, from redhat-rpm-config.
@@ -33,13 +33,13 @@ RUN set -eu; \
 RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain 1.99.1
 ENV PATH=/root/.cargo/bin:$PATH
 
-# och-convert and pgmp, built on the target distribution against its own libraries and the
+# cg-convert and pgmp, built on the target distribution against its own libraries and the
 # PostgreSQL it ships.
 FROM ${NATIVE_TOOLS} AS native
 WORKDIR /build
 COPY native-store native-store
 COPY vendor/sqlite-rational vendor/sqlite-rational
-RUN cargo build --manifest-path native-store/Cargo.toml --release --locked --bin och-convert \
+RUN cargo build --manifest-path native-store/Cargo.toml --release --locked --bin cg-convert \
     && cargo vendor --locked --manifest-path native-store/Cargo.toml /build/rust-dependencies
 # The same pinned pgmp as deploy/Dockerfile.postgres.
 ARG PGMP_COMMIT=1849585416f2bc3d070bf8cef6a659907687ec7f
@@ -64,7 +64,7 @@ COPY package.json package-lock.json ./
 COPY vendor/rational-ordered-map-0.1.0.tgz vendor/
 RUN npm ci
 # As deploy/Dockerfile.app: the platform links its complete source, including the Rust
-# crates of the bundled och-convert.
+# crates of the bundled cg-convert.
 COPY scripts scripts
 COPY LICENSE NOTICE THIRD_PARTY.md ./
 COPY legal legal
@@ -85,7 +85,7 @@ RUN --mount=type=bind,target=/build-context \
       OCH_BUILD_VERSION="$OCH_BUILD_VERSION" \
     && npm run build \
     && node scripts/source.mjs --rust-vendor /app/rust-dependencies \
-    && cp dist/openchronology-web-source.tar.gz platform/public/
+    && cp dist/circagraph-web-source.tar.gz platform/public/
 
 # A Node.js tarball given to the build (#369): scripts/server-package.mjs replaces this empty
 # stage with the folder of OCH_NODE_TARBALL (--build-context node-tarball=<dir>), as CI does
@@ -130,7 +130,9 @@ COPY --from=app /app/package.json ${APP}/
 COPY --from=app /app/server ${APP}/server
 COPY --from=app /app/legal ${APP}/legal
 COPY deploy/debian-server/circagraph-server.mjs ${APP}/circagraph-server.mjs
-COPY --from=native /build/native-store/target/release/och-convert ${APP}/bin/och-convert
+COPY --from=native /build/native-store/target/release/cg-convert ${APP}/bin/cg-convert
+# och-convert is the converter's name before the rename, which a configuration may name.
+RUN ln -s cg-convert ${APP}/bin/och-convert
 COPY --from=native /stage/usr/ ${ROOT}/usr/
 COPY --from=native /stage/pg-major /root/pg-major
 COPY --from=native /build/pgmp/COPYING ${ROOT}/usr/share/doc/circagraph-server/pgmp/COPYING

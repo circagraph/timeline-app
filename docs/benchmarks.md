@@ -37,7 +37,7 @@ The [Benchmarks workflow](../.github/workflows/bench.yml) runs the suite on dema
 
 `bench/generate.mjs` generates deterministic timelines: the same size always produces the same document. Coordinates span 0 to 10⁹ with exact 1/8 fractions. Two thirds of moments fall in dense clusters, with coincident times, and the rest are spread uniformly. Each moment has a title and notes, and about half of the entities carry tags. There is one duration per ten moments (a third anchored to moments; most short, some long) and one relationship per ten moments.
 
-`bench/seed.mjs` writes each timeline as `timeline-<size>.ochx`, converts it to `timeline-<size>.och` with `och-seed` (the native store's own `save`), and, with `BENCH_DATABASE_URL`, creates it in PostgreSQL through the server's store. It also writes `workload-<size>.json`: the viewports, page window and target moment (the middle of the document's moments) the operations use, with summary thresholds computed for a 1,000-pixel-wide view. Seeds are reused unless `--force` is passed.
+`bench/seed.mjs` writes each timeline as `timeline-<size>.ochx`, converts it to `timeline-<size>.och` with `cg-seed` (the native store's own `save`), and, with `BENCH_DATABASE_URL`, creates it in PostgreSQL through the server's store. It also writes `workload-<size>.json`: the viewports, page window and target moment (the middle of the document's moments) the operations use, with summary thresholds computed for a 1,000-pixel-wide view. Seeds are reused unless `--force` is passed.
 
 ## Operations
 

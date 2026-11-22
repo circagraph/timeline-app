@@ -2,7 +2,7 @@
 // The NixOS test's client (test.nix; #461): through the server at the origin given, signs in as
 // the administrator the module's configuration bootstraps, agrees to the terms, saves a
 // timeline, reads it back, finds its moment in the site-wide search, and downloads it as an
-// .och file (made by the packaged och-convert). Exits non-zero, saying why, on any failure.
+// .och file (made by the packaged cg-convert). Exits non-zero, saying why, on any failure.
 // Usage: node test-client.mjs <origin> <username> <password>
 import assert from 'node:assert/strict';
 

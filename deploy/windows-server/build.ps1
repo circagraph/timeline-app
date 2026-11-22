@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 # Builds the Windows server installer (#116), circagraph-server-windows-amd64-setup.exe:
 # the platform (server-artifacts\circagraph-server-platform.tar.gz, deploy/platform), with
-# its own PostgreSQL 17 (EDB's Windows binaries), pgmp built for it with MSVC, och-convert,
+# its own PostgreSQL 17 (EDB's Windows binaries), pgmp built for it with MSVC, cg-convert,
 # Node.js 24 and WinSW for the server's Windows service, in an NSIS installer.
 # Needs MSVC, Rust, Python 3, NSIS, and GMP and SQLite from vcpkg (OCH_NATIVE_PREFIX, as
 # scripts/desktop/windows-dependencies.ps1 sets it).
@@ -93,12 +93,12 @@ New-Item -ItemType Directory -Force -Path "$stage\doc\pgmp" | Out-Null
 Copy-Item COPYING "$stage\doc\pgmp\"
 Pop-Location
 
-# och-convert, as the desktop's Windows build makes the native store.
+# cg-convert, as the desktop's Windows build makes the native store.
 $env:OCH_NATIVE_STATIC = '1'
-cargo build --manifest-path "$repo\native-store\Cargo.toml" --release --locked --bin och-convert
-if ($LASTEXITCODE -ne 0) { throw 'Building och-convert failed' }
+cargo build --manifest-path "$repo\native-store\Cargo.toml" --release --locked --bin cg-convert
+if ($LASTEXITCODE -ne 0) { throw 'Building cg-convert failed' }
 New-Item -ItemType Directory -Force -Path "$stage\app\bin" | Out-Null
-Copy-Item "$repo\native-store\target\release\och-convert.exe" "$stage\app\bin\"
+Copy-Item "$repo\native-store\target\release\cg-convert.exe" "$stage\app\bin\"
 
 # The Windows services (WinSW: one copy of the wrapper per service, named as its settings
 # file), the commands, templates and documentation.

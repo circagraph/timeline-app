@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 # The Circagraph server for Arch Linux (#331), published to the AUR by releases
-# (scripts/aur-packages.mjs renders this template). It builds och-convert and pgmp from the
+# (scripts/aur-packages.mjs renders this template). It builds cg-convert and pgmp from the
 # release's platform archive, and lays the server out as the Debian package does, running on
 # Arch's Node.js and PostgreSQL. It was openchronology-server until 0.30, and takes its place:
 # circagraph-setup moves that installation's configuration and keeps its users and database.
@@ -20,7 +20,7 @@ provides=("openchronology-server=$pkgver")
 conflicts=('openchronology-server<0.31')
 replaces=('openchronology-server<0.31')
 # The platform's Node.js modules are built already; stripping or debug packages would only
-# touch och-convert and pgmp, which are small.
+# touch cg-convert and pgmp, which are small.
 options=('!strip' '!debug' '!lto')
 install=circagraph-server.install
 # The exact-rational type for PostgreSQL, pinned as the other packages pin it.
@@ -41,7 +41,7 @@ build() {
   # The SQLite converter, from the crates vendored in the platform archive.
   cd "$srcdir/platform/native"
   cargo build --manifest-path native-store/Cargo.toml --release --locked --offline \
-    --bin och-convert
+    --bin cg-convert
   # pgmp, for this system's PostgreSQL.
   cd "$srcdir/pgmp-$_pgmp"
   python tools/unmix.py < sql/pgmp.pysql > sql/pgmp--1.1.sql
@@ -55,8 +55,10 @@ package() {
   # this system's Node.js where theirs bundle it.
   install -d "$app"
   cp -a "$srcdir/platform/lib/circagraph/." "$app/"
-  install -Dm755 "$srcdir/platform/native/native-store/target/release/och-convert" \
-    "$app/bin/och-convert"
+  install -Dm755 "$srcdir/platform/native/native-store/target/release/cg-convert" \
+    "$app/bin/cg-convert"
+  # och-convert is the converter's name before the rename, which a configuration may name.
+  ln -s cg-convert "$app/bin/och-convert"
   install -d "$app/node/bin"
   ln -s /usr/bin/node "$app/node/bin/node"
 
