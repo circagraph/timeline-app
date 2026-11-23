@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 // Build from an explicit allowlist: never archive working directories or secrets wholesale.
 //
-// Writes the GPL source snapshot, dist/openchronology-{web,desktop}-source.tar.gz: the
+// Writes the GPL source snapshot, dist/circagraph-{web,desktop}-source.tar.gz: the
 // first-party source, lockfiles and scripts, plus the preferred source of the bundled
 // third-party code (rational-ordered-map, fraction.js, pg and its dependencies), so the
 // platform can offer the corresponding source of what it serves (the site's footer links it).
@@ -12,7 +12,7 @@
 //                                                 <dir> (the Docker images do this)
 //
 // The tree is assembled in a temporary directory, which is always removed, and archived as
-// one `openchronology/` folder.
+// one `circagraph/` folder.
 import { cp, mkdir, mkdtemp, readdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve, basename } from 'node:path';
@@ -27,8 +27,8 @@ const desktop = process.argv.includes('--desktop');
 const vendorFlag = process.argv.indexOf('--rust-vendor');
 const nativeVendor = vendorFlag < 0 ? null : process.argv[vendorFlag + 1];
 if (vendorFlag >= 0 && !nativeVendor) throw new Error('--rust-vendor requires a directory');
-const temporary = await mkdtemp(join(tmpdir(), 'openchronology-source-'));
-const root = join(temporary, 'openchronology');
+const temporary = await mkdtemp(join(tmpdir(), 'circagraph-source-'));
+const root = join(temporary, 'circagraph');
 await mkdir(root);
 // The version and commit the archive was made from (scripts/build-info.mjs).
 await writeFile(
@@ -212,8 +212,8 @@ try {
   const description = `Circagraph source snapshot\nCopyright (c) 2026 Athan Clark. GPL-3.0-only.\n\nThis archive contains first-party source, lockfiles, build and installation scripts,\nvendored SQLite sources, and preferred sources of bundled browser dependencies.\n${desktop ? 'Rust crate sources are included with a cargo vendor configuration.\n' : nativeVendor ? 'Rust crate sources for the native converter are included; desktop packages require their own archive.\n' : 'This web source archive does not include Rust crate sources; use the desktop source archive for compiled native distributions.\n'}Install npm dependencies using npm ci (or the documented pnpm/Yarn alternatives).\nUse npm run build to build web assets. See README.md and docs/licensing.md.\nThird-party sources retain their own copyrights and licenses.\n`;
   await writeFile(join(root, 'SOURCE-README.txt'), description);
   await mkdir('dist', { recursive: true });
-  const output = resolve(`dist/openchronology-${desktop ? 'desktop' : 'web'}-source.tar.gz`);
-  await exec('tar', ['-czf', output, '-C', temporary, 'openchronology']);
+  const output = resolve(`dist/circagraph-${desktop ? 'desktop' : 'web'}-source.tar.gz`);
+  await exec('tar', ['-czf', output, '-C', temporary, 'circagraph']);
   console.log(`Source snapshot: ${output}`);
 } finally {
   await rm(temporary, { recursive: true, force: true });

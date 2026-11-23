@@ -86,7 +86,9 @@ try {
   );
   assert.match(await sh('curl -s http://127.0.0.1:5173/'), /<html/i);
   // The SQLite converter finds its libraries on this distribution.
-  assert.doesNotMatch(await sh('ldd /usr/lib/circagraph/bin/och-convert'), /not found/);
+  assert.doesNotMatch(await sh('ldd /usr/lib/circagraph/bin/cg-convert'), /not found/);
+  // och-convert, its name before the rename.
+  assert.equal((await sh('readlink /usr/lib/circagraph/bin/och-convert')).trim(), 'cg-convert');
   assert.match(await sh('cg-import-logs --help'), /^Usage: cg-import-logs/);
   assert.match(await sh('cg-import-github --help'), /^Usage: cg-import-github/);
   // The GitHub receiver is installed, with its configuration template, and loads with the

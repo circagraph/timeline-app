@@ -23,7 +23,7 @@
 }:
 
 rustPlatform.buildRustPackage {
-  pname = "openchronology-desktop";
+  pname = "circagraph-desktop";
   version = (lib.importJSON ../package.json).version;
   inherit src npmDeps;
 
@@ -62,7 +62,7 @@ rustPlatform.buildRustPackage {
     description = "OpenChronology, the exact timeline editor, as a desktop app";
     homepage = "https://github.com/circagraph/timeline-app";
     license = lib.licenses.gpl3Only;
-    mainProgram = "openchronology-desktop";
+    mainProgram = "circagraph-desktop";
     platforms = lib.platforms.linux;
   };
 }

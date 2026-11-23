@@ -76,7 +76,9 @@ assert.equal(session.server, true, 'The server reaches its database.');
 assert.equal((await fetch('http://127.0.0.1:5173/api/plugins')).status, 200);
 assert.match(await (await fetch('http://127.0.0.1:5173/')).text(), /<html/i);
 // The SQLite converter finds its libraries.
-assert.doesNotMatch(await sh('ldd /usr/local/lib/circagraph/bin/och-convert'), /not found/);
+assert.doesNotMatch(await sh('ldd /usr/local/lib/circagraph/bin/cg-convert'), /not found/);
+// och-convert, its name before the rename.
+assert.equal((await sh('readlink /usr/local/lib/circagraph/bin/och-convert')).trim(), 'cg-convert');
 assert.match(await sh('cg-import-logs --help'), /^Usage: cg-import-logs/);
 assert.match(await sh('cg-import-github --help'), /^Usage: cg-import-github/);
 // The commands' names until 0.30.

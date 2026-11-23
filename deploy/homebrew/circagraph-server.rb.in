@@ -40,12 +40,14 @@ class CircagraphServer < Formula
     # The SQLite converter, from the crates vendored in the platform archive.
     cd "native" do
       system "cargo", "build", "--manifest-path", "native-store/Cargo.toml", "--release",
-             "--locked", "--offline", "--bin", "och-convert"
+             "--locked", "--offline", "--bin", "cg-convert"
     end
     # The platform (Next.js and the editor), laid out as the other packages lay it out.
     libexec.mkpath
     cp_r "lib/circagraph/.", libexec
-    (libexec/"bin").install "native/native-store/target/release/och-convert"
+    (libexec/"bin").install "native/native-store/target/release/cg-convert"
+    # och-convert is the converter's name before the rename, which a configuration may name.
+    (libexec/"bin").install_symlink "cg-convert" => "och-convert"
     # The launcher by its name before the rename, which the openchronology-server service that
     # an earlier installation started runs until circagraph-migrate replaces it.
     libexec.install_symlink "circagraph-server.mjs" => "openchronology-server.mjs"
@@ -151,6 +153,7 @@ class CircagraphServer < Formula
     assert_match "Usage: cg-import-logs", shell_output("#{bin}/cg-import-logs --help")
     assert_match "Usage: cg-import-github", shell_output("#{bin}/cg-import-github --help")
     assert_match "Usage: cg-import-logs", shell_output("#{bin}/och-import-logs --help")
+    assert_path_exists libexec/"bin/cg-convert"
     assert_path_exists libexec/"bin/och-convert"
     # pgmp loads in a scratch PostgreSQL 17 cluster.
     ENV["LC_ALL"] = "C"

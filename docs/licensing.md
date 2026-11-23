@@ -31,7 +31,7 @@ source with desktop binaries and container images. GPLv3 does not impose AGPL's
 network-only source requirement on server code that is merely run privately, but
 distributed server/container software has its own distribution obligations.
 
-The normal web build creates and serves `/openchronology-web-source.tar.gz` and
+The normal web build creates and serves `/circagraph-web-source.tar.gz` and
 links it from the notices. The container build adds its native converter dependency
 sources to that same archive. Standalone HTML embeds notices without source/network
 links; publish its matching archive beside the download.
@@ -44,7 +44,7 @@ npm run build
 npm run build:source
 ```
 
-This produces `dist/openchronology-web-source.tar.gz`, including the first-party
+This produces `dist/circagraph-web-source.tar.gz`, including the first-party
 sources, pinned dependency archives, SQLite extension sources, lockfiles, legal
 notices, and preferred sources for the JavaScript bundled into the browser.
 pnpm and Yarn can run the same scripts. The allowlist excludes `.env`, credentials,

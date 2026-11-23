@@ -127,7 +127,7 @@ jobs:
           path: |
             dist/circagraph-offline.html
             dist/circagraph-offline-*.html
-            dist/openchronology-web-source.tar.gz
+            dist/circagraph-web-source.tar.gz
           if-no-files-found: error
   browser:
     name: Browser / ${{ matrix.browser }}
@@ -321,7 +321,7 @@ jobs:
       # Rust 1.99.1 is the image's.
       - name: Build the isolated SQLite file converter
         run: |
-          cargo build --manifest-path native-store/Cargo.toml --locked --release --bin och-convert
+          cargo build --manifest-path native-store/Cargo.toml --locked --release --bin cg-convert
       # The vendored extension's own tests, which carry local changes (vendor/README.md).
       - name: The SQLite rational extension's tests
         run: |

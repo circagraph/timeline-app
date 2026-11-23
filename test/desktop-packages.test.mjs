@@ -21,8 +21,8 @@ test('release assembly refuses missing targets and mixed desktop commits', async
     await writeFile(join(root, 'circagraph-offline.html'), 'Build: v1.2.3');
     await writeFile(join(root, 'openchronology-offline.html'), 'Build: v1.2.3');
     for (const name of [
-      'openchronology-web-source.tar.gz',
-      'openchronology-desktop-source.tar.gz',
+      'circagraph-web-source.tar.gz',
+      'circagraph-desktop-source.tar.gz',
       'LICENSE.txt',
       'NOTICE.txt',
     ])

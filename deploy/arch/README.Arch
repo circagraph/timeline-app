@@ -9,7 +9,7 @@ From the AUR, with an AUR helper or by hand:
     git clone https://aur.archlinux.org/circagraph-server.git
     cd circagraph-server && makepkg -si
 
-It builds och-convert and the pgmp extension for this system's PostgreSQL, and installs
+It builds cg-convert and the pgmp extension for this system's PostgreSQL, and installs
 the server, the `circagraph` system user (and `circagraph-logs`, the log importers') and its
 services. As Arch packages do, it leaves PostgreSQL and the database to you; finish with:
 
@@ -177,7 +177,7 @@ openchronology-server, as removal says):
 Layout
 ------
 
-  /usr/lib/circagraph                the application and och-convert (node/bin/node is
+  /usr/lib/circagraph                the application and cg-convert (node/bin/node is
                                      this system's /usr/bin/node)
   /usr/bin/circagraph-setup          first-time setup (run it once after installing)
   /usr/bin/circagraph-migrate        database migration

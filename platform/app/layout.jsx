@@ -158,7 +158,7 @@ export default async function RootLayout({ children }) {
             </>
           ) : null}
           <a href="/docs/api">HTTP API</a> · <a href="/llms.txt">llms.txt</a> ·{' '}
-          <a href="/openchronology-web-source.tar.gz" download>
+          <a href="/circagraph-web-source.tar.gz" download>
             Source
           </a>{' '}
           · <a href="https://github.com/circagraph/timeline-app">GitHub</a>

@@ -14,7 +14,7 @@ OpenChronology is one codebase for four editions: the website (a Next.js platfor
 | [`docs/`](docs/README.md)                    | The documentation: the user guide, FAQ and every topic in detail, also shown at `/help` on every server.                                |
 | [`legal/`](legal/README.md)                  | The hosted site's terms, privacy policy, copyright policy and launch checklist.                                                         |
 | [`logo/`](logo/README.md)                    | The logo, drawn as SVG, from which every icon is made.                                                                                  |
-| [`native-store/`](native-store/README.md)    | The native SQLite store (Rust) behind the desktop app and `och-convert`.                                                                |
+| [`native-store/`](native-store/README.md)    | The native SQLite store (Rust) behind the desktop app and `cg-convert`.                                                                 |
 | [`nix/`](nix/README.md)                      | The Nix packages and NixOS module the flake builds (docs/nix.md).                                                                       |
 | [`packages/`](packages/README.md)            | Packages published on their own: `@circagraph/timeline`, the editor as an element for any page or AI chat reply.                        |
 | [`platform/`](platform/README.md)            | The website: Next.js pages and API routes over the server.                                                                              |

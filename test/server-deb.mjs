@@ -88,7 +88,9 @@ try {
   );
   assert.match(await sh('curl -s http://127.0.0.1:5173/'), /<html/i);
   // The SQLite converter finds its libraries on this distribution.
-  assert.doesNotMatch(await sh('ldd /usr/lib/circagraph/bin/och-convert'), /not found/);
+  assert.doesNotMatch(await sh('ldd /usr/lib/circagraph/bin/cg-convert'), /not found/);
+  // och-convert, its name before the rename.
+  assert.equal((await sh('readlink /usr/lib/circagraph/bin/och-convert')).trim(), 'cg-convert');
   // The log importer runs as a command with the bundled Node.js.
   assert.match(await sh('cg-import-logs --help'), /^Usage: cg-import-logs/);
   // The GitHub importer too (docs/github.md).

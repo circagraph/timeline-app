@@ -159,7 +159,7 @@ circagraph_account setting.
 Layout
 ------
 
-  /usr/local/lib/circagraph               the application and och-convert
+  /usr/local/lib/circagraph               the application and cg-convert
   /usr/local/sbin/circagraph-migrate      database migration
   /usr/local/sbin/circagraph-setup        first-time setup, and the move from
                                           openchronology-server

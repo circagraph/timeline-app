@@ -126,7 +126,7 @@ impl Connection {
     /// - `cache_size=-2048` (2 MiB), `mmap_size=0`, `temp_store=FILE`: keep memory small and
     ///   predictable; sorts and temporary results spill to disk instead of RAM.
     ///
-    /// With `OCH_CONVERSION_LIMITS=1` in the environment (set by `och-convert`) it also caps
+    /// With `OCH_CONVERSION_LIMITS=1` in the environment (set by `cg-convert`) it also caps
     /// string/blob size (32 MiB), SQL length, column count and expression depth, and installs the
     /// instruction budget, so a hostile upload cannot make a conversion run unbounded.
     ///

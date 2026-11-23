@@ -8,17 +8,17 @@ The repository is a Nix flake ([#461](https://github.com/circagraph/timeline-app
 
 ## Packages
 
-| Package                  | What it is                                                                                                              |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| `circagraph-server`      | The server and the website, with its commands (the default package; `openchronology-server` until 0.30, still an alias) |
-| `openchronology-desktop` | The desktop app, for Linux                                                                                              |
-| `och-convert`            | The `.och` file converter, which the server uses for desktop files                                                      |
-| `pgmp`                   | The PostgreSQL extension that stores exact times, built for the PostgreSQL of the package set used                      |
+| Package              | What it is                                                                                                              |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `circagraph-server`  | The server and the website, with its commands (the default package; `openchronology-server` until 0.30, still an alias) |
+| `circagraph-desktop` | The desktop app, for Linux (`openchronology-desktop` until 0.30, still an alias)                                        |
+| `cg-convert`         | The `.och` file converter, which the server uses for desktop files (`och-convert` until 0.30, still an alias)           |
+| `pgmp`               | The PostgreSQL extension that stores exact times, built for the PostgreSQL of the package set used                      |
 
 They build for `x86_64-linux` and `aarch64-linux`. To try the desktop app, or the server's commands:
 
 ```sh
-nix run github:circagraph/timeline-app#openchronology-desktop
+nix run github:circagraph/timeline-app#circagraph-desktop
 nix profile install github:circagraph/timeline-app#circagraph-server
 ```
 
@@ -27,12 +27,12 @@ A release's packages are at its tag: `github:circagraph/timeline-app/<tag>`. Wit
 Without flakes, `default.nix` gives `nix-env` and `nix-build` the same packages, from a release's archive:
 
 ````sh
-nix-env -f https://github.com/circagraph/timeline-app/archive/<tag>.tar.gz -iA openchronology-desktop
+nix-env -f https://github.com/circagraph/timeline-app/archive/<tag>.tar.gz -iA circagraph-desktop
 ``` The server's commands are the Debian package's:
 
 - `circagraph-server`, `circagraph-migrate` and `circagraph-reset-admin-password`;
 - the workers: `circagraph-mail`, `circagraph-syslog`, `circagraph-github` and `circagraph-journald`;
-- `och-import-logs` and `och-import-github`.
+- `cg-import-logs` and `cg-import-github` (`och-import-logs` and `och-import-github` until 0.30, still aliases).
 
 They read their settings from the environment, or from a file named by `OCH_CONFIG`.
 

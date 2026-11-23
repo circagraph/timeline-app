@@ -74,13 +74,13 @@ test('both HTML builds include identity and download URLs match runner release a
     );
     assert(
       html.includes(
-        'https://github.com/circagraph/timeline-app/releases/latest/download/openchronology-desktop-linux-amd64.deb',
+        'https://github.com/circagraph/timeline-app/releases/latest/download/circagraph-desktop-linux-amd64.deb',
       ),
     );
   }
   const { stdout: archive } = await promisify(execFile)(
     'tar',
-    ['-xOzf', 'dist/openchronology-web-source.tar.gz', 'openchronology/build-info.json'],
+    ['-xOzf', 'dist/circagraph-web-source.tar.gz', 'circagraph/build-info.json'],
     { encoding: 'utf8' },
   );
   assert.deepEqual(JSON.parse(archive), info);

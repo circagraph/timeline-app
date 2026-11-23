@@ -1,14 +1,21 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 // Rendering the AUR packages (scripts/aur-packages.mjs, #331): circagraph-server names every
 // file its PKGBUILD installs, with a checksum each, and takes the place of openchronology-server
-// before 0.31, whose last, transitional version depends on it.
+// before 0.31, whose last, transitional version depends on it; circagraph-desktop-bin likewise
+// takes the place of openchronology-desktop-bin.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { RENAMED_IN, SERVER_FILES, olderThan, renderAur } from '../scripts/aur-packages.mjs';
+import {
+  RENAMED_IN,
+  SERVER_FILES,
+  TRANSITIONAL,
+  olderThan,
+  renderAur,
+} from '../scripts/aur-packages.mjs';
 
 const withOut = async (run) => {
   const out = await mkdtemp(join(tmpdir(), 'och-aur-'));
@@ -74,17 +81,47 @@ test('circagraph-server names, checks and installs the files beside its PKGBUILD
   });
 });
 
-test('the transitional openchronology-server depends on circagraph-server', async () => {
+test('circagraph-desktop-bin takes the place of openchronology-desktop-bin before 0.31', async () => {
+  await withOut(async (out) => {
+    const deb = join(out, 'desktop.deb');
+    await writeFile(deb, 'desktop fixture');
+    const dirs = await renderAur({ out, version: '0.31.0', desktop: { file: deb } });
+    assert.deepEqual(dirs, [join(out, 'circagraph-desktop-bin')]);
+    assert.deepEqual((await readdir(dirs[0])).sort(), [
+      'PKGBUILD',
+      'circagraph-desktop-0.31.0.deb',
+    ]);
+    const pkgbuild = await readFile(join(dirs[0], 'PKGBUILD'), 'utf8');
+    assert.match(pkgbuild, /^pkgname=circagraph-desktop-bin$/m);
+    assert.doesNotMatch(pkgbuild, /@[A-Z_0-9]+@/);
+    assert.match(pkgbuild, /^source=\("circagraph-desktop-\$pkgver\.deb"\)$/m);
+    assert.match(
+      pkgbuild,
+      new RegExp(`^replaces=\\('openchronology-desktop-bin<${RENAMED_IN}'\\)$`, 'm'),
+    );
+    assert.match(pkgbuild, /^provides=\(.*"openchronology-desktop-bin=\$pkgver"\)$/m);
+  });
+});
+
+test('the transitional packages depend on the packages renamed from them', async () => {
   await withOut(async (out) => {
     const dirs = await renderAur({ out, version: '0.31.0', transitional: true });
-    assert.deepEqual(dirs, [join(out, 'openchronology-server')]);
-    assert.deepEqual(await readdir(dirs[0]), ['PKGBUILD']);
-    const pkgbuild = await readFile(join(dirs[0], 'PKGBUILD'), 'utf8');
-    assert.match(pkgbuild, /^pkgname=openchronology-server$/m);
-    assert.match(pkgbuild, /^pkgver=0\.31\.0$/m);
-    assert.match(pkgbuild, /^depends=\('circagraph-server'\)$/m);
-    assert.doesNotMatch(pkgbuild, /^source=/m);
-    // A version circagraph-server conflicts with would not install beside it.
+    assert.deepEqual(
+      dirs,
+      TRANSITIONAL.map((name) => join(out, name)),
+    );
+    for (const [dir, renamed] of [
+      [dirs[0], 'circagraph-server'],
+      [dirs[1], 'circagraph-desktop-bin'],
+    ]) {
+      assert.deepEqual(await readdir(dir), ['PKGBUILD']);
+      const pkgbuild = await readFile(join(dir, 'PKGBUILD'), 'utf8');
+      assert.match(pkgbuild, new RegExp(`^pkgname=${dir.split('/').pop()}$`, 'm'));
+      assert.match(pkgbuild, /^pkgver=0\.31\.0$/m);
+      assert.match(pkgbuild, new RegExp(`^depends=\\('${renamed}'\\)$`, 'm'));
+      assert.doesNotMatch(pkgbuild, /^source=/m);
+    }
+    // A version the renamed packages conflict with would not install beside them.
     for (const version of ['0.30.2', '0.1.0.dev.202611191046.abcdef0'])
       await assert.rejects(renderAur({ out, version, transitional: true }), /would conflict/);
   });

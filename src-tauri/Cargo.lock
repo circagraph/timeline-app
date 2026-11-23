@@ -2325,7 +2325,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
-name = "openchronology-desktop"
+name = "circagraph-desktop"
 version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
@@ -2333,7 +2333,7 @@ dependencies = [
  "image",
  "md-5",
  "nom-exif",
- "openchronology-store",
+ "circagraph-store",
  "reqwest 0.12.28",
  "serde",
  "serde_json",
@@ -2345,7 +2345,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openchronology-store"
+name = "circagraph-store"
 version = "0.1.0"
 dependencies = [
  "serde",

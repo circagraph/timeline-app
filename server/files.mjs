@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 // SQLite .och file exchange: converts timelines to and from Circagraph's SQLite file
-// format by running the native och-convert binary (native-store/), at most two at a time.
+// format by running the native cg-convert binary (native-store/), at most two at a time.
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdtemp, writeFile, readFile, rm, stat } from 'node:fs/promises';
@@ -12,10 +12,10 @@ import { validateDocument } from '../dist/core.mjs';
 export class TimelineFiles {
   /**
    * `limit`: the largest .och file read or written, in bytes (TIMELINE_FILE_BYTES; #202),
-   * which och-convert also applies to its input and output.
+   * which cg-convert also applies to its input and output.
    */
   constructor(
-    binary = process.env.OCH_CONVERTER ?? resolve('native-store/target/release/och-convert'),
+    binary = process.env.OCH_CONVERTER ?? resolve('native-store/target/release/cg-convert'),
     limit = timelineFileBytes(),
   ) {
     this.binary = binary;

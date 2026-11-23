@@ -5,7 +5,7 @@
 // and the file sizes.
 // Usage: node bench/export-cache.mjs [moments] (default 100000)
 // Needs BENCH_DATABASE_URL: a PostgreSQL database it creates and removes its own data in.
-// OCH_CONVERTER (och-convert) adds the .och file.
+// OCH_CONVERTER (cg-convert) adds the .och file.
 import pg from 'pg';
 import { createServer } from 'node:http';
 import { mkdtemp, rm } from 'node:fs/promises';

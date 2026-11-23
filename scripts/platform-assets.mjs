@@ -27,7 +27,7 @@ export async function syncPlatformAssets() {
     'LICENSE.txt',
     'NOTICE.txt',
     'THIRD_PARTY.txt',
-    'openchronology-web-source.tar.gz',
+    'circagraph-web-source.tar.gz',
   ])
     await cp('dist/' + file, 'platform/public/' + file);
   for (const file of await readdir('platform/icons'))

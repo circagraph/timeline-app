@@ -142,7 +142,7 @@ and its database and role are openchronology):
 Layout
 ------
 
-  $(brew --prefix)/opt/circagraph-server/libexec   the application and och-convert
+  $(brew --prefix)/opt/circagraph-server/libexec   the application and cg-convert
   $(brew --prefix)/etc/circagraph                  configuration (created by setup)
   $(brew --prefix)/share/circagraph                configuration templates of this version
   ~/Library/LaunchAgents/org.circagraph.*.plist    the agents circagraph-agent started

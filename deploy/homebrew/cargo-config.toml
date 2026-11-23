@@ -1,4 +1,4 @@
-# och-convert builds from the crates vendored beside it (rust-dependencies), offline.
+# cg-convert builds from the crates vendored beside it (rust-dependencies), offline.
 [source.crates-io]
 replace-with = "vendored-sources"
 

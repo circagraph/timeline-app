@@ -2,11 +2,11 @@
 # The server's platform-independent part (#116), circagraph-server-platform.tar.gz: the
 # editor and the Next.js platform built on Linux, the converter's sources with their Rust
 # crates (to build offline), the documentation and the Homebrew commands. The FreeBSD package
-# (deploy/freebsd-server/build.sh) and the Homebrew formula (deploy/homebrew) build och-convert
+# (deploy/freebsd-server/build.sh) and the Homebrew formula (deploy/homebrew) build cg-convert
 # and pgmp for their systems from it. Use scripts/server-package.mjs platform.
 #   OCH_BUILD_COMMIT, OCH_BUILD_VERSION
 
-# The Rust crates of och-convert, vendored into the platform's source archive.
+# The Rust crates of cg-convert, vendored into the platform's source archive.
 FROM rust:1.99.1-bookworm@sha256:e6f2cff35d0f309acf8433b4f05878ed77092602c5065cc81801177da0bb3a9c AS native
 WORKDIR /build
 COPY native-store native-store
@@ -25,7 +25,7 @@ COPY package.json package-lock.json ./
 COPY vendor/rational-ordered-map-0.1.0.tgz vendor/
 RUN npm ci
 # As deploy/Dockerfile.app: the platform links its complete source, including the Rust
-# crates of the bundled och-convert.
+# crates of the bundled cg-convert.
 COPY scripts scripts
 COPY LICENSE NOTICE THIRD_PARTY.md ./
 COPY legal legal
@@ -46,7 +46,7 @@ RUN --mount=type=bind,target=/build-context \
       OCH_BUILD_VERSION="$OCH_BUILD_VERSION" \
     && npm run build \
     && node scripts/source.mjs --rust-vendor /app/rust-dependencies \
-    && cp dist/openchronology-web-source.tar.gz platform/public/
+    && cp dist/circagraph-web-source.tar.gz platform/public/
 
 # The application, laid out as the Linux packages do, without their Linux-only image library
 # (the platform does not optimize images) and without a Node.js runtime: FreeBSD's node24
@@ -63,7 +63,7 @@ COPY deploy/debian-server/circagraph-server.mjs /out/lib/circagraph/circagraph-s
 # The docs first, so the project's README, not docs/README.md, is the one installed.
 COPY docs /out/doc/
 COPY LICENSE NOTICE THIRD_PARTY.md README.md /out/doc/
-# och-convert's sources and crates, with cargo set to build from them offline.
+# cg-convert's sources and crates, with cargo set to build from them offline.
 COPY native-store /out/native/native-store
 COPY vendor/sqlite-rational /out/native/vendor/sqlite-rational
 COPY --from=native /build/rust-dependencies /out/native/rust-dependencies

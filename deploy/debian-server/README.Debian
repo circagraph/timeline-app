@@ -149,7 +149,7 @@ openchronology-logs; see "From OpenChronology".)
 Layout
 ------
 
-  /usr/lib/circagraph            the application, its Node.js runtime and och-convert
+  /usr/lib/circagraph            the application, its Node.js runtime and cg-convert
   /usr/sbin/circagraph-migrate   database migration
   /usr/sbin/circagraph-reset-admin-password   the administrator's password, from the configuration
   /etc/circagraph                configuration (created on first install)

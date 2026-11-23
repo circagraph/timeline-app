@@ -1,4 +1,4 @@
-# The platform's Docker image (compose.yml's app service): och-convert, the editor and the
+# The platform's Docker image (compose.yml's app service): cg-convert, the editor and the
 # Next.js platform built from this checkout with its web source archive, run as a standalone
 # Node.js server on port 5173.
 FROM rust:1.99.1-bookworm@sha256:e6f2cff35d0f309acf8433b4f05878ed77092602c5065cc81801177da0bb3a9c AS converter
@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends cmake libsqlite
 WORKDIR /app
 COPY native-store native-store
 COPY vendor/sqlite-rational vendor/sqlite-rational
-RUN cargo build --manifest-path native-store/Cargo.toml --release --locked --bin och-convert
+RUN cargo build --manifest-path native-store/Cargo.toml --release --locked --bin cg-convert
 RUN cargo vendor --locked --manifest-path native-store/Cargo.toml /app/rust-dependencies
 
 FROM node:24-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS build
@@ -36,15 +36,17 @@ COPY test test
 COPY .github .github
 COPY README.md compose.yml tsconfig.json pnpm-lock.yaml yarn.lock .yarnrc.yml .dockerignore .gitignore .env.example ./
 COPY --from=converter /app/rust-dependencies /app/rust-dependencies
-RUN --mount=type=bind,target=/build-context export OCH_BUILD_CONTEXT=/build-context OCH_BUILD_COMMIT="$OCH_BUILD_COMMIT" OCH_BUILD_VERSION="$OCH_BUILD_VERSION" && npm run build && node scripts/source.mjs --rust-vendor /app/rust-dependencies && cp dist/openchronology-web-source.tar.gz platform/public/
+RUN --mount=type=bind,target=/build-context export OCH_BUILD_CONTEXT=/build-context OCH_BUILD_COMMIT="$OCH_BUILD_COMMIT" OCH_BUILD_VERSION="$OCH_BUILD_VERSION" && npm run build && node scripts/source.mjs --rust-vendor /app/rust-dependencies && cp dist/circagraph-web-source.tar.gz platform/public/
 
 FROM node:24-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9
 # apt retries a failed download and gives up on a stalled mirror after 30 s (#367).
 RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' > /etc/apt/apt.conf.d/80-retries
 RUN apt-get update && apt-get install -y --no-install-recommends libsqlite3-0 libgmp10 && rm -rf /var/lib/apt/lists/*
-ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=5173 OCH_APP_ROOT=/app NEXT_TELEMETRY_DISABLED=1 OCH_CONVERTER=/usr/local/bin/och-convert
+ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=5173 OCH_APP_ROOT=/app NEXT_TELEMETRY_DISABLED=1 OCH_CONVERTER=/usr/local/bin/cg-convert
 WORKDIR /app
-COPY --from=converter /app/native-store/target/release/och-convert /usr/local/bin/och-convert
+COPY --from=converter /app/native-store/target/release/cg-convert /usr/local/bin/cg-convert
+# och-convert is the converter's name before the rename.
+RUN ln -s cg-convert /usr/local/bin/och-convert
 # The application belongs to root, so the node user it runs as cannot change it; only Next.js's
 # cache folder is node's.
 COPY --from=build /app/platform/.next/standalone ./

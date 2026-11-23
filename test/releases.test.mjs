@@ -7,6 +7,7 @@ import {
   DESKTOP,
   SERVERS,
   OFFLINE,
+  OTHER_ASSETS,
   assetLink,
   editionFile,
   assetSize,
@@ -112,18 +113,18 @@ test('links come from the latest release, or by name before there is one', () =>
     installCommand(release, server),
     /releases\/download\/v1\.2\.0\/circagraph-server/,
   );
-  // A release from before the rename names its server packages openchronology-server-*.
+  // A release from before the rename names its packages openchronology-server-* and
+  // openchronology-desktop-*, and its source archive openchronology-web-source.tar.gz.
   const older = releaseFrom({
     tag_name: 'v0.30.2',
-    assets: [
-      {
-        name: server.asset.replace(/^circagraph-/, 'openchronology-'),
-        browser_download_url: url + 'openchronology-server',
-        size: 1048576,
-      },
-    ],
+    assets: [server.asset, DESKTOP[0].asset, OTHER_ASSETS.source].map((asset) => ({
+      name: asset.replace(/^circagraph-/, 'openchronology-'),
+      browser_download_url: url + asset.replace(/^circagraph-/, 'openchronology-'),
+      size: 1048576,
+    })),
   });
-  assert.equal(assetLink(older, server.asset), url + 'openchronology-server');
+  for (const asset of [server.asset, DESKTOP[0].asset, OTHER_ASSETS.source])
+    assert.equal(assetLink(older, asset), url + asset.replace(/^circagraph-/, 'openchronology-'));
   assert.equal(assetSize(older, server.asset), '1.0 MB');
   assert.equal(releaseFrom({ message: 'Not Found' }), null);
   // Windows downloads and runs the installer, elevated.
@@ -181,10 +182,10 @@ test('the guides: one per system and Linux family, Arch included, each with a wa
   for (const [key, guide] of Object.entries(desktop))
     assert.equal(guide.files.filter((f) => f.primary).length, key === 'linux/arch' ? 0 : 1, key);
   // Arch: the AUR packages, by helper or by hand; the server then set up.
-  assert.equal(desktop['linux/arch'].steps[0].command, 'yay -S openchronology-desktop-bin');
+  assert.equal(desktop['linux/arch'].steps[0].command, 'yay -S circagraph-desktop-bin');
   assert.match(
     desktop['linux/arch'].steps[1].command,
-    /^git clone https:\/\/aur\.archlinux\.org\/openchronology-desktop-bin\.git && cd openchronology-desktop-bin && makepkg -si$/,
+    /^git clone https:\/\/aur\.archlinux\.org\/circagraph-desktop-bin\.git && cd circagraph-desktop-bin && makepkg -si$/,
   );
   assert.equal(server['linux/arch'].steps[0].command, 'yay -S circagraph-server');
   assert.equal(server['linux/arch'].steps[2].command, 'sudo circagraph-setup');

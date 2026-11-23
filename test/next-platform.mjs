@@ -17,8 +17,8 @@ const github = createServer((req, res) => {
       published_at: '2026-09-30T12:00:00Z',
       html_url: 'https://github.com/circagraph/timeline-app/releases/tag/v9.8.7',
       assets: [
-        'openchronology-desktop-windows-amd64-setup.exe',
-        'openchronology-desktop-macos-arm64.dmg',
+        'circagraph-desktop-windows-amd64-setup.exe',
+        'circagraph-desktop-macos-arm64.dmg',
         'circagraph-server-ubuntu24.04-amd64.deb',
       ].map((name) => ({ name, browser_download_url: assetBase + name, size: 12 * 1048576 })),
     }),
@@ -100,12 +100,12 @@ try {
   assert.match(
     windows,
     new RegExp(
-      `class="button primary download-primary" href="${assetBase}openchronology-desktop-windows-amd64-setup\\.exe"`,
+      `class="button primary download-primary" href="${assetBase}circagraph-desktop-windows-amd64-setup\\.exe"`,
     ),
   );
   assert.match(windows, /12\.0 MB/);
   // Files the release lacks link to the latest release by name.
-  assert.match(windows, /releases\/latest\/download\/openchronology-desktop-linux-amd64\.AppImage/);
+  assert.match(windows, /releases\/latest\/download\/circagraph-desktop-linux-amd64\.AppImage/);
   const ubuntu = await download('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:143.0) Firefox/143.0');
   assert.match(ubuntu, /Desktop app for Linux/);
   assert.match(ubuntu, /data-server="ubuntu24\.04"[^>]*>.{0,200}Your system/s);
@@ -129,7 +129,7 @@ try {
     'Mozilla/5.0 (X11; Arch Linux; Linux x86_64; rv:143.0) Firefox/143.0',
   );
   assert.match(arch, /data-system="linux" data-variant="arch"/);
-  assert.match(arch, /yay -S openchronology-desktop-bin/);
+  assert.match(arch, /yay -S circagraph-desktop-bin/);
   assert.match(arch, /yay -S circagraph-server/);
   assert.match(arch, /data-server="arch"/);
   assert.match(arch, /Server for Arch/);
@@ -394,7 +394,13 @@ try {
   assert.match(markup, /src="\/app.js"/);
   assert.match(editor.headers.get('content-security-policy'), /frame-ancestors 'self'/);
   assert.equal((await fetch(origin + '/app.js')).status, 200);
-  assert.equal((await fetch(origin + '/openchronology-web-source.tar.gz')).status, 200);
+  assert.equal((await fetch(origin + '/circagraph-web-source.tar.gz')).status, 200);
+  // Its name until 0.31 redirects there.
+  const formerSource = await fetch(origin + '/openchronology-web-source.tar.gz', {
+    redirect: 'manual',
+  });
+  assert.equal(formerSource.status, 308);
+  assert.match(formerSource.headers.get('location'), /\/circagraph-web-source\.tar\.gz$/);
   const session = await fetch(origin + '/api/session');
   assert.equal(session.status, 200);
   assert.equal((await session.json()).server, false);

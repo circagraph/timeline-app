@@ -17,7 +17,7 @@ RUN if [ -n "$UBUNTU_MIRROR" ] && [ -f /etc/apt/sources.list.d/ubuntu.sources ];
     fi
 ENV DEBIAN_FRONTEND=noninteractive
 # PostgreSQL 16 (Ubuntu 24.04's own) without the cluster its package would create, and the
-# tools that build pgmp, och-convert and the SQLite rational extension.
+# tools that build pgmp, cg-convert and the SQLite rational extension.
 RUN mkdir -p /etc/postgresql-common/createcluster.d \
     && echo 'create_main_cluster = false' > /etc/postgresql-common/createcluster.d/no-main.conf \
     && apt-get update && apt-get install -y --no-install-recommends \

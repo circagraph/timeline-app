@@ -2,7 +2,7 @@
 
 Copyright (c) 2026 Athan Clark. SPDX-License-Identifier: GPL-3.0-only
 
-The native store (Rust crate `openchronology-store`): timelines saved as SQLite files (`.och`) with exact rational times, through the vendored sqlite-rational extension ([`vendor/sqlite-rational`](../vendor/README.md)), which `build.rs` compiles with CMake and links with SQLite and GMP. The desktop app ([`src-tauri/`](../src-tauri/README.md)) opens, browses and saves files with it, and the server converts uploaded and downloaded files with its `och-convert` binary (`server/files.mjs`). Building it needs CMake and the SQLite and GMP development libraries; test it with `cargo test --manifest-path native-store/Cargo.toml --locked`. See the [architecture](../docs/architecture.md) for the file format and the [benchmarks](../docs/benchmarks.md) for its latency.
+The native store (Rust crate `circagraph-store`): timelines saved as SQLite files (`.och`) with exact rational times, through the vendored sqlite-rational extension ([`vendor/sqlite-rational`](../vendor/README.md)), which `build.rs` compiles with CMake and links with SQLite and GMP. The desktop app ([`src-tauri/`](../src-tauri/README.md)) opens, browses and saves files with it, and the server converts uploaded and downloaded files with its `cg-convert` binary (`server/files.mjs`). Building it needs CMake and the SQLite and GMP development libraries; test it with `cargo test --manifest-path native-store/Cargo.toml --locked`. See the [architecture](../docs/architecture.md) for the file format and the [benchmarks](../docs/benchmarks.md) for its latency.
 
 ## Contents
 

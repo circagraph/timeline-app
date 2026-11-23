@@ -28,7 +28,7 @@ mod populate;
 mod server;
 mod system_thumbnails;
 mod thumbnails;
-use openchronology_store::{Document, Header, Patch, Query, Snapshot};
+use circagraph_store::{Document, Header, Patch, Query, Snapshot};
 use std::{
     path::PathBuf,
     sync::{atomic::AtomicBool, Arc, Mutex},
@@ -43,8 +43,7 @@ fn desktop_open_image(url: String) -> Result<(), String> {
     server::open_image(&url)
 }
 /// Where the latest release is read (#601): GitHub's API for the project's releases.
-const LATEST_RELEASE: &str =
-    "https://api.github.com/repos/circagraph/timeline-app/releases/latest";
+const LATEST_RELEASE: &str = "https://api.github.com/repos/circagraph/timeline-app/releases/latest";
 /// The running release and, when `ask`, the latest published one (#601), for the editor's
 /// update banner: `{"current": tag, "latest": tag, "notes": url}`. A build that is not a
 /// release (no OCH_BUILD_VERSION when it was compiled) has `current` null and asks nothing.
@@ -964,7 +963,7 @@ async fn desktop_save(
                 .ok_or("No timeline file is open")?
                 .save_patch(&path, &patch)?,
             (Some(document), None) => {
-                openchronology_store::save(&path, &document)?;
+                circagraph_store::save(&path, &document)?;
                 Snapshot::open(&path)?
             }
             _ => return Err("Supply either a document or sparse changes".into()),

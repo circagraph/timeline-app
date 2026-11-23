@@ -101,7 +101,7 @@ npm run test:offline:browser
 cargo test --manifest-path native-store/Cargo.toml --locked
 # Dedicated PostgreSQL test database with real pgmp installed:
 DATABASE_URL='postgresql://...' node test/sql-oracle.mjs
-cargo build --manifest-path native-store/Cargo.toml --release --locked --bin och-convert
+cargo build --manifest-path native-store/Cargo.toml --release --locked --bin cg-convert
 node test/files.mjs
 cargo test --manifest-path src-tauri/Cargo.toml --locked
 DATABASE_URL='postgresql://...' npm run test:postgres

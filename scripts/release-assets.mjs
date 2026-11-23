@@ -14,8 +14,8 @@ const info = JSON.parse(await readFile(`${dir}/build-info.json`, 'utf8'));
 if (info.version !== tag || info.dirty || !info.commit)
   throw new Error('Release build identity must match the tag and commit');
 const required = [
-  'openchronology-web-source.tar.gz',
-  'openchronology-desktop-source.tar.gz',
+  'circagraph-web-source.tar.gz',
+  'circagraph-desktop-source.tar.gz',
   'LICENSE.txt',
   'NOTICE.txt',
 ];

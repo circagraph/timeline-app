@@ -69,7 +69,7 @@ jobs:
       - name: Stage web release files
         run: |
           mkdir release-assets
-          cp dist/circagraph-offline.html dist/circagraph-offline-*.html dist/openchronology-web-source.tar.gz dist/openchronology-desktop-source.tar.gz dist/build-info.json release-assets/
+          cp dist/circagraph-offline.html dist/circagraph-offline-*.html dist/circagraph-web-source.tar.gz dist/circagraph-desktop-source.tar.gz dist/build-info.json release-assets/
           # The offline files' names before the rename, for links to the latest release's
           # openchronology-offline.html, such as those in offline files already downloaded.
           for file in dist/circagraph-offline*.html; do
@@ -210,12 +210,12 @@ jobs:
     secrets:
       PAGES_DEPLOY_KEY: ${{ secrets.PAGES_DEPLOY_KEY }}
   # Stable releases publish the AUR packages (#331), circagraph-server and
-  # openchronology-desktop-bin, for the platform archive and desktop .deb this release attached,
+  # circagraph-desktop-bin, for the platform archive and desktop .deb this release attached,
   # once AUR_SSH_KEY holds the private key of an AUR account that may push them (the first
-  # push creates each package). Without it the job says so and publishes nothing. The server's
-  # name until 0.30, openchronology-server, gets a transitional package that depends on
-  # circagraph-server (--transitional); drop that flag once the AUR merges it into
-  # circagraph-server, or the next push would create it again.
+  # push creates each package). Without it the job says so and publishes nothing. Their names
+  # until 0.30, openchronology-server and openchronology-desktop-bin, get transitional packages
+  # that depend on the new ones (--transitional); drop that flag once the AUR merges them into
+  # the new packages, or the next push would create them again.
   aur:
     name: Publish the AUR packages
     needs: publish
@@ -239,13 +239,13 @@ jobs:
         run: |
           gh release download "$RELEASE_TAG" --dir release \
             --pattern circagraph-server-platform.tar.gz \
-            --pattern openchronology-desktop-linux-amd64.deb
+            --pattern circagraph-desktop-linux-amd64.deb
           base="https://github.com/${GH_REPO}/releases/download/${RELEASE_TAG}"
           node scripts/aur-packages.mjs --out aur \
             --platform release/circagraph-server-platform.tar.gz \
             --platform-url "$base/circagraph-server-platform.tar.gz" \
-            --desktop release/openchronology-desktop-linux-amd64.deb \
-            --desktop-url "$base/openchronology-desktop-linux-amd64.deb" \
+            --desktop release/circagraph-desktop-linux-amd64.deb \
+            --desktop-url "$base/circagraph-desktop-linux-amd64.deb" \
             --transitional
       # The AUR reads each package's .SRCINFO, which makepkg writes from its PKGBUILD.
       - name: Write each .SRCINFO with makepkg

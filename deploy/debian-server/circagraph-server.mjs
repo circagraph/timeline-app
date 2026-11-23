@@ -17,7 +17,7 @@ process.env.OCH_APP_ROOT = app;
 process.env.OCH_CONVERTER ||= join(
   app,
   'bin',
-  process.platform === 'win32' ? 'och-convert.exe' : 'och-convert',
+  process.platform === 'win32' ? 'cg-convert.exe' : 'cg-convert',
 );
 // A file URL: on Windows (deploy/windows-server), an absolute path is not a module address.
 await import(pathToFileURL(join(app, 'platform', 'server.cjs')).href);
