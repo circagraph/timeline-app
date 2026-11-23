@@ -7,14 +7,14 @@
 #   OCH_BUILD_COMMIT, OCH_BUILD_VERSION
 
 # The Rust crates of cg-convert, vendored into the platform's source archive.
-FROM rust:1.99.1-bookworm@sha256:e6f2cff35d0f309acf8433b4f05878ed77092602c5065cc81801177da0bb3a9c AS native
+FROM rust:1.100.0-bookworm@sha256:ade39a710ef85f3506cffcfec3e8a24ba090badef1dff2fb798f71d878833fea AS native
 WORKDIR /build
 COPY native-store native-store
 COPY vendor/sqlite-rational vendor/sqlite-rational
 RUN cargo vendor --locked --manifest-path native-store/Cargo.toml /build/rust-dependencies
 
 # The editor and the Next.js platform: plain JavaScript, the same for every distribution.
-FROM node:24-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS app
+FROM node:24-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54 AS app
 # apt retries a failed download and gives up on a stalled mirror after 30 s (#367).
 RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' > /etc/apt/apt.conf.d/80-retries
 RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
