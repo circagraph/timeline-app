@@ -7,14 +7,14 @@
 #   OCH_BUILD_COMMIT, OCH_BUILD_VERSION
 
 # The Rust crates of cg-convert, vendored into the platform's source archive.
-FROM rust:1.99.1-bookworm@sha256:e6f2cff35d0f309acf8433b4f05878ed77092602c5065cc81801177da0bb3a9c AS native
+FROM rust:1.100.0-bookworm@sha256:75d26c23c24cc6ea1cdabf0714a6bff8fd7bf3248716043fd7ae86dac7f41b94 AS native
 WORKDIR /build
 COPY native-store native-store
 COPY vendor/sqlite-rational vendor/sqlite-rational
 RUN cargo vendor --locked --manifest-path native-store/Cargo.toml /build/rust-dependencies
 
 # The editor and the Next.js platform: plain JavaScript, the same for every distribution.
-FROM node:24-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS app
+FROM node:24-bookworm-slim@sha256:873f586f3794f52281bd039bf02c048a0be08fde619338f9941bad1eb6b34530 AS app
 # apt retries a failed download and gives up on a stalled mirror after 30 s (#367).
 RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' > /etc/apt/apt.conf.d/80-retries
 RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
@@ -51,7 +51,7 @@ RUN --mount=type=bind,target=/build-context \
 # The application, laid out as the Linux packages do, without their Linux-only image library
 # (the platform does not optimize images) and without a Node.js runtime: FreeBSD's node24
 # package and Homebrew's node@24 provide it.
-FROM debian:bookworm-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc AS tree
+FROM debian:bookworm-slim@sha256:e67eeead736ff7bbe258ef088bff683635c561b1fcfefad0806c1df4ab49ce0e AS tree
 COPY --from=app /app/platform/.next/standalone /out/lib/circagraph/
 COPY --from=app /app/platform/.next/static /out/lib/circagraph/platform/.next/static
 COPY --from=app /app/platform/public /out/lib/circagraph/platform/public

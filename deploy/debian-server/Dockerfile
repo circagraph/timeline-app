@@ -54,7 +54,7 @@ RUN curl -fsSL --retry 3 "https://codeload.github.com/dvarrazzo/pgmp/tar.gz/$PGM
     && make PG_CONFIG=/usr/lib/postgresql/${PG_MAJOR}/bin/pg_config with_llvm=no DESTDIR=/stage install
 
 # The editor and the Next.js platform: plain JavaScript, the same for every distribution.
-FROM node:24-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS app
+FROM node:24-bookworm-slim@sha256:873f586f3794f52281bd039bf02c048a0be08fde619338f9941bad1eb6b34530 AS app
 # apt retries a failed download and gives up on a stalled mirror after 30 s (#367).
 RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' > /etc/apt/apt.conf.d/80-retries
 RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
